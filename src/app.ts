@@ -1,26 +1,13 @@
-import express from "express";
-import cors from "cors";
-import helmet from "helmet";
-import morgan from "morgan";
-import dotenv from "dotenv";
-import { connectDB } from "./config/db";
-import redis from "./config/redis";
-import serviceRoutes from "./routes/service.routes";
+import i18n from "i18next";
+import Backend from "i18next-fs-backend";
+import { join } from "path";
 
-dotenv.config();
+i18n.use(Backend).init({
+  lng: "en",
+  fallbackLng: "en",
+  backend: {
+    loadPath: join(__dirname, "locales/{{lng}}.json"),
+  },
+});
 
-const app = express();
-
-// 🔹 إعدادات الأمان والـ CORS
-app.use(helmet());
-app.use(cors());
-app.use(morgan("dev"));
-app.use(express.json());
-
-// 🔹 تحميل المسارات
-app.use("/api/services", serviceRoutes);
-
-// 🔹 تشغيل MongoDB
-connectDB();
-
-export default app;
+export default i18n;

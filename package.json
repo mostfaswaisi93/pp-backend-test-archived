@@ -5,23 +5,45 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node src/server.ts"
+    "watch": "nodemon --watch src/**/*.ts --exec ts-node src/server.ts",
+    "start": "ts-node src/server.ts",
+    "start:prod": "node ./dist/server.js"
+  },
+  "_moduleAliases": {
+    "@typings": "dist/typings",
+    "@middlewares": "dist/middlewares",
+    "@controllers": "dist/controllers",
+    "@validation": "dist/validation",
+    "@entities": "dist/entities",
+    "@utils": "dist/utils",
+    "@logic": "dist/logic"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "amqplib": "^0.10.5",
+    "bcryptjs": "^3.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "express-validator": "^7.2.1",
     "helmet": "^8.0.0",
+    "i18n": "^0.15.1",
+    "i18next": "^24.2.2",
+    "i18next-fs-backend": "^2.6.0",
+    "i18next-http-middleware": "^3.7.1",
     "ioredis": "^5.5.0",
-    "mongoose": "^8.10.0",
-    "morgan": "^1.10.0"
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.10.1",
+    "morgan": "^1.10.0",
+    "redis": "^4.7.0"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "@types/jwt-simple": "^0.5.36",
     "@types/mongoose": "^5.11.97",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.13.4",
