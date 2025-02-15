@@ -252,7 +252,7 @@ export const exceptionMap = {
       message: "createUpdateTask.sameCurrentStatusValue",
       customCode: "SCSV",
       status: 422,
-    }
+    },
   },
   taskDateCalc: {
     "123": {
@@ -585,5 +585,5 @@ export const exceptionMap = {
       customCode: "FAE",
       status: 422,
     },
-  }
+  },
 };

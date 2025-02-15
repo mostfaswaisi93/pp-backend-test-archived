@@ -4,10 +4,21 @@
     "module": "commonjs",
     "outDir": "./dist",
     "rootDir": "./src",
+    "baseUrl": "./src",
+    "paths": {
+      "*": ["node_modules/*", "src/*"]
+    },
+    "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts", // تأكد من أن كل ملفات الـ TypeScript يتم تضمينها
+    "src/types/**/*.d.ts" // تضمين مجلد الأنواع المخصص
+  ],
+  // "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
 }

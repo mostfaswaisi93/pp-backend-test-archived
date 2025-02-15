@@ -1,7 +1,9 @@
-import redis from "redis";
+import Redis from "ioredis";
 
-export const redisClient = redis.createClient({
-  url: process.env.REDIS_URL,
+// إنشاء اتصال بـ Redis
+const redis = new Redis({
+  host: process.env.REDIS_HOST || "localhost", // يمكنك تعديل الإعدادات بناءً على البيئة الخاصة بك
+  port: parseInt(process.env.REDIS_PORT || "6379"), // افتراضياً 6379
 });
 
-redisClient.connect();
+export default redis;

@@ -1,5 +1,3 @@
-import { EmployeeDevices } from "@entities/EmployeeDevices";
-
 export interface PushNotification {
   notification: {
     title: string;
@@ -27,10 +25,9 @@ export interface BindingParametersData {
 }
 
 export interface NOTIFICATION_TARGET_FILTER {
-  id: number,
-  isEmailActive: boolean,
-  email: string | null,
+  id: number;
+  isEmailActive: boolean;
+  email: string | null;
   firstName: string;
   lastName: string;
-  deviceToken: Array<EmployeeDevices>
 }

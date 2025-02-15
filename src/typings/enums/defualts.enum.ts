@@ -13,7 +13,7 @@ export enum RECOVER_TOKEN_TYPE {
   setPassword = 2,
   forgetPassword = 1,
 }
-export enum RolesEnum { }
+export enum RolesEnum {}
 export enum LANG_LIST {
   "Ar" = "ar",
   "En" = "en",
@@ -277,7 +277,7 @@ export enum ARITHMETIC_OPERATORS {
   LESS_THEN_OR_EQUAL,
   NOT_EQUAL,
   IN,
-  NOT_IN
+  NOT_IN,
 }
 export enum RECURRING_POSITION {
   first = 1,
@@ -287,7 +287,6 @@ export enum RECURRING_POSITION {
   last,
 }
 export const COLOR_PALETTE = [
-
   "rgb(100, 124, 138)",
 
   "rgb(63, 81, 181)",
@@ -297,8 +296,6 @@ export const COLOR_PALETTE = [
   "rgb(175, 223, 10)",
 
   "rgb(167, 182, 26)",
-
-
 
   "rgb(243, 229, 98)",
 
@@ -310,8 +307,6 @@ export const COLOR_PALETTE = [
 
   "rgb(63, 81, 181)",
 
-
-
   "rgb(33, 150, 243)",
 
   "rgb(0, 184, 98)",
@@ -320,12 +315,9 @@ export const COLOR_PALETTE = [
 
   "rgb(243, 229, 98)",
 
-
-
   "rgb(255, 87, 34)",
 
   "rgb(255, 69, 20)",
-
 ];
 export enum FILE_TYPES {
   PDF = 1,
@@ -338,7 +330,7 @@ export enum EXCEL_VALIDATION {
 }
 export enum CURRENT_DATE_OPERATION {
   PLUS = 1,
-  MINUS
+  MINUS,
 }
 
 export const enum ESCALATION_STATUS {
@@ -346,7 +338,6 @@ export const enum ESCALATION_STATUS {
   InProgress,
   Resolved,
   Closed,
-
 }
 
 export const enum ReadStatus {
@@ -355,8 +346,7 @@ export const enum ReadStatus {
   all,
 }
 
-
 export enum DeviceType {
   phone = 1,
-  desktop = 2
+  desktop = 2,
 }

@@ -1,10 +1,18 @@
-import { Schema, model } from "mongoose";
-import { IUser } from "./user.interface";
+import mongoose, { Schema, Document } from "mongoose";
 
-const userSchema = new Schema<IUser>({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-});
+// تعريف واجهة المستخدم
+export interface IUser extends Document {
+  email: string;
+  password: string;
+}
 
-export const User = model<IUser>("User", userSchema);
+const userSchema: Schema<IUser> = new Schema(
+  {
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+  },
+  { timestamps: true } // إضافة الطابع الزمني
+);
+
+// إنشاء نموذج المستخدم
+export const User = mongoose.model<IUser>("User", userSchema);
