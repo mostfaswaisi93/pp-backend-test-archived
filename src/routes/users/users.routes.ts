@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { UserController } from "../../controllers/users/user.controller";
 import { body } from "express-validator";
-import { validateRequest } from "../../middleware/validation.middleware";
+import { validateRequest } from "../../middlewares/validation.middleware";
 
 const router = Router();
 const userController = new UserController();

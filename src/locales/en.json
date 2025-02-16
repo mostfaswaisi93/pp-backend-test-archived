@@ -1,7 +1,0 @@
-{
-  "welcome": "Welcome to the API",
-  "error": {
-    "userNotFound": "User not found",
-    "invalidCredentials": "Invalid credentials"
-  }
-}

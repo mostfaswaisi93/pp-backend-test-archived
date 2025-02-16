@@ -3,7 +3,7 @@ import path from "path";
 import dotenv from "dotenv";
 
 // Load environment variables
-dotenv.config({ path: path.resolve(".env-production") });
+dotenv.config({ path: path.resolve(".env") });
 
 const MONGODB_URL = process.env.MONGO_URI as string;
 

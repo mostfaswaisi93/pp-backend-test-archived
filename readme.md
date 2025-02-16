@@ -1,4 +1,4 @@
-# PeakProz Backend - Node.js Express & MongoDB
+# PeakProz Backend - Node.js | Express & MongoDB
 
 ## Project setup
 
