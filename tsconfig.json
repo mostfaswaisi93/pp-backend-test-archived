@@ -15,10 +15,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "src/**/*.ts", // تأكد من أن كل ملفات الـ TypeScript يتم تضمينها
-    "src/types/**/*.d.ts" // تضمين مجلد الأنواع المخصص
-  ],
+  "include": ["src/**/*.ts", "src/types/**/*.d.ts"],
   // "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
 }

@@ -6,24 +6,26 @@ import { validateRequest } from "../../middleware/validation.middleware";
 const router = Router();
 const authController = new AuthController();
 
-// Route for login
 router.post(
   "/login",
-  body("email").isEmail().withMessage("Invalid email format"),
-  body("password").notEmpty().withMessage("Password is required"),
-  //   validateRequest, // Validate the request data
-  authController.login // Handle login logic in controller
+  [
+    body("email").isEmail().withMessage("Invalid email format"),
+    body("password").notEmpty().withMessage("Password is required"),
+    validateRequest, //
+  ],
+  authController.login
 );
 
-// Route for register
 router.post(
   "/register",
-  body("email").isEmail().withMessage("Invalid email format"),
-  body("password")
-    .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters"),
-  //   validateRequest, // Validate the request data
-  authController.register // Handle registration logic in controller
+  [
+    body("email").isEmail().withMessage("Invalid email format"),
+    body("password")
+      .isLength({ min: 6 })
+      .withMessage("Password must be at least 6 characters"),
+    validateRequest,
+  ],
+  authController.register
 );
 
 export const authRoutes = router;

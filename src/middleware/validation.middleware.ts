@@ -7,8 +7,20 @@ export const validateRequest = (
   next: NextFunction
 ): void => {
   const errors = validationResult(req);
+
   if (!errors.isEmpty()) {
-    res.status(400).json({ errors: errors.array() });
+    const errorMessage = errors
+      .array()
+      .map((err) => err.msg)
+      .join(", ");
+
+    res.status(422).json({
+      success: false,
+      message: "Validation error",
+      errors: errorMessage,
+    });
+    return;
   }
+
   next();
 };

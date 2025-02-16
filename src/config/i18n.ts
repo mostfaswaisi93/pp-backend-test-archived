@@ -1,32 +1,20 @@
 import i18next from "i18next";
-const i18nextMiddleware = require("i18next-express-middleware");
-import Backend from "i18next-http-backend";
-import path from "path";
+import Backend from "i18next-fs-backend";
+import middleware from "i18next-http-middleware";
 
-// إعدادات i18next
 i18next
-  .use(Backend) // لتحميل ملفات الترجمة من ملفات خارجية
-  .use(i18nextMiddleware) // استخدام Middleware
+  .use(Backend)
+  .use(middleware.LanguageDetector)
   .init({
-    fallbackLng: "en", // اللغة الافتراضية
-    lng: "en", // اللغة الابتدائية
-    preload: ["en", "ar"], // تحميل اللغات المدعومة
-    resources: {
-      en: {
-        translation: {
-          hello: "Hello",
-          welcome: "Welcome to our application",
-        },
-      },
-      ar: {
-        translation: {
-          hello: "مرحبًا",
-          welcome: "مرحبًا بكم في تطبيقنا",
-        },
-      },
+    fallbackLng: "en",
+    preload: ["en", "ar"],
+    backend: {
+      loadPath: "./locales/{{lng}}/translation.json",
     },
-    debug: true, // تفعيل تصحيح الأخطاء
-    saveMissing: true, // حفظ الترجمات المفقودة
+    debug: false,
+    interpolation: {
+      escapeValue: false,
+    },
   });
 
 export default i18next;

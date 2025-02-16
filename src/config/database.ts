@@ -1,15 +1,26 @@
 import mongoose from "mongoose";
+import path from "path";
+import dotenv from "dotenv";
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/peakproz";
+// Load environment variables
+dotenv.config({ path: path.resolve(".env-production") });
 
-const connectDb = async () => {
+const MONGODB_URL = process.env.MONGO_URI as string;
+
+if (!MONGODB_URL) {
+  throw new Error("MONGO_URI is not defined in environment variables.");
+}
+
+// MongoDB Connection
+const connectDb = async (): Promise<void> => {
   try {
-    await mongoose.connect(MONGO_URI);
-    // await mongoose.connect(process.env.MONGO_URI as string);
-    console.log("✅ MongoDB Connected");
+    await mongoose.connect(MONGODB_URL, {
+      dbName: process.env.DB_NAME, // Optional if you want to specify a DB name
+    });
+    console.log("✅ MongoDB connected successfully");
   } catch (error) {
-    console.error("❌ MongoDB Connection Error:", error);
-    process.exit(1);
+    console.error("❌ MongoDB connection error:", error);
+    process.exit(1); // Exit process with failure
   }
 };
 
