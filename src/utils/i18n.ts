@@ -1,16 +1,14 @@
 import i18next from "i18next";
 const i18nextMiddleware = require("i18next-express-middleware");
 import Backend from "i18next-http-backend";
-import path from "path";
 
-// إعدادات i18next
 i18next
-  .use(Backend) // لتحميل ملفات الترجمة من ملفات خارجية
-  .use(i18nextMiddleware) // استخدام Middleware
+  .use(Backend)
+  .use(i18nextMiddleware)
   .init({
-    fallbackLng: "en", // اللغة الافتراضية
-    lng: "en", // اللغة الابتدائية
-    preload: ["en", "ar"], // تحميل اللغات المدعومة
+    fallbackLng: "en",
+    lng: "en",
+    preload: ["en", "ar"],
     resources: {
       en: {
         translation: {
@@ -25,8 +23,8 @@ i18next
         },
       },
     },
-    debug: true, // تفعيل تصحيح الأخطاء
-    saveMissing: true, // حفظ الترجمات المفقودة
+    debug: true,
+    saveMissing: true,
   });
 
 export default i18next;

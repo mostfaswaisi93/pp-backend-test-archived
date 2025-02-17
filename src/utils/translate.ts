@@ -1,13 +1,8 @@
 import { LANG_LIST } from "../typings/enums/defualts.enum";
 import { Translatable } from "../typings/interfaces/translation.interface";
-import * as locals from "../localization";
+// import * as locals from "../localization";
+import { Locals, locals } from "../localization";
 
-/**
- * تحويل كائن يحتوي على خصائص مترجمة إلى تنسيق قابل للترجمة
- * @param object - الكائن الذي يحتوي على البيانات
- * @param remove - إذا كان `true` سيتم إزالة الخصائص الأصلية بعد الترجمة
- * @returns كائن يحتوي على بيانات مترجمة
- */
 export function translate(
   object: any,
   remove: boolean = false
@@ -21,7 +16,7 @@ export function translate(
   for (const property in object) {
     if (property.length < 2) continue;
 
-    const code = property.slice(-2);
+    const code = property.slice(-2) as keyof typeof LANG_LIST;
     const lang = LANG_LIST[code];
 
     if (!lang) continue;
@@ -51,12 +46,6 @@ export function translate(
   return object;
 }
 
-/**
- * ترجمة الكائنات المتداخلة بشكل عميق
- * @param object - الكائن الذي يحتوي على البيانات
- * @param remove - إذا كان `true` سيتم إزالة الخصائص الأصلية بعد الترجمة
- * @returns كائن مترجم بشكل عميق
- */
 export function translateDeep(object: any, remove: boolean = false) {
   if (!object) return object;
 
@@ -70,7 +59,7 @@ export function translateDeep(object: any, remove: boolean = false) {
         translateDeep(element, remove)
       );
     } else if (property.length >= 2) {
-      const code = property.slice(-2);
+      const code = property.slice(-2) as keyof typeof LANG_LIST;
       const lang = LANG_LIST[code];
 
       if (!lang) continue;
@@ -101,12 +90,6 @@ export function translateDeep(object: any, remove: boolean = false) {
   return object;
 }
 
-/**
- * تحويل البيانات بناءً على معايير معينة
- * @param data - البيانات الأصلية
- * @param params - المعايير المطلوبة للتحويل
- * @returns كائن محوّل بناءً على المعايير
- */
 export function transform(data: any, params: any) {
   const object = { ...data };
 
@@ -122,13 +105,6 @@ export function transform(data: any, params: any) {
   return object;
 }
 
-/**
- * استرجاع قيمة خاصية معينة بلغة معينة من كائن قابل للترجمة
- * @param translatable - كائن يحتوي على بيانات مترجمة
- * @param key - اسم الخاصية المطلوبة
- * @param lang - اللغة المطلوبة
- * @returns قيمة الخاصية المطلوبة باللغة المحددة
- */
 export function getAttributeLang(
   translatable: Translatable[],
   key: string,
@@ -138,33 +114,29 @@ export function getAttributeLang(
   return row ? row.values[key] || null : null;
 }
 
-/**
- * جلب رسالة خطأ مترجمة بناءً على المفتاح واللغة
- * @param keyString - مفتاح الخطأ
- * @param lang - اللغة المطلوبة
- * @returns رسالة الخطأ المترجمة
- */
 export function getLocalError(keyString: string, lang: string): string {
   if (!keyString || keyString === "") return "";
 
   const keys = keyString.split(".");
-  let message = locals[lang][keys[0]];
+  const language = lang as keyof Locals;
+
+  let message: any = locals[language]?.[keys[0]];
 
   for (let i = 1; i < keys.length; i++) {
-    if (!message[keys[i]]) {
-      return keys[i];
+    if (typeof message !== "object" || !message) {
+      return keyString;
     }
+
     message = message[keys[i]];
+
+    if (typeof message === "string") {
+      return message;
+    }
   }
 
-  return message;
+  return typeof message === "string" ? message : keyString;
 }
 
-/**
- * تحويل نصوص مترجمة إلى كائن `Translatable[]`
- * @param value - كائن يحتوي على النصوص الإنجليزية والعربية
- * @returns مصفوفة تحتوي على النصوص المترجمة بصيغة `Translatable`
- */
 export const translatableTransformer = (value: {
   en: string;
   ar: string;

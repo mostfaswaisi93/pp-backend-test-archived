@@ -1,5 +1,7 @@
 const { createCanvas } = require("canvas");
 const fs = require("fs");
+// import { createCanvas } from "canvas";
+// import fs from "fs";
 import path from "path";
 
 const colours = [
@@ -26,10 +28,12 @@ const colours = [
 
 export function drawImage(
   id: number | string,
-  firstName: string,
-  lastName?: string
+  firstName: string = "AD",
+  lastName: string = ""
 ) {
-  if (!firstName) firstName = "AD";
+  firstName = firstName || "AD";
+  lastName = lastName || "";
+
   let initials = firstName[0].toUpperCase();
   let secondChar = firstName.length > 1 ? firstName[1] : "";
   initials +=
@@ -37,9 +41,6 @@ export function drawImage(
 
   const canvasCssWidth = 200,
     canvasCssHeight = 200;
-
-  // let charIndex = initials.charCodeAt(0) - 65,
-  //   colourIndex = charIndex % 19;
 
   let fullName: string = `${firstName} ${lastName}`;
   const canvass = createCanvas(200, 200);
@@ -52,17 +53,17 @@ export function drawImage(
   context.fillText(initials, canvasCssWidth / 2, canvasCssHeight / 1.5);
   const buffer = canvass.toBuffer("image/png");
   let fileName = `${id}-${Date.now()}.png`;
-  let pathToImage = path.resolve(process.env.Image_Path, fileName);
+  let pathToImage = path.resolve(process.env.Image_Path || "", fileName);
   fs.writeFileSync(pathToImage, buffer);
   return fileName;
 }
 
 export const stringToHslColor = (str: string, s: number, l: number) => {
-  var hash = 0;
-  for (var i = 0; i < str.length; i++) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
 
-  var h = hash % 360;
-  return "hsl(" + h + ", " + s + "%, " + l + "%)";
+  let h = hash % 360;
+  return `hsl(${h}, ${s}%, ${l}%)`;
 };

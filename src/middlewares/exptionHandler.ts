@@ -15,7 +15,6 @@ function errorMiddleware(
 ) {
   debug("Error Middleware triggered:", error);
 
-  // معالجة أخطاء Multer (رفع الملفات)
   if (error.name === "MulterError") {
     error = handleMulterError(error);
   }
@@ -24,12 +23,10 @@ function errorMiddleware(
   let message = error.message || "Something went wrong";
   const customCode = error.customCode || "500";
 
-  // في وضع الإنتاج، يجب إخفاء تفاصيل الأخطاء الداخلية
   if (status === 500 && process.env.ENVIRONMENT !== "development") {
     message = "Something went wrong";
   }
 
-  // إنشاء كائن الاستجابة مع الأخطاء المترجمة
   const response = {
     status,
     customCode,
@@ -40,7 +37,6 @@ function errorMiddleware(
   return res.status(status).json(response);
 }
 
-// ✅ **معالجة أخطاء `Multer` بشكل منفصل**
 function handleMulterError(error: any) {
   switch (error.code) {
     case "LIMIT_FILE_SIZE":
@@ -50,7 +46,6 @@ function handleMulterError(error: any) {
   }
 }
 
-// ✅ **توليد الأخطاء بجميع اللغات المدعومة**
 function generateLocalizedErrors(message: string) {
   const translatable: Record<string, string> = {};
   for (const lang in locals) {

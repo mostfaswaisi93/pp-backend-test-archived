@@ -1,31 +1,33 @@
 import AccessTokenService from "./AccessTokenService";
-import { Strategy } from 'passport-http-bearer';
+import { Strategy as PassportBearerStrategy } from "passport-http-bearer";
 
 class PassportBearer {
-
   private accessTokenService: AccessTokenService = AccessTokenService.Instance;
 
-  private static _instance;
+  private static _instance: PassportBearer;
 
-  static get Instance() {
-    return this._instance ? this._instance : (this._instance = new this());
+  static get Instance(): PassportBearer {
+    return this._instance ?? (this._instance = new this());
   }
 
-  bearerAuth = async (token:string, cb) => {
-
+  // Bearer Authentication middleware
+  bearerAuth = async (
+    token: string,
+    cb: (err: any, user: any) => void
+  ): Promise<void> => {
     try {
-
-      let payload = await this.accessTokenService.findToken(token);
+      const payload = await this.accessTokenService.findToken(token);
 
       if (!payload) {
-        return cb(true, null);
+        return cb(new Error("Invalid token"), null); // Error for invalid token
       }
 
-      return cb(null, { payload: payload, token: token })
-    } catch (e) {
-      return cb(true, null);
+      return cb(null, { payload, token });
+    } catch (error) {
+      console.error("Error while validating token:", error); // Log error for debugging
+      return cb(new Error("Authentication error"), null); // Return generic authentication error
     }
   };
 }
 
-export default new Strategy(new PassportBearer().bearerAuth);
+export default new PassportBearerStrategy(PassportBearer.Instance.bearerAuth);

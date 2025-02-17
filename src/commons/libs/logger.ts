@@ -4,12 +4,14 @@ import moment from "moment";
 import * as dotenv from "dotenv";
 import { resolve } from "path";
 import { Logger as PinoLogger } from "pino";
+import * as winston from "winston";
 
 dotenv.config({ path: resolve() + "/.env" });
 
 export class Logger {
   private static _instance: Logger;
   private logDirectory: string = __dirname + "/../../../logs";
+  private logger: winston.Logger;
 
   // Singleton pattern to ensure one instance of Logger
   static get Instance(): Logger {
@@ -22,6 +24,13 @@ export class Logger {
   constructor() {
     // Ensure that the log directory exists
     this.ensureLogDirectory();
+    this.logger = winston.createLogger({
+      level: "info",
+      transports: [
+        new winston.transports.Console({ format: winston.format.simple() }),
+        new winston.transports.File({ filename: "combined.log" }),
+      ],
+    });
   }
 
   // Ensure log directory exists
@@ -64,5 +73,21 @@ export class Logger {
     } catch (error) {
       console.error("Error writing log:", error);
     }
+  }
+
+  info(message: string): void {
+    this.logger.info(message);
+  }
+
+  warn(message: string): void {
+    this.logger.warn(message);
+  }
+
+  error(message?: string): void {
+    this.logger.error(message);
+  }
+
+  debug(message: string): void {
+    this.logger.debug(message);
   }
 }

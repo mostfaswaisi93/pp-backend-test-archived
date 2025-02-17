@@ -1,22 +1,32 @@
-import { LANGUAGE_ARRAY, LANGUAGE } from "@typings/enums/defualts.enum";
-import { Translatable } from "@typings/interfaces/translation.interface";
-export const isValidLang = (lang: string) => {
-  return Object.values(LANGUAGE).includes(lang.toLowerCase());
+import { LANGUAGE } from "../typings/enums/defualts.enum";
+import { Translatable } from "../typings/interfaces/translation.interface";
+
+export const isValidLang = (lang: string): boolean => {
+  return Object.values(LANGUAGE).includes(
+    lang.toLowerCase() as unknown as LANGUAGE
+  );
 };
 
-export const completeTranslate = (translatable: Translatable[]) => {
-  let temp = {};
-  for (let record of translatable) {
-    let values = record.values;
-    for (let key in values) {
-      if (values[key] && values[key].length) temp[key] = values[key];
-    }
-  }
-  for (let record of translatable) {
-    let values = record.values;
-    for (let key in values) {
-      if (!values[key]) values[key] = temp[key];
-    }
-  }
+export const completeTranslate = (
+  translatable: Translatable[]
+): Translatable[] => {
+  const temp: { [key: string]: string } = {};
+
+  translatable.forEach((record) => {
+    Object.keys(record.values).forEach((key) => {
+      if (record.values[key] && record.values[key].length) {
+        temp[key] = record.values[key];
+      }
+    });
+  });
+
+  translatable.forEach((record) => {
+    Object.keys(record.values).forEach((key) => {
+      if (!record.values[key]) {
+        record.values[key] = temp[key];
+      }
+    });
+  });
+
   return translatable;
 };

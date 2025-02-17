@@ -1,4 +1,3 @@
-// src/types/express.d.ts
 import { User } from "../models/user.model";
 
 declare global {
