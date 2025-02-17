@@ -10,15 +10,15 @@ logs/
 image/*
 
 # public folder
-public/
+# public/
 
 package-lock.json
 pull.sh
 package-lock.*
 
 # dubugger config
-.env
-.env-production
+# .env
+# .env-production
 
 # IDEs and editors
 /.idea
