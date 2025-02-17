@@ -16,19 +16,19 @@ npm run start
 
 ## What was used?
 
-### Node.js | TypeScript & Express.js & MongoDB
+### * Node.js | TypeScript & Express.js & MongoDB
 
-### RabbitMQ
+### * RabbitMQ
 
-### Redis client
+### * Redis client
 
-### JWT
+### * JWT
 
-### Multi-Language with i18n [En & AR]
+### * Multi-Language with i18n [En & AR]
 
-### Express-Validator
+### * Express-Validator
 
-### Local Tunnel
+### * Local Tunnel
 
 # Backend
 
