@@ -1,42 +1,69 @@
 import { Logger } from "../libs/logger";
 import ApplicationException from "../errors/application-exception";
+import { Response } from "express";
 
 export default class HttpResWrapper {
-  private static _instance;
+  private static _instance: HttpResWrapper | null = null;
+  private logger: Logger;
 
-  static get Instance() {
-    return this._instance ? this._instance : (this._instance = new this());
+  private constructor() {
+    this.logger = new Logger();
   }
 
-  public success = (res, obj = null) => {
-    if (obj) {
-      res.status(200).send(obj);
-    } else {
-      res.status(200).send();
+  static get Instance(): HttpResWrapper {
+    if (!this._instance) {
+      this._instance = new HttpResWrapper();
     }
-  };
+    return this._instance;
+  }
 
-  public error = (res, error) => {
-    if (typeof error === "object" && error instanceof ApplicationException) {
-      new Logger().log().warn(error);
-      res.status(error.status).send({
-        code: error.code,
-        message: error.message,
+  public success(res: Response, data: any = null): void {
+    this.logger.log().info("Success response sent.");
+    res.status(200).json({
+      success: true,
+      data: data || null,
+    });
+  }
+
+  public error(res: Response, error: unknown): void {
+    if (error instanceof ApplicationException) {
+      this.logger.log().warn(`[ApplicationException] ${error.message}`);
+      res.status(error.status).json({
+        success: false,
+        error: {
+          code: error.code || error.status,
+          message: error.message,
+        },
       });
     } else {
-      new Logger().log().error(error);
-      res.status(500).send({
-        code: 500,
-        message: error.message,
+      const message =
+        error instanceof Error ? error.message : "Unexpected error occurred.";
+      this.logger.log().error(`[Unhandled Error] ${message}`);
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 500,
+          message: message,
+        },
       });
     }
-  };
+  }
 
-  public handle = function (status, error, res) {
+  public handle(res: Response, status: number, error: unknown): void {
+    const message = error instanceof Error ? error.message : String(error);
+
     if (status === 500) {
-      new Logger().log().error(error);
+      this.logger.log().error(`[Critical Error] ${message}`);
+    } else {
+      this.logger.log().warn(`[Handled Error] ${message}`);
     }
 
-    res.status(status).send(error);
-  };
+    res.status(status).json({
+      success: false,
+      error: {
+        code: status,
+        message: message,
+      },
+    });
+  }
 }

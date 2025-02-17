@@ -1,4 +1,3 @@
-// src/middleware/auth.middleware.ts
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
@@ -7,7 +6,7 @@ export const authMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.headers["authorization"]?.split(" ")[1]; // الحصول على الـ token من الـ headers
+  const token = req.headers["authorization"]?.split(" ")[1];
 
   if (!token) {
     return res.status(403).json({ message: "No token provided" });
@@ -17,7 +16,7 @@ export const authMiddleware = (
     if (err) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-    req.user = decoded; // تعيين الـ user في الـ req بعد التحقق من الـ JWT
+    req.user = decoded;
     next();
   });
 };

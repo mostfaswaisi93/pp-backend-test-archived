@@ -1,32 +1,54 @@
 import * as crypto from "crypto";
-const algorithm = "aes-256-cbc";
-const key = Buffer.from(
-  "C67EBE9CB3748A4AECCB508BC24D0BE7FDFD09F5639CC327A9D284AFB4D7622E",
-  "hex"
-);
-const iv = Buffer.from("6043039F3D258DC8F652D6E26F6AFBBD", "hex");
+import * as dotenv from "dotenv";
+
+dotenv.config();
+
+const ALGORITHM = "aes-256-cbc";
+const KEY = Buffer.from(process.env.ENCRYPTION_KEY || "", "hex");
+const IV = Buffer.from(process.env.ENCRYPTION_IV || "", "hex");
+
+if (KEY.length !== 32 || IV.length !== 16) {
+  throw new Error(
+    "Invalid encryption key or IV. Ensure they are set correctly in environment variables."
+  );
+}
 
 export class EncryptionService {
-  private static _instance;
+  private static _instance: EncryptionService;
 
-  static get Instance() {
-    return this._instance ? this._instance : (this._instance = new this());
+  static get Instance(): EncryptionService {
+    if (!this._instance) {
+      this._instance = new EncryptionService();
+    }
+    return this._instance;
   }
 
-  constructor() {}
+  private constructor() {}
 
-  encrypt(text) {
-    let cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
-    let encrypted = cipher.update(text);
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-    return { iv: iv.toString("hex"), encryptedData: encrypted.toString("hex") };
+  encrypt(text: string): string {
+    try {
+      const cipher = crypto.createCipheriv(ALGORITHM, KEY, IV);
+      let encrypted = cipher.update(text, "utf-8");
+      encrypted = Buffer.concat([encrypted, cipher.final()]);
+      return encrypted.toString("hex");
+    } catch (error) {
+      console.error("Encryption Error:", error);
+      throw new Error("Encryption failed.");
+    }
   }
 
-  decrypt(encryptedApi) {
-    let encryptedText = Buffer.from(encryptedApi, "hex");
-    let decipher = crypto.createDecipheriv(algorithm, Buffer.from(key), iv);
-    let decrypted = decipher.update(encryptedText);
-    decrypted = Buffer.concat([decrypted, decipher.final()]);
-    return decrypted.toString();
+  decrypt(encryptedText: string): string {
+    try {
+      const encryptedBuffer = Buffer.from(encryptedText, "hex");
+      const decipher = crypto.createDecipheriv(ALGORITHM, KEY, IV);
+      let decrypted = decipher.update(encryptedBuffer);
+      decrypted = Buffer.concat([decrypted, decipher.final()]);
+      return decrypted.toString("utf-8");
+    } catch (error) {
+      console.error("Decryption Error:", error);
+      throw new Error("Decryption failed. Invalid input.");
+    }
   }
 }
+
+export default EncryptionService.Instance;
