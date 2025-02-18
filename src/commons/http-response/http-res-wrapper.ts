@@ -1,4 +1,4 @@
-import { Logger } from "../libs/logger";
+import { Logger } from "../../commons/libs/logger";
 import ApplicationException from "../errors/application-exception";
 import { Response } from "express";
 

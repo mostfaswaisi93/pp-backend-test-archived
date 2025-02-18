@@ -8,7 +8,7 @@ import { userRoutes } from "./routes/users/users.routes";
 import { errorHandler } from "./middlewares/exception.middleware";
 import i18next from "./config/i18n";
 import i18nextMiddleware from "i18next-express-middleware";
-import "./config/redis"; // Redis
+import "./config/redis-config"; // Redis
 import "./config/i18n"; // i18n
 
 const app = express();

@@ -1,61 +1,65 @@
 import { Logger } from "../../commons/libs/logger";
+import { RedisClient } from "../../commons/libs/redisClient";
 import { TokenNotValidException } from "../../commons/errors/exceptions";
-import * as jwt from "jsonwebtoken";
-import * as fs from "fs";
-import { promisify } from "util";
-
-const fileName = __filename.slice(__dirname.length + 1);
-
-const PUB_KEY = fs.readFileSync(__dirname + "/../../../id_rsa_pub.pem", "utf8");
-const PRIV_KEY = fs.readFileSync(
-  __dirname + "/../../../id_rsa_priv.pem",
-  "utf8"
-);
+import jwt, { Algorithm } from "jsonwebtoken";
+import { JWT_CONFIG } from "../../config/jwt";
 
 export default class AccessTokenService {
-  private logger: Logger = new Logger();
+  private redisClient = RedisClient.Instance;
+  private logger = Logger.Instance;
 
-  private static _instance: AccessTokenService; // تعيين النوع هنا
+  private static _instance: AccessTokenService;
 
   static get Instance() {
-    return this._instance ? this._instance : (this._instance = new this());
+    if (!this._instance) {
+      this._instance = new AccessTokenService();
+    }
+    return this._instance;
   }
 
-  constructor() {}
+  private constructor() {}
 
   async findToken(accessToken: string): Promise<any> {
-    if (!accessToken) {
-      throw new TokenNotValidException();
-    }
+    if (!accessToken) throw new TokenNotValidException();
 
     try {
-      const payload = jwt.verify(accessToken, PUB_KEY, {
-        algorithms: ["RS256"],
+      const algorithm: Algorithm = JWT_CONFIG.ALGORITHM as Algorithm;
+
+      const payload = jwt.verify(accessToken, JWT_CONFIG.PUB_KEY, {
+        algorithms: [algorithm],
       });
 
-      // طباعة سجل عند نجاح التحقق من التوكن
-      this.logger.info(
-        // `Token successfully verified for user: ${payload.userId}`
-        `Token successfully verified for user`
+      const logoutStatus = await this.redisClient.receive(
+        "hget",
+        accessToken,
+        "logout"
       );
-    } catch (err: unknown) {
-      // التأكد من أن الخطأ هو من النوع Error قبل استخدامه
-      if (err instanceof Error) {
-        this.logger.error(`Error verifying token: ${err.message}`);
+
+      return logoutStatus ? null : payload;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(`findToken error: ${error.message}`);
       } else {
-        this.logger.error("Unknown error occurred during token verification.");
+        this.logger.error(`findToken error: ${JSON.stringify(error)}`);
       }
-      throw new Error("Token verification failed");
+      throw new TokenNotValidException();
     }
   }
 
-  deleteToken(accessToken: string) {}
-
-  async findUserByToken(accessToken: string): Promise<any> {
-    if (!accessToken) {
-      throw new TokenNotValidException();
+  async deleteToken(accessToken: string): Promise<void> {
+    try {
+      await this.redisClient.broadcast("hset", accessToken, "logout", true);
+      this.logger.info(`Token invalidated: ${accessToken}`);
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(`deleteToken error: ${error.message}`);
+      } else {
+        this.logger.error(`deleteToken error: ${JSON.stringify(error)}`);
+      }
     }
+  }
 
+  async findUserByToken(accessToken: string): Promise<number | null> {
     const payload = await this.findToken(accessToken);
     return payload ? payload.userId : null;
   }
@@ -66,21 +70,19 @@ export default class AccessTokenService {
     nameAr: string;
     nameEn: string;
   }): string {
-    const payloadObj = {
+    const payload = {
       userId: user.userId,
       userType: user.userType,
       name: `${user.nameAr} ${user.nameEn}`,
     };
 
-    this.logger.info(
-      `${fileName}::createToken - user_id: ${payloadObj.userId}`
-    );
-    const TTL = 60 * 60 * 24; // صلاحية التوكن 24 ساعة
-    const accessToken = jwt.sign(payloadObj, PRIV_KEY, {
-      expiresIn: `${TTL}s`,
-      algorithm: "RS256",
-    });
+    const algorithm: Algorithm = JWT_CONFIG.ALGORITHM as Algorithm;
 
-    return accessToken;
+    this.logger.info(`Creating token for user_id: ${payload.userId}`);
+
+    return jwt.sign(payload, JWT_CONFIG.PRIV_KEY, {
+      expiresIn: JWT_CONFIG.TTL,
+      algorithm: algorithm,
+    });
   }
 }

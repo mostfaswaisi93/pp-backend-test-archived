@@ -1,4 +1,4 @@
-export const USER_TYPES = { Admin: 1, Data: 2 };
+export const USER_TYPES = { Admin: 1, Pro: 2 };
 
 export const systemUserId = 0;
 

@@ -1,23 +1,128 @@
-import { createClient } from "redis";
-import { redisConfig } from "../../config/redis";
+import { createClient, RedisClientType } from "redis";
+import os from "os";
+import { redisConfig } from "../../config/redis-config";
+import { Logger } from "./logger";
 
-// إعداد عميل Redis
-const redisClient = createClient({
-  url: `redis://${redisConfig.host}:${redisConfig.port}`,
-  //   password: redisConfig.password,
-});
+export class RedisClient {
+  private static _instance: RedisClient;
+  private logger = new Logger().log();
+  private redisClientList: RedisClientType<any>[] = [];
 
-redisClient
-  .connect()
-  .then(() => {
-    console.log("Connected to Redis...");
-  })
-  .catch((err) => {
-    console.error("Error connecting to Redis:", err);
-  });
+  private constructor() {
+    redisConfig.forEach((options) => {
+      this.redisClientList.push(this.createRedisClientObject(options));
+    });
+  }
 
-redisClient.on("error", (err) => {
-  console.error("Redis error:", err);
-});
+  static get Instance(): RedisClient {
+    if (!this._instance) {
+      this._instance = new RedisClient();
+    }
+    return this._instance;
+  }
 
-export default redisClient;
+  private createRedisClientObject(options: any): RedisClientType<any> {
+    const client: RedisClientType<any> = createClient({
+      socket: {
+        host: options.host,
+        port: options.port,
+        reconnectStrategy: (retries) => {
+          if (retries > 30) {
+            this.logger.error(
+              "🔴 The number of attempts allowed to reconnect to Redis has exceeded."
+            );
+            return new Error("Retry limit exceeded");
+          }
+          return 3000; // Retry after 3 seconds
+        },
+      },
+    });
+
+    client.on("connect", () =>
+      this.logger.info("✅ Connected to Redis successfully.")
+    );
+    client.on("ready", () =>
+      this.logger.info("🚀 Redis is ready to handle requests.")
+    );
+    client.on("reconnecting", () =>
+      this.logger.warn("⚠️ Attempting to reconnect to Redis...")
+    );
+    client.on("end", () => this.logger.info("🔴 Connection to Redis ended."));
+    client.on("error", (err) => {
+      this.logger.error("❌ Redis error:", err);
+      throw new Error(err.message);
+    });
+
+    client.connect(); // Ensure connection on creation
+    return client as RedisClientType<any>;
+  }
+
+  broadcast(methodName: string, ...args: any[]): void {
+    this.redisClientList.forEach((redisClient) => {
+      if (
+        typeof redisClient[methodName as keyof RedisClientType<any>] ===
+        "function"
+      ) {
+        (redisClient[methodName as keyof RedisClientType<any>] as Function)(
+          ...args
+        );
+      } else {
+        this.logger.warn(`⚠️ No method ${methodName} found in Redis Client.`);
+      }
+    });
+  }
+
+  receive(methodName: string, ...args: any[]): any {
+    const _redisClient = this.redisClientList.find((redisClient) =>
+      this.isLocalHost(redisClient.options?.socket?.host)
+    );
+
+    if (!_redisClient) {
+      this.logger.warn(`⚠️ No local Redis client found.`);
+      return undefined;
+    }
+
+    const method = _redisClient[methodName as keyof RedisClientType<any>];
+    if (typeof method === "function") {
+      return method(...args);
+    } else {
+      this.logger.warn(`⚠️ No method ${methodName} found in Redis Client.`);
+      return undefined;
+    }
+  }
+
+  private isLocalHost(address: string | undefined): boolean {
+    if (!address) return false;
+    const localAddresses = ["127.0.0.1", "localhost", "::1"];
+    if (localAddresses.includes(address)) return true;
+
+    const networkInterfaces = os.networkInterfaces();
+    return Object.values(networkInterfaces)
+      .flat()
+      .some((iface) => iface?.address === address);
+  }
+}
+
+// import { createClient } from "redis";
+// import { redisConfig } from "../../config/redis-config";
+
+// // إعداد عميل Redis
+// const redisClient = createClient({
+//   url: `redis://${redisConfig.host}:${redisConfig.port}`,
+//   //   password: redisConfig.password,
+// });
+
+// redisClient
+//   .connect()
+//   .then(() => {
+//     console.log("Connected to Redis...");
+//   })
+//   .catch((err) => {
+//     console.error("Error connecting to Redis:", err);
+//   });
+
+// redisClient.on("error", (err) => {
+//   console.error("Redis error:", err);
+// });
+
+// export default redisClient;
