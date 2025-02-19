@@ -4,8 +4,8 @@ import * as express from "express";
 import HttpResWrapper from "../../commons/http-response/http-res-wrapper";
 import AuthService from "../auth/auth-service";
 import { RoleLkp } from "../../database/entity/RoleLkp";
-import { UserRoleService } from "./UserRoleService";
-import { getUserRole } from "./UserRoleValidation";
+import { UserRoleService } from "./user-role-service";
+import { getUserRole } from "./user-role-validation";
 
 export default class UserRoleController implements Controller {
   public path = "/userRoles";

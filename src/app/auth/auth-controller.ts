@@ -7,10 +7,10 @@ import HttpResWrapper from "../../commons/http-response/http-res-wrapper";
 import AuthService from "./auth-service";
 import * as i18n from 'i18n';
 import { validate } from "class-validator";
-import { UserService } from "../user/UserService";
+import { UserService } from "../user/user-service";
 import AccessTokenService from "./access-token-service";
 import { use } from "passport";
-import { login, forgetPassword, resetPassword } from "./AuthValidation";
+import { login, forgetPassword, resetPassword } from "./auth-validation";
 
 export default class AuthController implements Controller {
 

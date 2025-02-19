@@ -3,13 +3,13 @@ import { User } from "../../database/entity/User";
 import Controller from '../../interfaces/controller.interface';
 import * as express from 'express';
 import HttpResWrapper from "../../commons/http-response/http-res-wrapper";
-import { UserService } from "./UserService";
+import { UserService } from "./user-service";
 import { validate } from "class-validator";
 import AuthService from "../auth/auth-service";
 import UploadService from "../../commons/libs/UploadService";
 import * as cors from "cors";
 import { InvalidInputException } from "../../commons/errors/exceptions";
-import { getUser, create, update, updateActive } from "./UserValidation";
+import { getUser, create, update, updateActive } from "./user-validation";
 
 export default class UserController implements Controller {
 
