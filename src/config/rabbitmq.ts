@@ -2,14 +2,12 @@ import dotenv from "dotenv";
 import amqp, { Connection, Channel, ConsumeMessage, Options } from "amqplib";
 import { EventEmitter } from "events";
 
-// تحميل متغيرات البيئة
 dotenv.config();
 
 if (!process.env.RABBITMQ_APL) {
   throw new Error("RabbitMQ URL is not provided in environment variables");
 }
 
-// إعدادات الـ RabbitMQ
 const exchangeName = "dispatchboard";
 const routingKey = "processupdates";
 
@@ -19,13 +17,11 @@ const promoImageQueue = "promoimage";
 const equipmentQueue = "equipment-queue";
 const invoiceQueue = "invoice-queue";
 
-// متغيرات الاتصال بالقناة
 let connection: Connection | null = null;
 let channel: Channel | null = null;
 
 const EM = new EventEmitter();
 
-// وظيفة بدء الاتصال
 async function startConnection(): Promise<Channel | null> {
   try {
     connection = await amqp.connect(process.env.RABBITMQ_APL!);
@@ -36,7 +32,6 @@ async function startConnection(): Promise<Channel | null> {
 
     channel.bindQueue(q.queue, exchangeName, routingKey);
 
-    // إنشاء الـ Queues المطلوبة
     await Promise.all([
       channel.assertQueue(timecardQueue, { durable: true }),
       channel.assertQueue(emailQueue, { durable: true }),
@@ -52,7 +47,6 @@ async function startConnection(): Promise<Channel | null> {
   }
 }
 
-// تنفيذ الاتصال في البداية
 (async () => {
   try {
     await startConnection();
@@ -62,8 +56,6 @@ async function startConnection(): Promise<Channel | null> {
     console.error("Error in establishing RabbitMQ connection:", e);
   }
 })();
-
-// دوال إرسال الرسائل
 
 async function sendMessage(payload: object): Promise<void> {
   try {
@@ -147,7 +139,6 @@ async function sendInvoice(payload: object): Promise<void> {
   }
 }
 
-// وظيفة استهلاك الرسائل من الـ Queue
 async function consumeMessages(): Promise<void> {
   try {
     if (channel === null) {
@@ -162,7 +153,6 @@ async function consumeMessages(): Promise<void> {
       if (msg) {
         console.log(`Received message: ${msg.content.toString()}`);
 
-        // التحقق من أن القناة ليست null قبل استخدام ack
         if (channel) {
           channel.ack(msg);
         }
@@ -173,7 +163,6 @@ async function consumeMessages(): Promise<void> {
   }
 }
 
-// دوال للحصول على القنوات
 function getChannel() {
   return { channel, timecardQueue };
 }

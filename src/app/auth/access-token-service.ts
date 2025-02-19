@@ -1,6 +1,6 @@
-import { Logger } from "../../commons/libs/Logger";
+import { Logger } from "../../commons/libs/logger";
 import { TokenNotValidException } from "../../commons/errors/exceptions";
-import { RedisClient } from "../../commons/libs/RedisClient";
+import { RedisClient } from "../../commons/libs/redis-client";
 import * as jwt from "jsonwebtoken";
 import * as fs from "fs";
 import * as i18n from "i18n";

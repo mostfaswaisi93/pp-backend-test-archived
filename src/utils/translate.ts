@@ -1,6 +1,5 @@
 import { LANG_LIST } from "../typings/enums/defualts.enum";
 import { Translatable } from "../typings/interfaces/translation.interface";
-// import * as locals from "../localization";
 import { Locals, locals } from "../localization";
 
 export function translate(

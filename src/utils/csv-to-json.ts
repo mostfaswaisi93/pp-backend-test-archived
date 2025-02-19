@@ -1,6 +1,6 @@
 import { EXCEL_VALIDATION } from "../typings/enums/defualts.enum";
-import { exceptionMap } from "../typings/enums/httpExceptions";
-import { HttpException } from "../helpers/exption";
+import { exceptionMap } from "../typings/enums/http-exception";
+import { HttpException } from "../helpers/exception";
 import APP_REGEX from "./constants";
 
 const csvToJson = (csvTxt: string) => {

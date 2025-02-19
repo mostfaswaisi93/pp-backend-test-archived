@@ -1,4 +1,4 @@
-import AccessTokenService from "./AccessTokenService";
+import AccessTokenService from "./access-token-service";
 import { Strategy as PassportBearerStrategy } from "passport-http-bearer";
 
 class PassportBearer {

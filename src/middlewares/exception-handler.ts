@@ -1,7 +1,7 @@
-import { exceptionMap } from "../typings/enums/httpExceptions";
+import { exceptionMap } from "../typings/enums/http-exception";
 import { getLocalError } from "../utils/translate";
 import { NextFunction, Request, Response } from "express";
-import { HttpException } from "../helpers/exption";
+import { HttpException } from "../helpers/exception";
 import * as locals from "../localization";
 import debugLib from "debug";
 

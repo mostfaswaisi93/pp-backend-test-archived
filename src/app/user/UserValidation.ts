@@ -1,5 +1,5 @@
 import { body, param } from "express-validator";
-import validate from '../../commons/middlewares/validatation';
+import validate from '../../commons/middlewares/validation';
 
 export const getUser = [
   param("userId").isInt().withMessage("invalid_input"),

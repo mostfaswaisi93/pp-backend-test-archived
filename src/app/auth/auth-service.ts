@@ -13,7 +13,7 @@ import * as Chance from "chance";
 import * as passport from "passport";
 import * as i18n from "i18n";
 import { MailService } from "../../commons/services/MailService";
-import { PasswordCheckService } from "../../commons/validators/PasswordCheckService";
+import { PasswordCheckService } from "../../commons/validators/password-check-service";
 import * as svgCaptcha from "svg-captcha";
 import { UserService } from "../user/UserService";
 import { USER_TYPES } from "../../commons/constants/constants";

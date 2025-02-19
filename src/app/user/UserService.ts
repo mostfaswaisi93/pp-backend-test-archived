@@ -6,7 +6,7 @@ import {
 import * as i18n from "i18n";
 import { getRepository, In, Not } from "typeorm";
 import { User } from "../../database/entity/User";
-import { PasswordCheckService } from "../../commons/validators/PasswordCheckService";
+import { PasswordCheckService } from "../../commons/validators/password-check-service";
 import * as fs from "fs";
 import AuthService from "../auth/auth-service";
 import {

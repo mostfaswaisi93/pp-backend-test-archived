@@ -1,5 +1,5 @@
-import { Logger } from "../../commons/libs/Logger";
-import { RedisClient } from "../../commons/libs/RedisClient";
+import { Logger } from "../../commons/libs/logger";
+import { RedisClient } from "../../commons/libs/redis-client";
 import { TokenNotValidException } from "../../commons/errors/exceptions";
 import jwt, { Algorithm } from "jsonwebtoken";
 import { JWT_CONFIG } from "../../config/jwt";

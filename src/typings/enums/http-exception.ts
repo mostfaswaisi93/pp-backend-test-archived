@@ -1,4 +1,4 @@
-import { HttpException } from "../../helpers/exption";
+import { HttpException } from "../../helpers/exception";
 
 export const exceptionMap = {
   serverError: {

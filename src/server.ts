@@ -3,8 +3,8 @@ import debugLib from "debug";
 import app from "../src/app";
 import connectDb from "./config/database";
 import { Server as SocketServer } from "socket.io"; // استيراد Socket.io
-import { RedisClient } from "../src/commons/libs/RedisClient"; // استيراد RedisClient
-import { Logger } from "../src/commons/libs/Logger"; // استيراد Logger
+import { RedisClient } from "./commons/libs/redis-client"; // استيراد RedisClient
+import { Logger } from "./commons/libs/logger"; // استيراد Logger
 
 const debug = debugLib("backend:server");
 

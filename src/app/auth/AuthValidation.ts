@@ -1,5 +1,5 @@
 import { body } from "express-validator";
-import validate from '../../commons/middlewares/validatation';
+import validate from '../../commons/middlewares/validation';
 
 export const login = [
     body("email")

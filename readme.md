@@ -22,7 +22,7 @@ npm run start
 
 ### * Redis client
 
-### * JWT
+### * JWT - JSON Web Token
 
 ### * Multi-Language with i18n [En & AR]
 

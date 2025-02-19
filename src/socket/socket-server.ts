@@ -1,8 +1,8 @@
 import { Server } from "socket.io";
 import { createServer } from "http";
-import { Logger } from "../commons/libs/Logger"; // لاستعمال اللوجر
+import { Logger } from "../commons/libs/logger"; // لاستعمال اللوجر
 // import { redisConfig } from "../config/redis"; // لاستعمال إعدادات Redis
-import { RedisClient } from "../commons/libs/RedisClient"; // لاستعمال Redis
+import { RedisClient } from "../commons/libs/redis-client"; // لاستعمال Redis
 
 export class SocketServer {
   private logger = new Logger().log();
