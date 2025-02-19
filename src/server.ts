@@ -2,6 +2,9 @@ import http from "http";
 import debugLib from "debug";
 import app from "../src/app";
 import connectDb from "./config/database";
+import { Server as SocketServer } from "socket.io"; // استيراد Socket.io
+import { RedisClient } from "../src/commons/libs/RedisClient"; // استيراد RedisClient
+import { Logger } from "../src/commons/libs/Logger"; // استيراد Logger
 
 const debug = debugLib("backend:server");
 
@@ -11,6 +14,38 @@ app.set("port", PORT);
 
 // Server
 const server = http.createServer(app);
+
+// إضافة Socket.io مع HTTP server
+const io = new SocketServer(server, {
+  cors: {
+    origin: "*", // السماح بالاتصالات من جميع النطاقات (يمكن تخصيصه حسب الحاجة)
+    methods: ["GET", "POST"],
+  },
+});
+
+// إعدادات الـ Socket.io - مثال لتفاعل مع Redis عند استقبال الرسائل
+io.on("connection", (socket) => {
+  const logger = new Logger().log();
+  logger.info(`A user connected: ${socket.id}`);
+
+  socket.on("send_message", (message) => {
+    logger.info("Message received:", message);
+    const redisClient = RedisClient.Instance;
+
+    // إرسال الرسالة إلى Redis باستخدام broadcast
+    // redisClient.broadcast("set", "message", message, (err, result) => {
+    //   if (err) {
+    //     logger.error("Error sending message to Redis:", err);
+    //   } else {
+    //     logger.info("Message sent to Redis:", result);
+    //   }
+    // });
+  });
+
+  socket.on("disconnect", () => {
+    logger.info(`User disconnected: ${socket.id}`);
+  });
+});
 
 // DB Connection
 connectDb()
@@ -55,6 +90,7 @@ function onListening(): void {
   const bind = typeof addr === "string" ? `pipe ${addr}` : `port ${addr?.port}`;
   debug(`✅ Listening on ${bind}`);
   console.log(`✅ Listening on ${bind}`);
+  console.log("Press CTRL + C to stop the process. \n");
 }
 
 export default server;

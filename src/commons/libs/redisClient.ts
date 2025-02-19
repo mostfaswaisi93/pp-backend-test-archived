@@ -1,7 +1,7 @@
 import { createClient, RedisClientType } from "redis";
 import os from "os";
 import { redisConfig } from "../../config/redis-config";
-import { Logger } from "./logger";
+import { Logger } from "../libs/Logger";
 
 export class RedisClient {
   private static _instance: RedisClient;
@@ -72,24 +72,24 @@ export class RedisClient {
     });
   }
 
-  receive(methodName: string, ...args: any[]): any {
-    const _redisClient = this.redisClientList.find((redisClient) =>
-      this.isLocalHost(redisClient.options?.socket?.host)
-    );
+  // receive(methodName: string, ...args: any[]): any {
+  //   const _redisClient = this.redisClientList.find((redisClient) =>
+  //     this.isLocalHost(redisClient.options?.socket?.host)
+  //   );
 
-    if (!_redisClient) {
-      this.logger.warn(`⚠️ No local Redis client found.`);
-      return undefined;
-    }
+  //   if (!_redisClient) {
+  //     this.logger.warn(`⚠️ No local Redis client found.`);
+  //     return undefined;
+  //   }
 
-    const method = _redisClient[methodName as keyof RedisClientType<any>];
-    if (typeof method === "function") {
-      return method(...args);
-    } else {
-      this.logger.warn(`⚠️ No method ${methodName} found in Redis Client.`);
-      return undefined;
-    }
-  }
+  //   const method = _redisClient[methodName as keyof RedisClientType<any>];
+  //   if (typeof method === "function") {
+  //     return method(...args);
+  //   } else {
+  //     this.logger.warn(`⚠️ No method ${methodName} found in Redis Client.`);
+  //     return undefined;
+  //   }
+  // }
 
   private isLocalHost(address: string | undefined): boolean {
     if (!address) return false;

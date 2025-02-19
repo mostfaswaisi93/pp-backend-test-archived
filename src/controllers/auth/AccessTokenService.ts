@@ -1,5 +1,5 @@
-import { Logger } from "../../commons/libs/logger";
-import { RedisClient } from "../../commons/libs/redisClient";
+import { Logger } from "../../commons/libs/Logger";
+import { RedisClient } from "../../commons/libs/RedisClient";
 import { TokenNotValidException } from "../../commons/errors/exceptions";
 import jwt, { Algorithm } from "jsonwebtoken";
 import { JWT_CONFIG } from "../../config/jwt";
@@ -29,13 +29,13 @@ export default class AccessTokenService {
         algorithms: [algorithm],
       });
 
-      const logoutStatus = await this.redisClient.receive(
-        "hget",
-        accessToken,
-        "logout"
-      );
+      // const logoutStatus = await this.redisClient.receive(
+      //   "hget",
+      //   accessToken,
+      //   "logout"
+      // );
 
-      return logoutStatus ? null : payload;
+      // return logoutStatus ? null : payload;
     } catch (error) {
       if (error instanceof Error) {
         this.logger.error(`findToken error: ${error.message}`);
