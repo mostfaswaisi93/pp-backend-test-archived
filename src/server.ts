@@ -2,11 +2,12 @@ import http from "http";
 import debugLib from "debug";
 import app from "../src/app";
 import connectDb from "./config/database";
-import { Server as SocketServer } from "socket.io"; // استيراد Socket.io
-import { RedisClient } from "./commons/libs/redis-client"; // استيراد RedisClient
-import { Logger } from "./commons/libs/logger"; // استيراد Logger
+import { Server as SocketServer } from "socket.io";
+import { RedisClient } from "./commons/libs/redis-client";
+import { Logger } from "./commons/libs/logger";
 
 const debug = debugLib("backend:server");
+const logger = Logger.Instance.log();
 
 // PORT `.env` 8000
 const PORT = process.env.PORT || 8000;
@@ -18,28 +19,19 @@ const server = http.createServer(app);
 // إضافة Socket.io مع HTTP server
 const io = new SocketServer(server, {
   cors: {
-    origin: "*", // السماح بالاتصالات من جميع النطاقات (يمكن تخصيصه حسب الحاجة)
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });
 
 // إعدادات الـ Socket.io - مثال لتفاعل مع Redis عند استقبال الرسائل
 io.on("connection", (socket) => {
-  const logger = new Logger().log();
   logger.info(`A user connected: ${socket.id}`);
 
   socket.on("send_message", (message) => {
     logger.info("Message received:", message);
     const redisClient = RedisClient.Instance;
-
-    // إرسال الرسالة إلى Redis باستخدام broadcast
-    // redisClient.broadcast("set", "message", message, (err, result) => {
-    //   if (err) {
-    //     logger.error("Error sending message to Redis:", err);
-    //   } else {
-    //     logger.info("Message sent to Redis:", result);
-    //   }
-    // });
+    redisClient.broadcast("set", "message", message);
   });
 
   socket.on("disconnect", () => {
@@ -51,15 +43,13 @@ io.on("connection", (socket) => {
 connectDb()
   .then(() => {
     server.listen(PORT, () => {
-      debug(`🚀 Server running on http://localhost:${PORT}`);
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
+      logger.info(`🚀 Server running on http://localhost:${PORT}`);
     });
     server.on("error", onError);
     server.on("listening", onListening);
   })
   .catch((error) => {
-    debug("❌ Database connection failed:", error);
-    console.error("❌ Database connection failed:", error);
+    logger.error("❌ Database connection failed:", error);
     process.exit(1);
   });
 
@@ -70,13 +60,11 @@ function onError(error: NodeJS.ErrnoException): void {
   const bind = typeof PORT === "string" ? `Pipe ${PORT}` : `Port ${PORT}`;
   switch (error.code) {
     case "EACCES":
-      console.error(`${bind} requires elevated privileges`);
-      debug(`${bind} requires elevated privileges`);
+      logger.error(`${bind} requires elevated privileges`);
       process.exit(1);
       break;
     case "EADDRINUSE":
-      console.error(`${bind} is already in use`);
-      debug(`${bind} is already in use`);
+      logger.error(`${bind} is already in use`);
       process.exit(1);
       break;
     default:
@@ -88,8 +76,7 @@ function onError(error: NodeJS.ErrnoException): void {
 function onListening(): void {
   const addr = server.address();
   const bind = typeof addr === "string" ? `pipe ${addr}` : `port ${addr?.port}`;
-  debug(`✅ Listening on ${bind}`);
-  console.log(`✅ Listening on ${bind}`);
+  logger.info(`✅ Listening on ${bind}`);
   console.log("Press CTRL + C to stop the process. \n");
 }
 

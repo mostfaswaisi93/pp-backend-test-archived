@@ -5,7 +5,8 @@ import { Logger } from "../libs/logger";
 
 export class RedisClient {
   private static _instance: RedisClient;
-  private logger = new Logger().log();
+  // private logger = new Logger().log();
+  private logger = Logger.Instance.log();
   private redisClientList: RedisClientType<any>[] = [];
 
   private constructor() {

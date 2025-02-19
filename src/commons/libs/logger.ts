@@ -3,15 +3,13 @@ import * as fs from "fs";
 import moment from "moment";
 import * as dotenv from "dotenv";
 import { resolve } from "path";
-import { Logger as PinoLogger } from "pino";
-import * as winston from "winston";
 
 dotenv.config({ path: resolve() + "/.env" });
 
 export class Logger {
   private static _instance: Logger;
   private logDirectory: string = __dirname + "/../../../logs";
-  private logger: winston.Logger;
+  private logger: pino.Logger;
 
   // Singleton pattern to ensure one instance of Logger
   static get Instance(): Logger {
@@ -21,16 +19,18 @@ export class Logger {
     return this._instance;
   }
 
-  constructor() {
-    // Ensure that the log directory exists
+  private constructor() {
     this.ensureLogDirectory();
-    this.logger = winston.createLogger({
-      level: "info",
-      transports: [
-        new winston.transports.Console({ format: winston.format.simple() }),
-        new winston.transports.File({ filename: "combined.log" }),
-      ],
-    });
+    this.logger = pino({
+      name: `PEAKPROZ-${process.env.NODE_ENV}`,
+      level: process.env.LOG_LEVEL || "debug",
+      timestamp: () => `, "time": "${moment().format("YYYY-MM-DD HH:mm:ss")}"`,
+      formatters: {
+        level(label: string) {
+          return { level: label.toUpperCase() };
+        },
+      },
+    }, fs.createWriteStream(`${this.logDirectory}/access.log`, { flags: "a" }));
   }
 
   // Ensure log directory exists
@@ -40,54 +40,31 @@ export class Logger {
     }
   }
 
-  // Setup the Pino logger instance
-  public log(): PinoLogger {
-    const stream = fs.createWriteStream(`${this.logDirectory}/access.log`, {
-      flags: "a",
-    });
-
-    const logger = pino(
-      {
-        name: `ANCSI-${process.env.NODE_ENV}`,
-        level: process.env.LOG_LEVEL || "debug", // Default to 'debug' if not specified
-        timestamp: () => {
-          return `, "time": "${moment().format("YYYY-MM-DD HH:mm:ss")}"`;
-        },
-        formatters: {
-          level(label: string) {
-            return { level: label.toUpperCase() }; // Format log level
-          },
-        },
-      },
-      stream
-    );
-
-    return logger;
+  public log(): pino.Logger {
+    return this.logger;
   }
 
-  // Example of async log function (optional enhancement)
   public async asyncLog(message: string): Promise<void> {
-    const logger = this.log();
     try {
-      logger.info(message);
+      this.logger.info(message);
     } catch (error) {
       console.error("Error writing log:", error);
     }
   }
 
-  info(message: string): void {
+  public info(message: string): void {
     this.logger.info(message);
   }
 
-  warn(message: string): void {
+  public warn(message: string): void {
     this.logger.warn(message);
   }
 
-  error(message?: string): void {
+  public error(message: string): void {
     this.logger.error(message);
   }
 
-  debug(message: string): void {
+  public debug(message: string): void {
     this.logger.debug(message);
   }
 }
