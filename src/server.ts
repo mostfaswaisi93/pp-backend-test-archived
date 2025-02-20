@@ -8,18 +8,6 @@ import { Logger } from "./commons/libs/logger";
 
 const debug = debugLib("backend:server");
 const logger = Logger.Instance.log();
-// const logger = Logger.Instance;
-
-// PORT `.env` 8000
-const PORT: number | string | false = normalizePort(process.env.PORT || "8000");
-app.set("port", PORT);
-
-// Server
-const server = http.createServer(app);
-
-// server.listen(PORT);
-// server.on("error", onError);
-// server.on("listening", onListening);
 
 // Normalize a port into a number, string, or false.
 function normalizePort(val: string): number | string | false {
@@ -29,6 +17,13 @@ function normalizePort(val: string): number | string | false {
   return false;
 }
 
+// إعدادات الـ PORT
+const PORT: number | string | false = normalizePort(process.env.PORT || "8000");
+app.set("port", PORT);
+
+// إنشاء الـ HTTP server
+const server = http.createServer(app);
+
 // إضافة Socket.io مع HTTP server
 const io = new SocketServer(server, {
   cors: {
@@ -37,7 +32,7 @@ const io = new SocketServer(server, {
   },
 });
 
-// إعدادات الـ Socket.io - مثال لتفاعل مع Redis عند استقبال الرسائل
+// إعدادات الـ Socket.io - التعامل مع Redis
 io.on("connection", (socket) => {
   logger.info(`A user connected: ${socket.id}`);
 
@@ -52,24 +47,12 @@ io.on("connection", (socket) => {
   });
 });
 
-// DB Connection
-connectToDatabase()
-  .then(() => {
-    server.listen(PORT, () => {
-      logger.info(`🚀 Server running on http://localhost:${PORT}`);
-    });
-    server.on("error", onError);
-    server.on("listening", onListening);
-  })
-  .catch((error) => {
-    logger.error("❌ Database connection failed:", error);
-    process.exit(1);
-  });
-
-export const bootstrap = async (): Promise<boolean> => {
+// دالة الاتصال بقاعدة البيانات
+const bootstrap = async (): Promise<boolean> => {
   try {
     await connectToDatabase();
     logger.info("✅ Database connected successfully");
+    startServer();
     return true;
   } catch (error: any) {
     logger.error(
@@ -77,6 +60,16 @@ export const bootstrap = async (): Promise<boolean> => {
     );
     throw new Error(error.message);
   }
+};
+
+// دالة لبدء السيرفر بعد التأكد من الاتصال بالقاعدة
+const startServer = () => {
+  server.listen(PORT, () => {
+    logger.info(`🚀 Server running on http://localhost:${PORT}`);
+  });
+
+  server.on("error", onError);
+  server.on("listening", onListening);
 };
 
 // Error Exception
@@ -107,7 +100,7 @@ function onListening(): void {
   if (!address) {
     debug("❌ Server address is undefined.");
     console.error("❌ Server address is undefined.");
-    logger.error("❌ Database connection failed:");
+    logger.error("❌ Server address is undefined.");
     return;
   }
 
@@ -118,5 +111,8 @@ function onListening(): void {
   console.log(`✅ Server is listening on ${bind}`);
   console.log("Press CTRL + C to stop the process. \n");
 }
+
+// بدء الاتصال بالقاعدة وتهيئة السيرفر
+bootstrap();
 
 export default server;

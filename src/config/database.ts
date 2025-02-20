@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
-import path from "path";
+// import path from "path";
 import dotenv from "dotenv";
 import { Logger } from "../commons/libs/logger";
 
-dotenv.config({ path: path.resolve(".env") });
+// dotenv.config({ path: path.resolve(".env") });
+dotenv.config();
 
 const logger = Logger.Instance;
 
