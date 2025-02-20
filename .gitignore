@@ -5,12 +5,12 @@ tmp/
 temp/
 logs/
 
-#IDE related
+# IDE related
 .idea
 image/*
 
 # public folder
-# public/
+public/
 
 package-lock.json
 pull.sh

@@ -5,7 +5,6 @@ import { Logger } from "../libs/logger";
 
 export class RedisClient {
   private static _instance: RedisClient;
-  // private logger = new Logger().log();
   private logger = Logger.Instance.log();
   private redisClientList: RedisClientType<any>[] = [];
 
@@ -73,25 +72,6 @@ export class RedisClient {
     });
   }
 
-  // receive(methodName: string, ...args: any[]): any {
-  //   const _redisClient = this.redisClientList.find((redisClient) =>
-  //     this.isLocalHost(redisClient.options?.socket?.host)
-  //   );
-
-  //   if (!_redisClient) {
-  //     this.logger.warn(`⚠️ No local Redis client found.`);
-  //     return undefined;
-  //   }
-
-  //   const method = _redisClient[methodName as keyof RedisClientType<any>];
-  //   if (typeof method === "function") {
-  //     return method(...args);
-  //   } else {
-  //     this.logger.warn(`⚠️ No method ${methodName} found in Redis Client.`);
-  //     return undefined;
-  //   }
-  // }
-
   private isLocalHost(address: string | undefined): boolean {
     if (!address) return false;
     const localAddresses = ["127.0.0.1", "localhost", "::1"];
@@ -103,27 +83,3 @@ export class RedisClient {
       .some((iface) => iface?.address === address);
   }
 }
-
-// import { createClient } from "redis";
-// import { redisConfig } from "../../config/redis-config";
-
-// // إعداد عميل Redis
-// const redisClient = createClient({
-//   url: `redis://${redisConfig.host}:${redisConfig.port}`,
-//   //   password: redisConfig.password,
-// });
-
-// redisClient
-//   .connect()
-//   .then(() => {
-//     console.log("Connected to Redis...");
-//   })
-//   .catch((err) => {
-//     console.error("Error connecting to Redis:", err);
-//   });
-
-// redisClient.on("error", (err) => {
-//   console.error("Redis error:", err);
-// });
-
-// export default redisClient;

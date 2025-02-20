@@ -1,27 +1,45 @@
 import mongoose from "mongoose";
 import path from "path";
 import dotenv from "dotenv";
+import { Logger } from "../commons/libs/logger";
 
-// Load environment variables
 dotenv.config({ path: path.resolve(".env") });
 
-const MONGODB_URL = process.env.MONGO_URI as string;
+const logger = Logger.Instance;
+
+const MONGODB_URL = process.env.MONGO_URL as string;
+const DB_NAME = process.env.DB_NAME || "peakproz";
 
 if (!MONGODB_URL) {
-  throw new Error("MONGO_URI is not defined in environment variables.");
+  console.error("❌ MONGO_URL is not defined in environment variables.");
+  logger.log().error("❌ MONGO_URL is not defined in environment variables.");
+  throw new Error("MONGO_URL is not defined in environment variables.");
 }
 
-// MongoDB Connection
-const connectDb = async (): Promise<void> => {
+mongoose.set("strictQuery", false);
+
+export const connectToDatabase = async (): Promise<void> => {
   try {
-    await mongoose.connect(MONGODB_URL, {
-      dbName: process.env.DB_NAME, // Optional if you want to specify a DB name
-    });
+    await mongoose.connect(MONGODB_URL, { dbName: DB_NAME });
+
     console.log("✅ MongoDB connected successfully");
-  } catch (error) {
-    console.error("❌ MongoDB connection error:", error);
-    process.exit(1); // Exit process with failure
+    logger.log().info("✅ MongoDB connected successfully");
+  } catch (error: any) {
+    console.error(`❌ MongoDB connection error: ${error.message}`);
+    logger.log().error(`❌ MongoDB connection error: ${error.message}`);
+    process.exit(1);
   }
 };
 
-export default connectDb;
+export const disconnectDatabase = async (): Promise<void> => {
+  try {
+    await mongoose.disconnect();
+    console.log("🔌 MongoDB connection closed");
+    logger.log().info("🔌 MongoDB connection closed");
+  } catch (error: any) {
+    console.error(`❌ Error disconnecting from MongoDB: ${error.message}`);
+    logger.log().error(`❌ Error disconnecting from MongoDB: ${error.message}`);
+  }
+};
+
+export default connectToDatabase;

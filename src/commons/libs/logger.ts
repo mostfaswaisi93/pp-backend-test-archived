@@ -1,43 +1,49 @@
 import pino from "pino";
-import * as fs from "fs";
-import moment from "moment";
-import * as dotenv from "dotenv";
-import { resolve } from "path";
+import fs from "fs";
+import path from "path";
+import dotenv from "dotenv";
 
-dotenv.config({ path: resolve() + "/.env" });
+dotenv.config();
 
 export class Logger {
   private static _instance: Logger;
-  private logDirectory: string = __dirname + "/../../../logs";
+  private logDirectory: string;
   private logger: pino.Logger;
 
-  // Singleton pattern to ensure one instance of Logger
+  private constructor() {
+    this.logDirectory = path.resolve(__dirname, "../../../logs");
+    this.ensureLogDirectory();
+
+    this.logger = pino(
+      {
+        name: `PEAKPROZ-${process.env.NODE_ENV || "development"}`,
+        level: process.env.LOG_LEVEL || "debug",
+        timestamp: () => `, "time": "${new Date().toISOString()}"`,
+        formatters: {
+          level(label: string) {
+            return { level: label.toUpperCase() };
+          },
+        },
+      },
+      fs.createWriteStream(path.join(this.logDirectory, "access.log"), {
+        flags: "a",
+      })
+    );
+  }
+
+  private async ensureLogDirectory(): Promise<void> {
+    try {
+      await fs.promises.mkdir(this.logDirectory, { recursive: true });
+    } catch (error) {
+      console.error("Error creating log directory:", error);
+    }
+  }
+
   static get Instance(): Logger {
     if (!this._instance) {
       this._instance = new Logger();
     }
     return this._instance;
-  }
-
-  private constructor() {
-    this.ensureLogDirectory();
-    this.logger = pino({
-      name: `PEAKPROZ-${process.env.NODE_ENV}`,
-      level: process.env.LOG_LEVEL || "debug",
-      timestamp: () => `, "time": "${moment().format("YYYY-MM-DD HH:mm:ss")}"`,
-      formatters: {
-        level(label: string) {
-          return { level: label.toUpperCase() };
-        },
-      },
-    }, fs.createWriteStream(`${this.logDirectory}/access.log`, { flags: "a" }));
-  }
-
-  // Ensure log directory exists
-  private ensureLogDirectory(): void {
-    if (!fs.existsSync(this.logDirectory)) {
-      fs.mkdirSync(this.logDirectory, { recursive: true });
-    }
   }
 
   public log(): pino.Logger {

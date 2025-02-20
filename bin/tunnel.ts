@@ -5,8 +5,8 @@ import dotenv from "dotenv";
 // .env
 dotenv.config({ path: path.join(".env") });
 
-// MONGO_URI
-if (!process.env.MONGO_URI) {
+// MONGO_URL
+if (!process.env.MONGO_URL) {
   throw new Error("MONGO URL NOT FOUND, PLEASE CHECK .env");
 }
 

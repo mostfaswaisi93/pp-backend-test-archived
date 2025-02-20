@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "npx tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "nodemon --watch src/**/*.ts --exec ts-node src/server.ts",
     "start": "nodemon bin/www.ts",
@@ -13,7 +13,9 @@
     "dev2": "ts-node src/server.ts",
     "dev3": "nodemon bin/www.ts",
     "tunnel": "lt --port 8000",
-    "start:prod": "node ./dist/server.js"
+    "start:prod": "node ./dist/server.js",
+    "start:debug": "ts-node --inspect=5858 --debug-brk --ignore false index.ts",
+    "start:dev": "nodemon"
   },
   "_moduleAliases": {
     "@typings": "dist/typings",
@@ -36,6 +38,7 @@
     "debug": "^4.4.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "express-pino-logger": "^7.0.0",
     "express-validator": "^7.2.1",
     "helmet": "^8.0.0",
     "i18n": "^0.15.1",

@@ -1,20 +1,33 @@
 import http from "http";
 import debugLib from "debug";
 import app from "../src/app";
-import connectDb from "./config/database";
+import connectToDatabase from "./config/database";
 import { Server as SocketServer } from "socket.io";
 import { RedisClient } from "./commons/libs/redis-client";
 import { Logger } from "./commons/libs/logger";
 
 const debug = debugLib("backend:server");
 const logger = Logger.Instance.log();
+// const logger = Logger.Instance;
 
 // PORT `.env` 8000
-const PORT = process.env.PORT || 8000;
+const PORT: number | string | false = normalizePort(process.env.PORT || "8000");
 app.set("port", PORT);
 
 // Server
 const server = http.createServer(app);
+
+// server.listen(PORT);
+// server.on("error", onError);
+// server.on("listening", onListening);
+
+// Normalize a port into a number, string, or false.
+function normalizePort(val: string): number | string | false {
+  const port = parseInt(val, 10);
+  if (isNaN(port)) return val; // Named pipe
+  if (port >= 0) return port; // Port number
+  return false;
+}
 
 // إضافة Socket.io مع HTTP server
 const io = new SocketServer(server, {
@@ -40,7 +53,7 @@ io.on("connection", (socket) => {
 });
 
 // DB Connection
-connectDb()
+connectToDatabase()
   .then(() => {
     server.listen(PORT, () => {
       logger.info(`🚀 Server running on http://localhost:${PORT}`);
@@ -53,18 +66,34 @@ connectDb()
     process.exit(1);
   });
 
+export const bootstrap = async (): Promise<boolean> => {
+  try {
+    await connectToDatabase();
+    logger.info("✅ Database connected successfully");
+    return true;
+  } catch (error: any) {
+    logger.error(
+      `❌ ${error.status || 500} - ${error.message} - Connection Error`
+    );
+    throw new Error(error.message);
+  }
+};
+
 // Error Exception
 function onError(error: NodeJS.ErrnoException): void {
   if (error.syscall !== "listen") throw error;
 
   const bind = typeof PORT === "string" ? `Pipe ${PORT}` : `Port ${PORT}`;
+
   switch (error.code) {
     case "EACCES":
-      logger.error(`${bind} requires elevated privileges`);
+      debug(`❌ ${bind} requires elevated privileges`);
+      console.error(`${bind} requires elevated privileges`);
       process.exit(1);
       break;
     case "EADDRINUSE":
-      logger.error(`${bind} is already in use`);
+      debug(`❌ ${bind} is already in use`);
+      console.error(`${bind} is already in use`);
       process.exit(1);
       break;
     default:
@@ -74,9 +103,19 @@ function onError(error: NodeJS.ErrnoException): void {
 
 // Listening on PORT `.env` 8000
 function onListening(): void {
-  const addr = server.address();
-  const bind = typeof addr === "string" ? `pipe ${addr}` : `port ${addr?.port}`;
-  logger.info(`✅ Listening on ${bind}`);
+  const address = server.address();
+  if (!address) {
+    debug("❌ Server address is undefined.");
+    console.error("❌ Server address is undefined.");
+    logger.error("❌ Database connection failed:");
+    return;
+  }
+
+  const bind =
+    typeof address === "string" ? `pipe ${address}` : `port ${address.port}`;
+
+  debug(`✅ Server is listening on ${bind}`);
+  console.log(`✅ Server is listening on ${bind}`);
   console.log("Press CTRL + C to stop the process. \n");
 }
 
