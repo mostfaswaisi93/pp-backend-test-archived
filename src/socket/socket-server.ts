@@ -3,9 +3,10 @@ import { createServer } from "http";
 import { Logger } from "../commons/libs/logger"; // لاستعمال اللوجر
 // import { redisConfig } from "../config/redis"; // لاستعمال إعدادات Redis
 import { RedisClient } from "../commons/libs/redis-client"; // لاستعمال Redis
+const logger = Logger.Instance;
 
 export class SocketServer {
-  private logger = new Logger().log();
+  // private logger = new Logger().log();
   private io: Server;
 
   constructor(private httpServer: any) {
@@ -23,10 +24,10 @@ export class SocketServer {
   // وظيفة الاستماع للتواصل عبر الـ Socket
   listen() {
     this.io.on("connection", (socket) => {
-      this.logger.info(`A user connected: ${socket.id}`);
+      logger.info(`A user connected: ${socket.id}`);
 
       socket.on("disconnect", () => {
-        this.logger.info(`User disconnected: ${socket.id}`);
+        logger.info(`User disconnected: ${socket.id}`);
       });
 
       // إرسال رسائل إلى Redis عبر `broadcast`
@@ -42,9 +43,9 @@ export class SocketServer {
 
     // redisClient.broadcast("set", "message", message, (err, result) => {
     //   if (err) {
-    //     this.logger.error("Error while sending message to Redis:", err);
+    //     logger.error("Error while sending message to Redis:", err);
     //   } else {
-    //     this.logger.info("Message sent to Redis:", result);
+    //     logger.info("Message sent to Redis:", result);
     //   }
     // });
   }

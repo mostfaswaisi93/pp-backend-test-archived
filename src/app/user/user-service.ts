@@ -4,15 +4,13 @@ import {
   UserNotFoundException,
 } from "../../commons/errors/exceptions";
 import * as i18n from "i18n";
-import { getRepository, In, Not } from "typeorm";
+import { getRepository, Not } from "typeorm";
 import { User } from "../../database/entity/User";
 import { PasswordCheckService } from "../../commons/validators/password-check-service";
-import * as fs from "fs";
 import AuthService from "../auth/auth-service";
 import {
   ACTION_LOG_REF_TYPE,
   ACTION_LOG_TYPE,
-  ncsiID,
   USER_TYPES,
 } from "../../commons/constants/constants";
 import { AgencyService } from "../agency/AgencyService";
@@ -20,7 +18,6 @@ import { ActionLogService } from "../../commons/services/ActionLogService";
 
 export class UserService {
   private ActionLogService: ActionLogService = ActionLogService.Instance;
-
   private userRepository = getRepository(User);
   private passwordCheckService: PasswordCheckService =
     PasswordCheckService.Instance;
@@ -32,112 +29,123 @@ export class UserService {
     return this._instance ? this._instance : (this._instance = new this());
   }
 
-  async all(agencyId, withAdmin: any = false): Promise<User[]> {
-    let where: any = {};
-    if (agencyId && agencyId !== "null") {
-      where = { agency: agencyId };
-    }
-    if (withAdmin === "false" || withAdmin === false) {
-      where.userType = USER_TYPES.Data;
-    }
-    let users: User[] = await this.userRepository.find({
-      where: where,
-      relations: ["agency"],
+  private async isEmailOrPhoneExist(
+    email: string,
+    phone: string,
+    excludeId: string = null
+  ) {
+    const emailExists = await this.userRepository.findOne({
+      email,
+      userId: Not(excludeId),
     });
-    return users;
+    if (emailExists)
+      throw new InvalidInputException(i18n.__("email_already_exist"));
+
+    const phoneExists = await this.userRepository.findOne({
+      phone,
+      userId: Not(excludeId),
+    });
+    if (phoneExists)
+      throw new InvalidInputException(i18n.__("mobile_already_exist"));
   }
 
-  async active(agencyId): Promise<User[]> {
-    let where: any = { active: 1, userType: USER_TYPES.Data };
-    if (agencyId && agencyId !== "null") {
-      where.agency = agencyId;
+  private async checkUserExistence(user: User, excludeId: string = null) {
+    if (user.email)
+      await this.isEmailOrPhoneExist(
+        user.email.toLowerCase().trim(),
+        user.phone,
+        excludeId
+      );
+    if (user.nameAr || user.nameEn) {
+      await this.checkNameExistence(user.nameAr, user.nameEn, excludeId);
     }
-    let users: User[] = await this.userRepository.find({
-      where: where,
-      relations: ["agency"],
-    });
-    return users;
+  }
+
+  private async checkNameExistence(
+    nameAr: string,
+    nameEn: string,
+    excludeId: string = null
+  ) {
+    if (nameAr) {
+      const nameArExist = await this.userRepository.findOne({
+        nameAr,
+        userId: Not(excludeId),
+      });
+      if (nameArExist)
+        throw new InvalidInputException(i18n.__("name_already_exist"));
+    }
+
+    if (nameEn) {
+      const nameEnExist = await this.userRepository.findOne({
+        nameEn,
+        userId: Not(excludeId),
+      });
+      if (nameEnExist)
+        throw new InvalidInputException(i18n.__("name_already_exist"));
+    }
+  }
+
+  private async validateAgency(agencyId: string) {
+    if (agencyId) {
+      const agency = await this.agencyService.findById(agencyId);
+      if (!agency) throw new InvalidInputException(i18n.__("agency_not_found"));
+    }
+  }
+
+  async all(agencyId: string, withAdmin: boolean = false): Promise<User[]> {
+    const where: any = {
+      agency: agencyId && agencyId !== "null" ? agencyId : undefined,
+    };
+    if (!withAdmin) where.userType = USER_TYPES.Data;
+    return this.userRepository.find({ where, relations: ["agency"] });
+  }
+
+  async active(agencyId: string): Promise<User[]> {
+    const where: any = {
+      active: 1,
+      userType: USER_TYPES.Data,
+      agency: agencyId && agencyId !== "null" ? agencyId : undefined,
+    };
+    return this.userRepository.find({ where, relations: ["agency"] });
   }
 
   async ncsi(): Promise<User[]> {
-    let users: User[] = await this.userRepository.find({
-      where: { agency: ncsiID, active: 1, userType: USER_TYPES.Data },
+    return this.userRepository.find({
+      where: { agency: "ncsiID", active: 1, userType: USER_TYPES.Data },
       relations: ["agency"],
     });
-    return users;
   }
 
-  async findById(id): Promise<User> {
-    let user = await this.userRepository.findOne({
+  async findById(id: string): Promise<User> {
+    const user = await this.userRepository.findOne({
       where: { userId: id, active: 1 },
       relations: ["agency"],
     });
-    if (!user) {
-      throw new UserNotFoundException();
-    }
+    if (!user) throw new UserNotFoundException();
     return user;
   }
 
   async findByEmail(email: string): Promise<User> {
-    let user = await this.userRepository.findOne({
+    const user = await this.userRepository.findOne({
       where: { email: email.toLowerCase().trim(), active: 1 },
       relations: ["agency"],
     });
-    if (!user) {
-      throw new UserNotFoundException();
-    }
+    if (!user) throw new UserNotFoundException();
     return user;
   }
 
   async create(user: User) {
-    if (user.password) {
-      if (!this.passwordCheckService.checkPasswordValidaty(user.password)) {
-        throw new InvalidInputException(i18n.__("complex_password_required"));
-      }
-    } else {
-      throw new Error(i18n.__("password_required"));
+    if (
+      !user.password ||
+      !this.passwordCheckService.checkPasswordValidaty(user.password)
+    ) {
+      throw new InvalidInputException(i18n.__("complex_password_required"));
     }
 
-    if (user.email) {
-      let userExist = await this.userRepository.findOne({ email: user.email });
-      if (userExist) {
-        throw new InvalidInputException(i18n.__("email_already_exist"));
-      }
-    }
+    await this.checkUserExistence(user);
+    await this.validateAgency(user.agency);
 
-    if (user.phone) {
-      let userExist = await this.userRepository.findOne({ phone: user.phone });
-      if (userExist) {
-        throw new InvalidInputException(i18n.__("mobile_already_exist"));
-      }
-    }
-
-    if (user.nameAr) {
-      let userNameArExist = await this.userRepository.findOne({
-        nameAr: user.nameAr,
-      });
-      if (userNameArExist) {
-        throw new InvalidInputException(i18n.__("name_already_exist"));
-      }
-    }
-
-    if (user.nameEn) {
-      let userNameEnExist = await this.userRepository.findOne({
-        nameEn: user.nameEn,
-      });
-      if (userNameEnExist) {
-        throw new InvalidInputException(i18n.__("name_already_exist"));
-      }
-    }
-
-    if (user.agency) {
-      let agency = await this.agencyService.findById(user.agency);
-      if (!agency) {
-        throw new InvalidInputException(i18n.__("agency_not_found"));
-      }
-    }
-
-    let createdUser: User = await this.userRepository.save(user);
+    const createdUser = await this.userRepository.save(user);
     this.ActionLogService.insertAction(
       ACTION_LOG_TYPE.ADD_USER,
       { user_name: createdUser.nameEn },
@@ -145,104 +153,27 @@ export class UserService {
       ACTION_LOG_REF_TYPE.USER,
       createdUser.userId
     );
+
     return createdUser;
   }
 
-  async update(id, user: User) {
-    let existUser = (
-      await this.userRepository.findOne({ userId: id })
-    ).toJSON();
+  async update(id: string, user: User) {
+    const existUser = await this.userRepository.findOne({ userId: id });
+    if (!existUser) throw new UserNotFoundException();
 
-    if (!existUser) {
-      throw new UserNotFoundException();
+    await this.checkUserExistence(user, id);
+    await this.validateAgency(user.agency);
+
+    Object.assign(existUser, user);
+
+    if (
+      user.password &&
+      !this.passwordCheckService.checkPasswordValidaty(user.password)
+    ) {
+      throw new InvalidInputException(i18n.__("complex_password_required"));
     }
 
-    existUser.toJSON();
-
-    let existEmail = await this.userRepository.findOne({
-      email: user.email,
-      userId: Not(id),
-    });
-    if (existEmail) {
-      throw new InvalidInputException(i18n.__("email_already_exist"));
-    }
-
-    let existMobile = await this.userRepository.findOne({
-      phone: user.phone,
-      userId: Not(id),
-    });
-    if (existMobile) {
-      throw new InvalidInputException(i18n.__("mobile_already_exist"));
-    }
-
-    if (user.nameAr) {
-      let userNameArExist = await this.userRepository.findOne({
-        nameAr: user.nameAr,
-        userId: Not(id),
-      });
-      if (userNameArExist) {
-        throw new InvalidInputException(i18n.__("name_already_exist"));
-      }
-    }
-
-    if (user.nameEn) {
-      let userNameEnExist = await this.userRepository.findOne({
-        nameEn: user.nameEn,
-        userId: Not(id),
-      });
-      if (userNameEnExist) {
-        throw new InvalidInputException(i18n.__("name_already_exist"));
-      }
-    }
-
-    if (user.password) {
-      if (!this.passwordCheckService.checkPasswordValidaty(user.password)) {
-        throw new InvalidInputException(i18n.__("complex_password_required"));
-      }
-    }
-
-    if (user.agency) {
-      let agency = await this.agencyService.findById(user.agency);
-      if (!agency) {
-        throw new InvalidInputException(i18n.__("agency_not_found"));
-      }
-      existUser.agency = user.agency;
-    }
-
-    existUser.nameAr = user.nameAr;
-    existUser.nameEn = user.nameEn;
-    existUser.phone = user.phone;
-    existUser.title = user.title;
-
-    if (user.userType) {
-      existUser.userType = user.userType;
-    }
-
-    if (user.email) {
-      existUser.email = user.email;
-    }
-
-    if (user.password) {
-      existUser.password = user.password;
-    }
-
-    if (+user.active === 2 && +existUser.active === 1) {
-      existUser.deactivateDate = new Date();
-      existUser.active = user.active;
-    } else if (user.active === 1) {
-      existUser.deactivateDate = null;
-      existUser.active = user.active;
-    }
-
-    if (user.department) {
-      existUser.department = user.department;
-    }
-
-    if (user.directorGeneral) {
-      existUser.directorGeneral = user.directorGeneral;
-    }
-
-    let result = await this.userRepository.save(existUser);
+    const result = await this.userRepository.save(existUser);
     this.ActionLogService.insertAction(
       ACTION_LOG_TYPE.EDIT_USER,
       { user_name: existUser.nameEn },
@@ -250,54 +181,46 @@ export class UserService {
       ACTION_LOG_REF_TYPE.USER,
       existUser.userId
     );
+
     return result;
   }
 
-  async resetPassword(new_password, old_password, userId) {
-    if (new_password) {
-      if (!this.passwordCheckService.checkPasswordValidaty(new_password)) {
-        throw new InvalidInputException(i18n.__("complex_password_required"));
-      }
-    } else {
-      throw new Error(i18n.__("password_required"));
+  async resetPassword(
+    newPassword: string,
+    oldPassword: string,
+    userId: string
+  ) {
+    if (
+      !newPassword ||
+      !this.passwordCheckService.checkPasswordValidaty(newPassword)
+    ) {
+      throw new InvalidInputException(i18n.__("complex_password_required"));
     }
 
-    let user: User = await this.userRepository.findOne({ userId });
+    const user = await this.userRepository.findOne({ userId });
+    if (!user) throw new UserNotFoundException(i18n.__("user_not_found"));
 
-    if (!user) {
-      throw new UserNotFoundException(i18n.__("user_not_found"));
-    }
-
-    let isValid = this.authService.validPassword(old_password, user.password);
-
-    if (!isValid) {
+    if (!this.authService.validPassword(oldPassword, user.password)) {
       throw new InvalidInputException(i18n.__("old_password_not_correct"));
     }
 
-    try {
-      user.password = new_password;
-      return await this.userRepository.save(user);
-    } catch (error) {
-      throw error;
-    }
+    user.password = newPassword;
+    return this.userRepository.save(user);
   }
 
-  async updateActive(id, active, userId) {
-    let user = await this.userRepository.findOne({ userId: id });
+  async updateActive(id: string, active: number, userId: string) {
+    const user = await this.userRepository.findOne({ userId: id });
+    if (!user) throw new UserNotFoundException(i18n.__("user_not_found"));
 
-    if (!user) {
-      throw new UserNotFoundException(i18n.__("user_not_found"));
-    }
-
-    if (+user.active === 1 && active === 2) {
+    if (active === 2 && user.active === 1) {
       user.deactivateDate = new Date();
-      user.active = active;
     } else if (active === 1) {
       user.deactivateDate = null;
-      user.active = active;
     }
+
+    user.active = active;
     user.updatedBy = userId;
 
-    return await this.userRepository.save(user);
+    return this.userRepository.save(user);
   }
 }

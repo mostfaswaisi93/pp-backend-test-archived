@@ -1,6 +1,6 @@
 import http from "http";
 import debugLib from "debug";
-import app from "../src/app";
+import App from "../src/app";
 import connectToDatabase from "./config/database";
 import { Server as SocketServer } from "socket.io";
 import { RedisClient } from "./commons/libs/redis-client";
@@ -12,19 +12,18 @@ const logger = Logger.Instance.log();
 // Normalize a port into a number, string, or false.
 function normalizePort(val: string): number | string | false {
   const port = parseInt(val, 10);
-  if (isNaN(port)) return val; // Named pipe
-  if (port >= 0) return port; // Port number
+  if (isNaN(port)) return val;
+  if (port >= 0) return port;
   return false;
 }
 
-// إعدادات الـ PORT
+// PORT
 const PORT: number | string | false = normalizePort(process.env.PORT || "8000");
-app.set("port", PORT);
+const appInstance = new App([]);
+appInstance.getApp().set("port", PORT);
 
-// إنشاء الـ HTTP server
-const server = http.createServer(app);
+const server = http.createServer(appInstance.getApp());
 
-// إضافة Socket.io مع HTTP server
 const io = new SocketServer(server, {
   cors: {
     origin: "*",
@@ -32,7 +31,7 @@ const io = new SocketServer(server, {
   },
 });
 
-// إعدادات الـ Socket.io - التعامل مع Redis
+// Socket.io with Redis
 io.on("connection", (socket) => {
   logger.info(`A user connected: ${socket.id}`);
 
@@ -47,11 +46,10 @@ io.on("connection", (socket) => {
   });
 });
 
-// دالة الاتصال بقاعدة البيانات
-const bootstrap = async (): Promise<boolean> => {
+// Connect To Database
+const dbConnection = async (): Promise<boolean> => {
   try {
     await connectToDatabase();
-    logger.info("✅ Database connected successfully");
     startServer();
     return true;
   } catch (error: any) {
@@ -62,7 +60,7 @@ const bootstrap = async (): Promise<boolean> => {
   }
 };
 
-// دالة لبدء السيرفر بعد التأكد من الاتصال بالقاعدة
+// Start Server on PORT `.env` 8000
 const startServer = () => {
   server.listen(PORT, () => {
     logger.info(`🚀 Server running on http://localhost:${PORT}`);
@@ -82,11 +80,13 @@ function onError(error: NodeJS.ErrnoException): void {
     case "EACCES":
       debug(`❌ ${bind} requires elevated privileges`);
       console.error(`${bind} requires elevated privileges`);
+      logger.error(`${bind} requires elevated privileges`);
       process.exit(1);
       break;
     case "EADDRINUSE":
       debug(`❌ ${bind} is already in use`);
       console.error(`${bind} is already in use`);
+      logger.error(`${bind} is already in use`);
       process.exit(1);
       break;
     default:
@@ -100,7 +100,6 @@ function onListening(): void {
   if (!address) {
     debug("❌ Server address is undefined.");
     console.error("❌ Server address is undefined.");
-    logger.error("❌ Server address is undefined.");
     return;
   }
 
@@ -112,7 +111,7 @@ function onListening(): void {
   console.log("Press CTRL + C to stop the process. \n");
 }
 
-// بدء الاتصال بالقاعدة وتهيئة السيرفر
-bootstrap();
+// DB Connection
+dbConnection();
 
 export default server;

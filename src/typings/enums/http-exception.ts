@@ -43,6 +43,12 @@ export const exceptionMap = {
     status: 422,
   },
 
+  invalidLanguage: {
+    message: "invalidLanguage",
+    customCode: "INL400",
+    status: 400,
+  },
+
   invalidInput: {
     message: "invalidInput",
     customCode: "INI400",

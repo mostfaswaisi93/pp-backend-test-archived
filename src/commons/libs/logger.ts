@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export class Logger {
-  private static _instance: Logger;
+  private static _instance = new Logger();
   private logDirectory: string;
   private logger: pino.Logger;
 
@@ -14,20 +14,21 @@ export class Logger {
     this.logDirectory = path.resolve(__dirname, "../../../logs");
     this.ensureLogDirectory();
 
+    const logFilePath = path.join(this.logDirectory, "access.log");
+    const logStream = pino.destination(logFilePath);
+
     this.logger = pino(
       {
         name: `PEAKPROZ-${process.env.NODE_ENV || "development"}`,
         level: process.env.LOG_LEVEL || "debug",
-        timestamp: () => `, "time": "${new Date().toISOString()}"`,
+        timestamp: pino.stdTimeFunctions.isoTime,
         formatters: {
           level(label: string) {
             return { level: label.toUpperCase() };
           },
         },
       },
-      fs.createWriteStream(path.join(this.logDirectory, "access.log"), {
-        flags: "a",
-      })
+      logStream
     );
   }
 
@@ -47,6 +48,10 @@ export class Logger {
   }
 
   public log(): pino.Logger {
+    return this.logger;
+  }
+
+  public getLogger(): pino.Logger {
     return this.logger;
   }
 
