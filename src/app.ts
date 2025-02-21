@@ -1,12 +1,19 @@
 import bodyParser from "body-parser";
-import cors from "cors";
 import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import compression from "compression";
+import { urlencoded } from "express";
 import http from "http";
 import path from "path";
 import i18n from "i18n";
 import expressPino from "express-pino-logger";
 import { Logger } from "../src/commons/libs/logger";
 import Controller from "../src/interfaces/controller.interface";
+
+// import { authRoutes } from "./routes/auth/auth.routes";
+// import { userRoutes } from "./routes/users/users.routes";
+import { errorHandler } from "./middlewares/exception.middleware";
 
 const logger = Logger.Instance.log();
 
@@ -35,6 +42,16 @@ export class App {
     this.app.use(bodyParser.urlencoded({ extended: true }));
     this.app.use(bodyParser.json({ limit: "50mb" }));
     this.app.use(cors());
+    this.app.use(helmet());
+    this.app.use(compression());
+    this.app.use(urlencoded({ extended: true }));
+
+    // Routes
+    // this.app.use("/api/auth", authRoutes);
+    // this.app.use("/api/users", userRoutes);
+
+    // Global Error Handler
+    this.app.use(errorHandler);
     this.initI18n();
   }
 

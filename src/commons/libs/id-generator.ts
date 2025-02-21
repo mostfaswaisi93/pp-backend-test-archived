@@ -1,20 +1,19 @@
-import * as FlakeIdGen from 'flake-idgen';
-import * as intformat  from 'biguint-format';
+import FlakeIdGen from "flake-idgen";
+import intformat from "biguint-format";
 
 export default class IdGenerator {
-  private static _instance;
-  private generator = new FlakeIdGen;
-  constructor() {
+  private static _instance: IdGenerator | null = null;
+  private generator: FlakeIdGen;
 
+  private constructor() {
+    this.generator = new FlakeIdGen();
   }
 
-  static get Instance() {
-    return this._instance ? this._instance : (this._instance = new this());
+  public static get Instance(): IdGenerator {
+    return this._instance ?? (this._instance = new IdGenerator());
   }
 
-  generateId(){
-       return intformat(this.generator.next(), 'dec');
+  public generateId(): string {
+    return intformat(this.generator.next(), "dec");
   }
-
-
 }

@@ -4,11 +4,9 @@ import { Response } from "express";
 
 export default class HttpResWrapper {
   private static _instance: HttpResWrapper | null = null;
-  private logger: Logger;
+  private logger = Logger.Instance;
 
-  private constructor() {
-    this.logger = new Logger();
-  }
+  private constructor() {}
 
   static get Instance(): HttpResWrapper {
     if (!this._instance) {
@@ -18,51 +16,34 @@ export default class HttpResWrapper {
   }
 
   public success(res: Response, data: any = null): void {
-    this.logger.log().info("Success response sent.");
+    this.logger.info("Success response sent.");
     res.status(200).json({
       success: true,
       data: data || null,
     });
   }
 
-  public error(res: Response, error: unknown): void {
+  public error(res: Response, error: unknown, status: number = 500): void {
+    let errorMessage = "Unexpected error occurred.";
+    let errorCode = status;
+
     if (error instanceof ApplicationException) {
-      this.logger.log().warn(`[ApplicationException] ${error.message}`);
-      res.status(error.status).json({
-        success: false,
-        error: {
-          code: error.code || error.status,
-          message: error.message,
-        },
-      });
+      this.logger.warn(`[ApplicationException] ${error.message}`);
+      errorMessage = error.message;
+      errorCode = error.code || error.status;
+    } else if (error instanceof Error) {
+      this.logger.error(`[Unhandled Error] ${error.message}`);
+      errorMessage = error.message;
     } else {
-      const message =
-        error instanceof Error ? error.message : "Unexpected error occurred.";
-      this.logger.log().error(`[Unhandled Error] ${message}`);
-      res.status(500).json({
-        success: false,
-        error: {
-          code: 500,
-          message: message,
-        },
-      });
-    }
-  }
-
-  public handle(res: Response, status: number, error: unknown): void {
-    const message = error instanceof Error ? error.message : String(error);
-
-    if (status === 500) {
-      this.logger.log().error(`[Critical Error] ${message}`);
-    } else {
-      this.logger.log().warn(`[Handled Error] ${message}`);
+      this.logger.error(`[Unknown Error] ${String(error)}`);
+      errorMessage = String(error);
     }
 
-    res.status(status).json({
+    res.status(errorCode).json({
       success: false,
       error: {
-        code: status,
-        message: message,
+        code: errorCode,
+        message: errorMessage,
       },
     });
   }

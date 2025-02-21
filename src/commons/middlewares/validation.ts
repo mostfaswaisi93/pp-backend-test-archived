@@ -1,4 +1,4 @@
-import { InvalidInputException } from '../errors/exceptions';
+import { InvalidInputException } from "../errors/exceptions";
 import { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
 import * as i18n from "i18n";

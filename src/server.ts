@@ -6,7 +6,7 @@ import { Server as SocketServer } from "socket.io";
 import { RedisClient } from "./commons/libs/redis-client";
 import { Logger } from "./commons/libs/logger";
 
-const debug = debugLib("backend:server");
+const debug = debugLib("peakproz-backend:server");
 const logger = Logger.Instance.log();
 
 // Normalize a port into a number, string, or false.
