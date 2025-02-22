@@ -1,7 +1,7 @@
 import { Response, Request, NextFunction } from "express";
 import { HttpException } from "../helpers/exception";
 import { env } from "process";
-import { exceptionMap } from "../typings/enums/http-exception";
+import { exceptionMap } from "../../src/commons/enums/http-exception";
 
 export default async function headerParser(
   req: Request,

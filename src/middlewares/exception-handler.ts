@@ -1,8 +1,8 @@
-import { exceptionMap } from "../typings/enums/http-exception";
+import { exceptionMap } from "../commons/enums/http-exception";
 import { getLocalError } from "../utils/translate";
 import { NextFunction, Request, Response } from "express";
 import { HttpException } from "../helpers/exception";
-import * as locals from "../localization";
+// import * as locals from "../localization";
 import debugLib from "debug";
 
 const debug = debugLib("backend:error-middleware");
@@ -48,9 +48,9 @@ function handleMulterError(error: any) {
 
 function generateLocalizedErrors(message: string) {
   const translatable: Record<string, string> = {};
-  for (const lang in locals) {
-    translatable[lang] = getLocalError(message, lang) || message;
-  }
+  // for (const lang in locals) {
+  //   translatable[lang] = getLocalError(message, lang) || message;
+  // }
   return translatable;
 }
 

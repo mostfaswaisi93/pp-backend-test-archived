@@ -1,6 +1,6 @@
-import { LANG_LIST } from "../typings/enums/defualts.enum";
-import { Translatable } from "../typings/interfaces/translation.interface";
-import { Locals, locals } from "../localization";
+import { Locals } from "express";
+import { LANG_LIST } from "../commons/enums/defualts.enum";
+import { Translatable } from "../interfaces/translation.interface";
 
 export function translate(
   object: any,
@@ -119,7 +119,8 @@ export function getLocalError(keyString: string, lang: string): string {
   const keys = keyString.split(".");
   const language = lang as keyof Locals;
 
-  let message: any = locals[language]?.[keys[0]];
+  let message: any = 0; // error
+  // let message: any = locals[language]?.[keys[0]];
 
   for (let i = 1; i < keys.length; i++) {
     if (typeof message !== "object" || !message) {
