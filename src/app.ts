@@ -13,7 +13,7 @@ import Controller from "../src/interfaces/controller.interface";
 
 // import { authRoutes } from "./routes/auth/auth.routes";
 // import { userRoutes } from "./routes/users/users.routes";
-import { errorHandler } from "./middlewares/exception.middleware";
+import { errorHandler } from "./middlewares/exception";
 
 const logger = Logger.Instance.log();
 

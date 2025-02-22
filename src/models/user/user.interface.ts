@@ -8,8 +8,9 @@ export interface IUser extends Document {
   active: boolean;
   updatedBy: string;
   department?: string;
+  verificationCode?: string;
   directorGeneral?: string;
-  agency?: string;
+  // agency?: IAgency;
   title?: string;
   userType?: string;
   deactivateDate?: Date;

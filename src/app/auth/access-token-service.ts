@@ -36,9 +36,6 @@ export default class AccessTokenService {
 
   private constructor() {}
 
-  /**
-   * التحقق من صحة التوكن وإعادته إذا كان صالحًا
-   */
   async findToken(accessToken: string): Promise<any> {
     if (!accessToken) {
       throw new TokenNotValidException();
@@ -75,9 +72,6 @@ export default class AccessTokenService {
     }
   }
 
-  /**
-   * حذف التوكن من خلال Redis (تمييزه كمُسجّل خروج)
-   */
   async deleteToken(accessToken: string): Promise<void> {
     if (!accessToken) {
       throw new TokenNotValidException();
@@ -95,9 +89,6 @@ export default class AccessTokenService {
     }
   }
 
-  /**
-   * البحث عن المستخدم بواسطة التوكن
-   */
   async findUserByToken(accessToken: string): Promise<string | null> {
     if (!accessToken) {
       throw new TokenNotValidException();
@@ -116,28 +107,21 @@ export default class AccessTokenService {
     }
   }
 
-  /**
-   * إنشاء توكن جديد للمستخدم
-   */
-  createToken(user: {
-    userId: string;
-    userType: string;
-    nameAr: string;
-    nameEn: string;
-  }): string {
-    const payloadObj = {
-      userId: user.userId,
+  createToken(user: any): string {
+    const payload = {
+      userId: user._id,
       userType: user.userType,
-      name: `${user.nameAr} ${user.nameEn}`,
+      nameAr: user.nameAr,
+      nameEn: user.nameEn,
     };
 
     logger.info(
-      `${fileName}::createToken - Creating token for user_id: ${payloadObj.userId}`
+      `${fileName}::createToken - Creating token for user_id: ${payload.userId}`
     );
 
-    const TTL = 60 * 60 * 24; // مدة صلاحية التوكن 24 ساعة
+    const TTL = 60 * 60 * 24;
 
-    return jwt.sign(payloadObj, PRIV_KEY, {
+    return jwt.sign(payload, PRIV_KEY, {
       expiresIn: `${TTL}s`,
       algorithm: "RS256",
     });

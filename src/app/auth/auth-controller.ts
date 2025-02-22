@@ -6,9 +6,6 @@ import { UserService } from "../user/user-service";
 import AccessTokenService from "./access-token-service";
 import { login, forgetPassword, resetPassword } from "./auth-validation";
 
-/**
- * AuthController handles authentication-related routes and actions.
- */
 export default class AuthController {
   public path = "/auth";
   public router = express.Router();
