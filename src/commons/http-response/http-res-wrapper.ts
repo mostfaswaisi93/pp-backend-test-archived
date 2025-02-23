@@ -47,4 +47,15 @@ export default class HttpResWrapper {
       },
     });
   }
+
+  public handle(status: number, message: any, res: Response): void {
+    this.logger.error(`[Handle Error] ${message}`);
+    res.status(status).json({
+      success: false,
+      error: {
+        code: status,
+        message: message,
+      },
+    });
+  }
 }

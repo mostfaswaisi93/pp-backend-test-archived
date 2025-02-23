@@ -10,9 +10,6 @@ import i18n from "i18n";
 import expressPino from "express-pino-logger";
 import { Logger } from "../src/commons/libs/logger";
 import Controller from "../src/interfaces/controller.interface";
-
-// import { authRoutes } from "./routes/auth/auth.routes";
-// import { userRoutes } from "./routes/users/users.routes";
 import { errorHandler } from "./middlewares/exception";
 
 const logger = Logger.Instance.log();
@@ -45,12 +42,6 @@ export class App {
     this.app.use(helmet());
     this.app.use(compression());
     this.app.use(urlencoded({ extended: true }));
-
-    // Routes
-    // this.app.use("/api/auth", authRoutes);
-    // this.app.use("/api/users", userRoutes);
-
-    // Global Error Handler
     this.app.use(errorHandler);
     this.initI18n();
   }
@@ -112,7 +103,7 @@ export class App {
   private async initializeControllers(controllers: Controller[]) {
     controllers.forEach((controller) => {
       this.app.use(
-        `/portal/api/v1${controller.path}`,
+        `/api/v1${controller.path}`,
         controller.middleware || [],
         controller.router
       );

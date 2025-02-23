@@ -1,9 +1,9 @@
-import { Router } from "express";
+import { Router, RequestHandler, ErrorRequestHandler } from "express";
 
 interface Controller {
   path: string;
   router: Router;
-  middleware?: any[];
+  middleware?: (RequestHandler | ErrorRequestHandler)[];
 }
 
 export default Controller;

@@ -9,6 +9,7 @@ import AccessTokenService from "./access-token-service";
 import * as i18n from "i18n";
 import { PasswordCheckService } from "../../commons/validators/password-check-service";
 import { USER_TYPES } from "../../commons/constants/constants";
+import * as jwt from 'jsonwebtoken'; // تأكد من أنك قمت بتثبيت مكتبة jsonwebtoken
 
 export default class AuthService {
   private accessTokenService = AccessTokenService.Instance;
@@ -36,9 +37,9 @@ export default class AuthService {
       throw new InvalidEmailOrPasswordException();
     }
 
-    if (user.active === 2 || (user.agency && user.agency.active === 2)) {
-      throw new AccountNotVerifiedException();
-    }
+    // if (user.active === 2 || (user.agency && user.agency.active === 2)) {
+    //   throw new AccountNotVerifiedException();
+    // }
 
     if (!this.validPassword(password, user.password)) {
       throw new InvalidEmailOrPasswordException();
@@ -78,7 +79,7 @@ export default class AuthService {
     const user =
       await this.resetPasswordCheckVerificationCode(verificationCode);
     user.password = this.setPassword(password);
-    user.verificationCode = null;
+    // user.verificationCode = null;
 
     await user.save();
     return user;
@@ -120,7 +121,7 @@ export default class AuthService {
       .toString("hex");
   }
 
-  private validPassword(password: string, dbHash: string): boolean {
+  public validPassword(password: string, dbHash: string): boolean {
     return this.setPassword(password) === dbHash;
   }
 
@@ -133,5 +134,21 @@ export default class AuthService {
         message: i18n.__("unauthorized_access"),
       });
     }
+  };
+
+  authenticate = (req: any, res: any, next: any) => {
+    const token = req.headers["authorization"]?.split(" ")[1]; // استخراج التوكن من الـ headers
+
+    if (!token) {
+      return res.status(401).send({ message: "No token provided" });
+    }
+
+    jwt.verify(token, "your-secret-key", (err: any, decoded: any) => {
+      if (err) {
+        return res.status(401).send({ message: "Unauthorized" });
+      }
+      req.user = decoded; // حفظ بيانات المستخدم في request
+      next();
+    });
   };
 }
