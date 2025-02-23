@@ -1,7 +1,7 @@
 import http from "http";
 import debugLib from "debug";
 import App from "../src/app";
-import connectToDatabase from "./config/database";
+import { connectToDatabase } from "./config/database";
 import { Server as SocketServer } from "socket.io";
 import { RedisClient } from "./commons/libs/redis-client";
 import { Logger } from "./commons/libs/logger";
@@ -46,17 +46,14 @@ io.on("connection", (socket) => {
   });
 });
 
-// Connect To Database
-const dbConnection = async (): Promise<boolean> => {
+// DB Connection
+const dbConnection = async () => {
   try {
     await connectToDatabase();
-    startServer();
-    return true;
+    await startServer();
   } catch (error: any) {
-    logger.error(
-      `❌ ${error.status || 500} - ${error.message} - Connection Error`
-    );
-    throw new Error(error.message);
+    logger.error(`❌ Database connection failed: ${error.message}`);
+    process.exit(1);
   }
 };
 
@@ -111,7 +108,6 @@ function onListening(): void {
   console.log("Press CTRL + C to stop the process. \n");
 }
 
-// DB Connection
 dbConnection();
 
 export default server;

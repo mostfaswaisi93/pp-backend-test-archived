@@ -1,16 +1,16 @@
-import bodyParser from "body-parser";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import morgan from "morgan";
+import requestIp from "request-ip";
 import compression from "compression";
-import { urlencoded } from "express";
 import http from "http";
 import path from "path";
 import i18n from "i18n";
-import expressPino from "express-pino-logger";
 import { Logger } from "../src/commons/libs/logger";
 import Controller from "../src/interfaces/controller.interface";
 import { errorHandler } from "./middlewares/exception";
+import JwtBearer from "./app/auth/jwt-bearer";
 
 const logger = Logger.Instance.log();
 
@@ -36,15 +36,33 @@ export class App {
   }
 
   private expressConfiguration(): void {
-    this.app.use(bodyParser.urlencoded({ extended: true }));
-    this.app.use(bodyParser.json({ limit: "50mb" }));
-    this.app.use(cors());
     this.app.use(helmet());
+    this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(express.json({ limit: "50mb" }));
+    this.app.use((req, res, next): void => {
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header(
+        "Access-Control-Allow-Headers",
+        "X-Requested-With, Content-Type, Authorization"
+      );
+      res.header(
+        "Access-Control-Allow-Methods",
+        "GET,PUT,PATCH,POST,DELETE,OPTIONS"
+      );
+      next();
+    });
+    this.app.use(morgan("combined"));
+    this.app.use(cors());
+    this.app.use(requestIp.mw());
     this.app.use(compression());
-    this.app.use(urlencoded({ extended: true }));
+    // this.configureJwt();
     this.app.use(errorHandler);
     this.initI18n();
   }
+
+  // private configureJwt() {
+  //   this.app.use(JwtBearer.Instance.bearerAuth); // استخدام Instance بشكل صحيح
+  // }
 
   private initI18n() {
     i18n.configure({

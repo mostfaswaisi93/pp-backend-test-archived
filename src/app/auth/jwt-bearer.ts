@@ -1,36 +1,47 @@
-import jwt from "jsonwebtoken";
 import AccessTokenService from "./access-token-service";
+import jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
 
-const SECRET_KEY = process.env.JWT_SECRET || "your_secret_key";
-
-class JWTAuth {
+class JwtBearer {
   private accessTokenService: AccessTokenService = AccessTokenService.Instance;
-  private static _instance: JWTAuth;
-
-  private constructor() {}
-
+  private static _instance: JwtBearer;
   static get Instance() {
-    return this._instance ?? (this._instance = new JWTAuth());
+    return this._instance ? this._instance : (this._instance = new this());
   }
 
-  verifyToken = async (token: string): Promise<any> => {
+  bearerAuth = async (token: string, cb: (error: any, user: any) => void) => {
+    if (!token) {
+      return cb(true, null);
+    }
+
     try {
-      const decoded = jwt.verify(token, SECRET_KEY) as any;
-
-      const tokenExists = await this.accessTokenService.findToken(token);
-      if (!tokenExists) {
-        throw new Error("Invalid token");
+      const payload = await this.verifyToken(token);
+      // const payload = await this.accessTokenService.findToken(token);
+      if (!payload) {
+        return cb(true, null);
       }
 
-      return { valid: true, payload: decoded };
-    } catch (error) {
-      if (error instanceof Error) {
-        return { valid: false, error: error.message };
-      }
-
-      return { valid: false, error: "Unknown authentication error" };
+      return cb(null, { payload: payload, token: token });
+    } catch (err) {
+      return cb(true, null);
     }
   };
+
+  private verifyToken(token: string) {
+    return new Promise<any>((resolve, reject) => {
+      jwt.verify(
+        token,
+        process.env.JWT_SECRET_KEY || "your_secret_key",
+        (err, decoded) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(decoded);
+          }
+        }
+      );
+    });
+  }
 }
 
-export default JWTAuth.Instance;
+export default JwtBearer;
