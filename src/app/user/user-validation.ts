@@ -15,16 +15,36 @@ export const getUser = [
 ];
 
 // Validation for Create User
+// export const create = [
+//   isValidString("nameAr"),
+//   isValidString("nameEn").optional(),
+//   isValidPhone("phone"),
+//   isValidEmail("email"),
+//   isValidString("title"),
+//   isValidPassword("password"),
+//   validate,
+// ];
+
 export const create = [
-  isValidString("nameAr"),
-  isValidString("nameEn").optional(),
-  isValidPhone("phone"),
-  isValidEmail("email"),
-  isValidString("title"),
-  isValidInt("agency"),
-  isValidPassword("password"),
-  isValidInt("userType"),
-  isValidInt("active"),
+  body("nameAr").isString().withMessage("invalid_input"),
+  body("nameEn").isString().optional().withMessage("invalid_input"),
+  body("phone")
+    .isInt()
+    .isLength({ min: 8, max: 15 })
+    .withMessage("invalid_input"),
+  body("email")
+    .isEmail()
+    .customSanitizer((val) => {
+      if (typeof val == "string") return val.toLowerCase();
+      return val;
+    })
+    .withMessage("Invalid email"),
+  body("password")
+    .isLength({ min: 6, max: 14 })
+    .withMessage(
+      "Password must contain numbers, symbols and uppercase and lowercase letters and not be less than 6 digits"
+    ),
+
   validate,
 ];
 

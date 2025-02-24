@@ -12,6 +12,7 @@ import Controller from "../src/interfaces/controller.interface";
 import { errorHandler } from "./middlewares/exception";
 import JwtBearer from "./app/auth/jwt-bearer";
 
+// Logger instance
 const logger = Logger.Instance.log();
 
 export class App {
@@ -20,34 +21,30 @@ export class App {
   private controllers: Controller[];
 
   constructor(controllers: Controller[]) {
-    console.log("Initializing App...");
+    // console.log("Initializing App...");
     this.app = express();
     this.server = http.createServer(this.app);
     this.controllers = controllers;
-    console.log(this.controllers, "rr App...");
   }
 
+  // Start the app
   public async start(): Promise<http.Server> {
-    console.log("Starting app...");
-    this.expressConfiguration();
-    this.configurationRouter();
+    // console.log("Starting app...");
+    this.configureExpress();
+    this.configureRoutes();
     return this.server;
   }
 
-  // public async start(): Promise<void> {
-  //   console.log("Starting app...");
-  //   this.expressConfiguration();
-  //   this.configurationRouter();
-  // }
-
+  // Get Express app instance
   public getApp(): express.Application {
     return this.app;
   }
 
-  private expressConfiguration(): void {
-    this.app.use(helmet());
-    this.app.use(express.urlencoded({ extended: true }));
-    this.app.use(express.json({ limit: "50mb" }));
+  // Configure express middleware
+  private configureExpress(): void {
+    this.app.use(helmet()); // Security middleware
+    this.app.use(express.urlencoded({ extended: true })); // Body parsing
+    this.app.use(express.json({ limit: "50mb" })); // JSON body parsing
 
     // CORS and headers setup
     this.app.use((req, res, next): void => {
@@ -63,30 +60,32 @@ export class App {
       next();
     });
 
-    // Logging
+    // Middleware for logging requests
     this.app.use(morgan("combined"));
     this.app.use(cors());
 
-    // Request IP middleware
+    // IP logging middleware
     this.app.use(requestIp.mw());
 
-    // Compression middleware
+    // Request compression middleware
     this.app.use(compression());
 
+    // Initialize Jwt
     // this.configureJwt();
 
     // Error handling middleware
     this.app.use(errorHandler);
 
-    // Initialize i18n localization
-    this.initI18n();
+    // Initialize i18n for localization
+    this.configureI18n();
   }
 
   // private configureJwt() {
   //   this.app.use(JwtBearer.Instance.bearerAuth);
   // }
 
-  private initI18n() {
+  // Configure i18n for localization
+  private configureI18n(): void {
     i18n.configure({
       locales: ["ar", "en"],
       directory: path.join(__dirname, "../../locales"),
@@ -96,6 +95,7 @@ export class App {
 
     this.app.use(i18n.init);
 
+    // Set locale based on request header
     this.app.all("/*", (req, res, next) => {
       const accept = req.get("accept-language") || "en";
       i18n.setLocale(req, accept);
@@ -104,19 +104,20 @@ export class App {
     });
   }
 
-  private configurationRouter(): void {
-    // Serving static files
+  // Configure routes
+  private configureRoutes(): void {
+    // Static file serving (e.g., images, documents)
     const storagePath = process.env.PUBLIC_STORAGE_PATH
       ? path.resolve(process.env.PUBLIC_STORAGE_PATH)
       : "./public";
     this.app.use("/public", express.static(storagePath));
 
-    // Default route
+    // Default root route
     this.app.get("/", (req, res) => {
       res.send({ message: "Welcome to PEAKPROZ" });
     });
 
-    // Initialize controllers
+    // Register controllers and their routes
     this.initializeControllers(this.controllers);
 
     // 404 route handler
@@ -129,32 +130,34 @@ export class App {
     });
 
     // Global error handler
-    this.app.use(
-      (
-        err: any,
-        req: express.Request,
-        res: express.Response,
-        next: express.NextFunction
-      ) => {
-        res.locals.message = err.message;
-        res.locals.error = process.env.NODE_ENV !== "production" ? err : {};
-        logger.error(
-          `${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`
-        );
-        res.status(err.status || 500).send({ message: err.message });
-      }
-    );
+    this.app.use(this.globalErrorHandler);
   }
 
+  // Initialize controllers by adding their routes to the app
   private async initializeControllers(controllers: Controller[]) {
     controllers.forEach((controller) => {
-      console.log(`Registering route: /api/v1${controller.path}`);
+      // console.log(`Registering route: /api/v1${controller.path}`);
       this.app.use(
         `/api/v1${controller.path}`,
         controller.middleware || [],
         controller.router
       );
     });
+  }
+
+  // Global error handler for unhandled exceptions
+  private globalErrorHandler(
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ): void {
+    res.locals.message = err.message;
+    res.locals.error = process.env.NODE_ENV !== "production" ? err : {};
+    logger.error(
+      `${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`
+    );
+    res.status(err.status || 500).send({ message: err.message });
   }
 }
 

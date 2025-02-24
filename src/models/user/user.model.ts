@@ -1,42 +1,53 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema, model } from "mongoose";
+import bcrypt from "bcrypt";
+import * as i18n from "i18n";
 import { IUser } from "./user.interface";
 
-const UserSchema: Schema = new Schema(
+const UserSchema = new Schema<IUser>(
   {
-    nameAr: { type: String, required: true },
-    nameEn: { type: String, required: true },
+    deactivateDate: { type: Date, default: null },
+    // active: { type: Number, required: true },
+    password: { type: String, required: true, minlength: 8 },
     email: {
       type: String,
       required: true,
       unique: true,
-      match: /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/,
+      lowercase: true,
+      trim: true,
     },
-    password: { type: String, required: true },
-    active: { type: Boolean, default: true },
-    verificationCode: { type: String },
-    updatedBy: { type: String, required: true },
-    department: { type: String },
-    directorGeneral: { type: String },
-    agency: { type: String },
-    title: { type: String },
-    userType: { type: String },
-    deactivateDate: { type: Date },
+    // userType: { type: Number, required: true },
+    // title: { type: String, required: true },
+    phone: { type: String, required: true, maxlength: 15 },
+    nameEn: { type: String, required: true },
+    nameAr: { type: String, required: true },
+    // directorGeneral: { type: String, required: true },
+    // department: { type: String, required: true },
+    verificationCode: { type: String, default: null },
   },
   {
     timestamps: true,
   }
 );
 
-UserSchema.pre<IUser>("save", function (next) {
-  if (
-    this.email &&
-    !/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(this.email)
-  ) {
-    return next(new Error("Invalid email format"));
+UserSchema.pre<IUser>("save", async function (next) {
+  if (this.isModified("password")) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+  }
+  if (this.isModified("email")) {
+    this.email = this.email.trim().toLowerCase();
   }
   next();
 });
 
-const User = mongoose.model<IUser>("User", UserSchema);
+UserSchema.methods.toJSON = function () {
+  const user = this.toObject();
+  delete user.password;
+  delete user.verificationCode;
+  user["name"] = i18n.getLocale() === "en" ? user.nameEn : user.nameAr;
+  return user;
+};
+
+const User = model<IUser>("User", UserSchema);
 
 export default User;
