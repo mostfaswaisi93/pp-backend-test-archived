@@ -5,11 +5,13 @@ import { connectToDatabase } from "./config/database";
 import { Server as SocketServer } from "socket.io";
 import { RedisClient } from "./commons/libs/redis-client";
 import { Logger } from "./commons/libs/logger";
+import Controller from "./interfaces/controller.interface";
+import User2Controller from "./app/user2/user-controller";
 
 const debug = debugLib("peakproz-backend:server");
 const logger = Logger.Instance.log();
 
-// Normalize a port into a number, string, or false.
+// Normalize Port
 function normalizePort(val: string): number | string | false {
   const port = parseInt(val, 10);
   if (isNaN(port)) return val;
@@ -17,9 +19,13 @@ function normalizePort(val: string): number | string | false {
   return false;
 }
 
+const controllers = [new User2Controller()];
+console.log(controllers, "controllers");
+
 // PORT
 const PORT: number | string | false = normalizePort(process.env.PORT || "8000");
-const appInstance = new App([]);
+const appInstance = new App(controllers);
+appInstance.start();
 appInstance.getApp().set("port", PORT);
 
 const server = http.createServer(appInstance.getApp());
@@ -46,7 +52,7 @@ io.on("connection", (socket) => {
   });
 });
 
-// DB Connection
+// Database Connection
 const dbConnection = async () => {
   try {
     await connectToDatabase();

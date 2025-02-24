@@ -9,7 +9,8 @@ import AccessTokenService from "./access-token-service";
 import * as i18n from "i18n";
 import { PasswordCheckService } from "../../commons/validators/password-check-service";
 import { USER_TYPES } from "../../commons/constants/constants";
-import * as jwt from 'jsonwebtoken'; // تأكد من أنك قمت بتثبيت مكتبة jsonwebtoken
+import * as jwt from "jsonwebtoken"; // تأكد من أنك قمت بتثبيت مكتبة jsonwebtoken
+import { NextFunction } from "express";
 
 export default class AuthService {
   private accessTokenService = AccessTokenService.Instance;
@@ -95,7 +96,7 @@ export default class AuthService {
       throw new InvalidInputException(i18n.__("email_not_exist"));
     }
 
-    user.verificationCode = this.generateVerificationCode();
+    // user.verificationCode = this.generateVerificationCode();
     await user.save();
 
     return true;
@@ -136,19 +137,25 @@ export default class AuthService {
     }
   };
 
-  authenticate = (req: any, res: any, next: any) => {
-    const token = req.headers["authorization"]?.split(" ")[1]; // استخراج التوكن من الـ headers
+  // authenticate = (req: any, res: any, next: any) => {
+  //   const token = req.headers["authorization"]?.split(" ")[1]; // استخراج التوكن من الـ headers
 
-    if (!token) {
-      return res.status(401).send({ message: "No token provided" });
-    }
+  //   if (!token) {
+  //     return res.status(401).send({ message: "No token provided" });
+  //   }
 
-    jwt.verify(token, "your-secret-key", (err: any, decoded: any) => {
-      if (err) {
-        return res.status(401).send({ message: "Unauthorized" });
-      }
-      req.user = decoded; // حفظ بيانات المستخدم في request
-      next();
-    });
-  };
+  //   jwt.verify(token, "your-secret-key", (err: any, decoded: any) => {
+  //     if (err) {
+  //       return res.status(401).send({ message: "Unauthorized" });
+  //     }
+  //     req.user = decoded; // حفظ بيانات المستخدم في request
+  //     next();
+  //   });
+  // };
+
+  authenticate(req: Request, res: Response, next: NextFunction) {
+    // منطق المصادقة
+    console.log("Authenticating...");
+    next();
+  }
 }

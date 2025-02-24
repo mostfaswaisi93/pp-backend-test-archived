@@ -5,8 +5,9 @@ import AuthService from "./auth-service";
 import { UserService } from "../user/user-service";
 import AccessTokenService from "./access-token-service";
 import { login, forgetPassword, resetPassword } from "./auth-validation";
+import Controller from "../../interfaces/controller.interface";
 
-export default class AuthController {
+export default class AuthController implements Controller {
   public path = "/auth";
   public router = express.Router();
   private httpResWrapper = new HttpResWrapper();

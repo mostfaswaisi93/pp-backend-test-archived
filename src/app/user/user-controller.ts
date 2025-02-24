@@ -1,36 +1,43 @@
 import { NextFunction, Request, Response } from "express";
-import Controller from "../../interfaces/controller.interface";
 import * as express from "express";
 import HttpResWrapper from "../../commons/http-response/http-res-wrapper";
 import { UserService } from "./user-service";
 import { validate } from "class-validator";
 import AuthService from "../auth/auth-service";
-import { getUser, create, update, updateActive } from "./user-validation";
+import { getUser, create, update } from "./user-validation";
+import User, { IUser } from "../../models/user/user.interface";
+import bcrypt from "bcryptjs";
+import JWT from "jsonwebtoken";
+import Controller from "../../interfaces/controller.interface";
 
 export default class UserController implements Controller {
-  public path = "/users";
+  public path = "/usersaa";
   public router = express.Router();
-  public middleware: any[] = [AuthService.Instance.authenticate];
+  // public middleware: any[] = [AuthService.Instance.authenticate];
 
   private httpResWrapper: HttpResWrapper = HttpResWrapper.Instance;
   private userService: UserService = UserService.Instance;
   private authService: AuthService = AuthService.Instance;
-  private static _instance : UserController;
-
-  static get Instance() {
-    return this._instance ? this._instance : (this._instance = new this());
-  }
 
   constructor() {
     this.initializeRoutes();
   }
 
   private initializeRoutes() {
-    // this.router.get("/", AuthService.Instance.isAdmin, this.all);
-    // this.router.get("/active", AuthService.Instance.isAdmin, this.active);
-    // this.router.post("/", create, AuthService.Instance.isAdmin, this.create);
-    this.router.post("/", this.create);
-    this.router.post("/reset-password", this.resetPassword);
+    this.router.get("/", this.getUsers);
+    this.router.post("/", this.createUser);
+  }
+
+  private getUsers(req: Request, res: Response) {
+    res.json({ message: "Get Users" });
+  }
+
+  private createUser(req: Request, res: Response) {
+    res.json({ message: "User Created" });
+  }
+
+  private initializeRoutes2() {
+    this.router.get("/");
     this.router.get(
       "/:userId",
       getUser,
@@ -43,16 +50,23 @@ export default class UserController implements Controller {
       AuthService.Instance.isAdmin,
       this.update
     );
-    // this.router.put(
-    //   "/active/:userId",
-    //   updateActive,
-    //   AuthService.Instance.isAdmin,
-    //   this.updateActive
-    // );
     this.router.put("/", this.updateMe);
+    this.router.post("/reset-password", this.resetPassword);
   }
 
-  private async handleErrors(response: Response, error: any) {
+  all = async (request: Request, response: Response, next: NextFunction) => {
+    try {
+      const { agencyId, withAdmin } = request.query;
+
+      // let users: User[] = await this.userService.all(agencyId, withAdmin);
+      // users.map(user => user.toJSON());
+      // return this.httpResWrapper.success(response, users);
+    } catch (error) {
+      this.httpResWrapper.error(response, error);
+    }
+  };
+
+  private handleErrors(response: Response, error: any) {
     console.error(error);
     this.httpResWrapper.error(response, error);
   }
@@ -72,26 +86,6 @@ export default class UserController implements Controller {
       data.toJSON ? data.toJSON() : data
     );
   }
-
-  // all = async (request: Request, response: Response) => {
-  //   try {
-  //     const { agencyId, withAdmin } = request.query;
-  //     const users = await this.userService.all(agencyId, withAdmin);
-  //     this.sendSuccessResponse(response, users);
-  //   } catch (error) {
-  //     this.handleErrors(response, error);
-  //   }
-  // };
-
-  // active = async (request: Request, response: Response) => {
-  //   try {
-  //     const { agencyId } = request.query;
-  //     const users = await this.userService.active(agencyId);
-  //     this.sendSuccessResponse(response, users);
-  //   } catch (error) {
-  //     this.handleErrors(response, error);
-  //   }
-  // };
 
   me = async (request: any, response: Response) => {
     const userId = request.user.userId;
@@ -113,16 +107,70 @@ export default class UserController implements Controller {
     }
   };
 
-  create = async (request: Request, response: Response) => {
-    const user = { ...request.body, updatedBy: request.user?.userId };
-    const isValid = await this.validateUserData(user, response);
-    if (!isValid) return;
-
+  create = async (
+    request: any,
+    response: Response,
+    next: NextFunction
+  ): Promise<Response | void> => {
     try {
-      const createdUser = await this.userService.create(user);
-      this.sendSuccessResponse(response, createdUser);
-    } catch (error) {
-      this.handleErrors(response, error);
+      const { email, userName, firstName, lastName, password } = request.body;
+      console.log(request.body);
+
+      // التحقق من وجود البريد الإلكتروني أو اسم المستخدم المسجل
+      const checkEmail = await User.findOne({
+        email: email.toLowerCase().trim(),
+      });
+      if (checkEmail) {
+        return response.status(400).json({
+          success: false,
+          message: "البريد الإلكتروني مسجل بالفعل.",
+        });
+      }
+
+      const checkUserName = await User.findOne({ userName: userName.trim() });
+      if (checkUserName) {
+        return response.status(400).json({
+          success: false,
+          message: "اسم المستخدم مسجل بالفعل.",
+        });
+      }
+
+      // تشفير كلمة المرور
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // إنشاء المستخدم وحفظه في قاعدة البيانات
+      const newUser = new User({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.toLowerCase().trim(),
+        userName: userName.trim(),
+        password: hashedPassword,
+      });
+
+      const savedUser = await newUser.save();
+
+      // إنشاء توكن (JWT)
+      const token = JWT.sign(
+        {
+          email: savedUser.email,
+          isAdmin: savedUser.isAdmin,
+          id: savedUser._id,
+        },
+        process.env.SECRET_KEY as string,
+        { expiresIn: "1d" }
+      );
+
+      // إزالة كلمة السر من البيانات المرسلة
+      const { password: _, ...userData } = savedUser.toObject();
+
+      return response.status(201).json({
+        success: true,
+        message: `مرحباً ${savedUser.firstName} ${savedUser.lastName}، تم إنشاء حسابك بنجاح.`,
+        data: userData,
+        token,
+      });
+    } catch (err) {
+      next(err); // تمرير الأخطاء إلى معالج الأخطاء
     }
   };
 
@@ -168,20 +216,4 @@ export default class UserController implements Controller {
       this.handleErrors(response, error);
     }
   };
-
-  // updateActive = async (request: Request, response: Response) => {
-  //   const { userId } = request.params;
-  //   const { active } = request.body;
-  //   const updatedBy = (request.user as Partial<User>).userId;
-  //   try {
-  //     const user = await this.userService.updateActive(
-  //       userId,
-  //       active,
-  //       updatedBy
-  //     );
-  //     this.sendSuccessResponse(response, user);
-  //   } catch (error) {
-  //     this.handleErrors(response, error);
-  //   }
-  // };
 }

@@ -19,17 +19,26 @@ export class App {
   private readonly server: http.Server;
   private controllers: Controller[];
 
-  constructor(_controllers: Controller[]) {
+  constructor(controllers: Controller[]) {
+    console.log("Initializing App...");
     this.app = express();
     this.server = http.createServer(this.app);
-    this.controllers = _controllers;
+    this.controllers = controllers;
+    console.log(this.controllers, "rr App...");
   }
 
   public async start(): Promise<http.Server> {
+    console.log("Starting app...");
     this.expressConfiguration();
     this.configurationRouter();
     return this.server;
   }
+
+  // public async start(): Promise<void> {
+  //   console.log("Starting app...");
+  //   this.expressConfiguration();
+  //   this.configurationRouter();
+  // }
 
   public getApp(): express.Application {
     return this.app;
@@ -39,6 +48,8 @@ export class App {
     this.app.use(helmet());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(express.json({ limit: "50mb" }));
+
+    // CORS and headers setup
     this.app.use((req, res, next): void => {
       res.header("Access-Control-Allow-Origin", "*");
       res.header(
@@ -51,17 +62,28 @@ export class App {
       );
       next();
     });
+
+    // Logging
     this.app.use(morgan("combined"));
     this.app.use(cors());
+
+    // Request IP middleware
     this.app.use(requestIp.mw());
+
+    // Compression middleware
     this.app.use(compression());
+
     // this.configureJwt();
+
+    // Error handling middleware
     this.app.use(errorHandler);
+
+    // Initialize i18n localization
     this.initI18n();
   }
 
   // private configureJwt() {
-  //   this.app.use(JwtBearer.Instance.bearerAuth); // استخدام Instance بشكل صحيح
+  //   this.app.use(JwtBearer.Instance.bearerAuth);
   // }
 
   private initI18n() {
@@ -73,6 +95,7 @@ export class App {
     });
 
     this.app.use(i18n.init);
+
     this.app.all("/*", (req, res, next) => {
       const accept = req.get("accept-language") || "en";
       i18n.setLocale(req, accept);
@@ -82,17 +105,21 @@ export class App {
   }
 
   private configurationRouter(): void {
+    // Serving static files
     const storagePath = process.env.PUBLIC_STORAGE_PATH
       ? path.resolve(process.env.PUBLIC_STORAGE_PATH)
       : "./public";
     this.app.use("/public", express.static(storagePath));
 
+    // Default route
     this.app.get("/", (req, res) => {
       res.send({ message: "Welcome to PEAKPROZ" });
     });
 
+    // Initialize controllers
     this.initializeControllers(this.controllers);
 
+    // 404 route handler
     this.app.use((req, res, next) => {
       res.status(404).json({ error: "Not found" });
       logger.error(
@@ -101,6 +128,7 @@ export class App {
       next();
     });
 
+    // Global error handler
     this.app.use(
       (
         err: any,
@@ -120,6 +148,7 @@ export class App {
 
   private async initializeControllers(controllers: Controller[]) {
     controllers.forEach((controller) => {
+      console.log(`Registering route: /api/v1${controller.path}`);
       this.app.use(
         `/api/v1${controller.path}`,
         controller.middleware || [],

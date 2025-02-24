@@ -34,12 +34,12 @@ export class UserService {
   }
 
   // async all(withAdmin: any = false): Promise<IUser[]> {
-	// 	let where: any = {};
-	// 	let users: IUser[] = await this.userRepository.find({
-	// 		where: where,
-	// 	});
-	// 	return users;
-	// }
+  // 	let where: any = {};
+  // 	let users: IUser[] = await this.userRepository.find({
+  // 		where: where,
+  // 	});
+  // 	return users;
+  // }
 
   async findById(id: string): Promise<IUser> {
     const user = await UserModel.findById(id).where("active").equals(true);
@@ -64,7 +64,7 @@ export class UserService {
       throw new InvalidInputException(i18n.__("complex_password_required"));
     }
 
-    await this.isEmailOrPhoneExist(user.email, user.phone);
+    // await this.isEmailOrPhoneExist(user.email, user.userName);
     const newUser: IUser = new UserModel({
       ...user,
       _id: new mongoose.Types.ObjectId(), // سيتم توليد _id بواسطة MongoDB عند حفظ البيانات
@@ -78,7 +78,7 @@ export class UserService {
   async update(id: string, user: Partial<IUser>) {
     const existingUser = await this.findById(id);
     Object.assign(existingUser, user);
-    existingUser.updatedAt = new Date();
+    // existingUser.updatedAt = new Date();
     await existingUser.save(); // حفظ التعديلات في قاعدة البيانات
     return existingUser;
   }
@@ -98,15 +98,15 @@ export class UserService {
     }
 
     user.password = newPassword;
-    user.updatedAt = new Date();
+    // user.updatedAt = new Date();
     await user.save(); // حفظ كلمة المرور الجديدة
     return user;
   }
 
   async updateActive(id: string, active: boolean) {
     const user = await this.findById(id);
-    user.active = active;
-    user.updatedAt = new Date();
+    // user.active = active;
+    // user.updatedAt = new Date();
     await user.save(); // حفظ التحديث
     return user;
   }
