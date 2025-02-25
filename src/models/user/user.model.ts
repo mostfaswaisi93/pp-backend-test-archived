@@ -6,7 +6,6 @@ import { IUser } from "./user.interface";
 const UserSchema = new Schema<IUser>(
   {
     deactivateDate: { type: Date, default: null },
-    // active: { type: Number, required: true },
     password: { type: String, required: true, minlength: 8 },
     email: {
       type: String,
@@ -15,13 +14,9 @@ const UserSchema = new Schema<IUser>(
       lowercase: true,
       trim: true,
     },
-    // userType: { type: Number, required: true },
-    // title: { type: String, required: true },
     phone: { type: String, required: true, maxlength: 15 },
     nameEn: { type: String, required: true },
     nameAr: { type: String, required: true },
-    // directorGeneral: { type: String, required: true },
-    // department: { type: String, required: true },
     verificationCode: { type: String, default: null },
   },
   {

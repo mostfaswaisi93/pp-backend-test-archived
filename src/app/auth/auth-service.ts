@@ -9,7 +9,7 @@ import AccessTokenService from "./access-token-service";
 import * as i18n from "i18n";
 import { PasswordCheckService } from "../../commons/validators/password-check-service";
 import { USER_TYPES } from "../../commons/constants/constants";
-import * as jwt from "jsonwebtoken"; // تأكد من أنك قمت بتثبيت مكتبة jsonwebtoken
+import * as jwt from "jsonwebtoken";
 import { NextFunction } from "express";
 
 export default class AuthService {
@@ -154,7 +154,6 @@ export default class AuthService {
   // };
 
   authenticate(req: Request, res: Response, next: NextFunction) {
-    // منطق المصادقة
     console.log("Authenticating...");
     next();
   }

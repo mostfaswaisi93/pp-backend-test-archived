@@ -3,7 +3,7 @@ import Controller from "../../interfaces/controller.interface";
 import * as express from "express";
 import HttpResWrapper from "../../commons/http-response/http-res-wrapper";
 import AuthService from "../auth/auth-service";
-import { RoleLkp } from "../../database/entity/RoleLkp";
+// import { RoleLkp } from "../../database/entity/RoleLkp";
 import { UserRoleService } from "./user-role-service";
 import { getUserRole } from "./user-role-validation";
 
@@ -14,8 +14,7 @@ export default class UserRoleController implements Controller {
     AuthService.Instance.authenticate,
     AuthService.Instance.isAdmin,
   ];
-
-  private httpResWrapper: HttpResWrapper = new HttpResWrapper();
+  private httpResWrapper: HttpResWrapper = HttpResWrapper.Instance;
   private userRoleService: UserRoleService = UserRoleService.Instance;
 
   private static _instance: UserRoleController;

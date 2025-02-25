@@ -8,7 +8,6 @@ import * as path from "path";
 const fileName = path.basename(__filename);
 const logger = Logger.Instance;
 
-// تحميل مفاتيح التشفير بأمان
 const PUB_KEY_PATH = path.join(__dirname, "../../../id_rsa_pub.pem");
 const PRIV_KEY_PATH = path.join(__dirname, "../../../id_rsa_priv.pem");
 

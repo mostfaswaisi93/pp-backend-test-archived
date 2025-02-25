@@ -10,7 +10,7 @@ import Controller from "../../interfaces/controller.interface";
 export default class AuthController implements Controller {
   public path = "/auth";
   public router = express.Router();
-  private httpResWrapper = new HttpResWrapper();
+  private httpResWrapper: HttpResWrapper = HttpResWrapper.Instance;
   private authService = AuthService.Instance;
   private accessTokenService = AccessTokenService.Instance;
   private userService = UserService.Instance;
@@ -21,11 +21,11 @@ export default class AuthController implements Controller {
 
   private initializeRoutes() {
     this.router.post("/", login, this.login);
-    this.router.post("/me", this.authService.authenticate, this.me);
+    // this.router.post("/me", this.authService.authenticate, this.me);
     this.router.get("/generateCaptcha", this.generateCaptcha);
     this.router.post("/forget-password", forgetPassword, this.forgetPassword);
     this.router.post("/reset-password", resetPassword, this.resetPassword);
-    this.router.delete("/", this.authService.authenticate, this.logout);
+    // this.router.delete("/", this.authService.authenticate, this.logout);
   }
 
   private async handleResponse(res: Response, promise: Promise<any>) {
@@ -44,7 +44,7 @@ export default class AuthController implements Controller {
 
   private me = (req: Request, res: Response) => {
     const { userId } = req.user;
-    this.handleResponse(res, this.userService.findById(userId));
+    this.handleResponse(res, this.userService.getUserById(userId));
   };
 
   private logout = (req: Request, res: Response) => {
@@ -66,6 +66,6 @@ export default class AuthController implements Controller {
   };
 
   private generateCaptcha = (req: Request, res: Response) => {
-    this.handleResponse(res, this.authService.generateCaptcha());
+    // this.handleResponse(res, this.authService.generateCaptcha());
   };
 }

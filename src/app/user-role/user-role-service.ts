@@ -1,13 +1,10 @@
 import { getRepository, Not } from "typeorm";
 import { RoleLkp } from "../../database/entity/RoleLkp";
 
-
 export class UserRoleService {
-
-
   private userRoleRepository = getRepository(RoleLkp);
 
-  private static _instance;
+  private static _instance: UserRoleService;
 
   static get Instance() {
     return this._instance ? this._instance : (this._instance = new this());
@@ -19,8 +16,7 @@ export class UserRoleService {
   }
 
   async findById(id): Promise<RoleLkp> {
-    let chapter: RoleLkp = await this.userRoleRepository.findOne({id});
+    let chapter: RoleLkp = await this.userRoleRepository.findOne({ id });
     return chapter;
   }
-
 }

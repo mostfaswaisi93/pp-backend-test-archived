@@ -88,7 +88,7 @@ export class App {
   private configureI18n(): void {
     i18n.configure({
       locales: ["ar", "en"],
-      directory: path.join(__dirname, "../../locales"),
+      directory: path.join(__dirname, "../locales"),
       defaultLocale: "en",
       objectNotation: true,
     });

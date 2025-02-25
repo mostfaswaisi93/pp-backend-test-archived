@@ -118,6 +118,7 @@ function onListening(): void {
   if (!address) {
     debug("❌ Server address is undefined.");
     console.error("❌ Server address is undefined.");
+    logger.error("❌ Server address is undefined.");
     return;
   }
   const bind =
