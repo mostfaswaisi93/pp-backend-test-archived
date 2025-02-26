@@ -1,5 +1,5 @@
 // import { getLocalError } from "../utils/translate";
-import { exceptionMap } from "../../commons/enums/http-exception";
+import { exceptionMap } from "../../commons/constants/http-exceptions";
 import { NextFunction, Request, Response } from "express";
 import { HttpException } from "../../commons/helpers/exception";
 import debugLib from "debug";

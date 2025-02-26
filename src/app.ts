@@ -90,6 +90,9 @@ export class App {
       locales: ["ar", "en"],
       directory: path.join(__dirname, "../locales"),
       defaultLocale: "en",
+      autoReload: false,
+      updateFiles: false,
+      syncFiles: false,
       objectNotation: true,
     });
 
@@ -98,7 +101,7 @@ export class App {
     // Set locale based on request header
     this.app.all("/*", (req, res, next) => {
       const accept = req.get("accept-language") || "en";
-      i18n.setLocale(req, accept);
+      req.setLocale(accept);
       res.header("Content-Type", "application/json; charset=utf-8");
       next();
     });

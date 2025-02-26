@@ -1,4 +1,4 @@
-import { exceptionMap } from "../../commons/enums/http-exception";
+import { exceptionMap } from "../constants/http-exceptions";
 import { HttpException } from "../helpers/exception";
 import APP_REGEX from "./constants";
 

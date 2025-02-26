@@ -3,7 +3,7 @@ import ApplicationException from "../errors/application-exception";
 import { Response } from "express";
 
 export default class HttpResWrapper {
-  private static _instance: HttpResWrapper | null = null;
+  private static _instance: HttpResWrapper;
   private logger = Logger.Instance;
 
   private constructor() {}
@@ -15,15 +15,15 @@ export default class HttpResWrapper {
     return this._instance;
   }
 
-  public success(res: Response, data: any = null): void {
+  public success(response: Response, data: any = null): void {
     this.logger.info("Success response sent.");
-    res.status(200).json({
+    response.status(200).json({
       success: true,
       data: data || null,
     });
   }
 
-  public error(res: Response, error: unknown, status: number = 500): void {
+  public error(response: Response, error: unknown, status: number = 500): void {
     let errorMessage = "Unexpected error occurred.";
     let errorCode = status;
 
@@ -39,7 +39,7 @@ export default class HttpResWrapper {
       errorMessage = String(error);
     }
 
-    res.status(errorCode).json({
+    response.status(errorCode).json({
       success: false,
       error: {
         code: errorCode,
@@ -48,13 +48,20 @@ export default class HttpResWrapper {
     });
   }
 
-  public handle(status: number, message: any, res: Response): void {
-    this.logger.error(`[Handle Error] ${message}`);
-    res.status(status).json({
+  public handle(status: number, error: unknown, response: Response): void {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack =
+      error instanceof Error && error.stack ? `\nStack: ${error.stack}` : "";
+
+    this.logger.error(`[Handle Error] ${errorMessage}${errorStack}`);
+
+    const safeMessage = status === 500 ? "Internal Server Error" : errorMessage;
+
+    response.status(status).json({
       success: false,
       error: {
         code: status,
-        message: message,
+        message: safeMessage,
       },
     });
   }

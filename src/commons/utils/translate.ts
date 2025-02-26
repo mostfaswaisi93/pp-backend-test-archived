@@ -1,5 +1,5 @@
 import { Locals } from "express";
-import { LANG_LIST } from "../../commons/enums/defualts.enum";
+import { LANG_LIST } from "../../commons/constants/constants";
 import { Translatable } from "../../interfaces/translation.interface";
 
 export function translate(
