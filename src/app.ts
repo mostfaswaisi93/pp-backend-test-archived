@@ -9,7 +9,7 @@ import path from "path";
 import i18n from "i18n";
 import { Logger } from "../src/commons/libs/logger";
 import Controller from "../src/interfaces/controller.interface";
-import { errorHandler } from "./middlewares/exception";
+import { errorHandler } from "./commons/middlewares/exception";
 import JwtBearer from "./app/auth/jwt-bearer";
 
 // Logger instance

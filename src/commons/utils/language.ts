@@ -1,5 +1,5 @@
-import { Translatable } from "../interfaces/translation.interface";
-import { LANGUAGE } from "../commons/enums/defualts.enum";
+import { Translatable } from "../../interfaces/translation.interface";
+import { LANGUAGE } from "../../commons/enums/defualts.enum";
 
 export const isValidLang = (lang: string): boolean => {
   return Object.values(LANGUAGE).includes(

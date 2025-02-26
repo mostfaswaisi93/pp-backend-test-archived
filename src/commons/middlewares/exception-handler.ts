@@ -1,8 +1,7 @@
-import { exceptionMap } from "../commons/enums/http-exception";
-import { getLocalError } from "../utils/translate";
+// import { getLocalError } from "../utils/translate";
+import { exceptionMap } from "../../commons/enums/http-exception";
 import { NextFunction, Request, Response } from "express";
-import { HttpException } from "../helpers/exception";
-// import * as locals from "../localization";
+import { HttpException } from "../../commons/helpers/exception";
 import debugLib from "debug";
 
 const debug = debugLib("backend:error-middleware");

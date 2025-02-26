@@ -1,6 +1,6 @@
 import { Locals } from "express";
-import { LANG_LIST } from "../commons/enums/defualts.enum";
-import { Translatable } from "../interfaces/translation.interface";
+import { LANG_LIST } from "../../commons/enums/defualts.enum";
+import { Translatable } from "../../interfaces/translation.interface";
 
 export function translate(
   object: any,
