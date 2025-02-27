@@ -1,10 +1,10 @@
 // Password strengths
 export const enum PasswordCheckStrength {
-  Short, // Password is too short
-  Common, // Password matches common patterns
-  Weak, // Password is weak
-  Ok, // Password is decent but not strong enough
-  Strong, // Password is strong
+  Short,
+  Common,
+  Weak,
+  Ok,
+  Strong,
 }
 
 // Object to check password strengths and various properties
@@ -39,7 +39,6 @@ export class PasswordCheckService {
     }
 
     let numberOfElements = this.countPasswordElements(password);
-
     if (this.isPasswordCommon(password)) {
       return PasswordCheckStrength.Common;
     } else if (numberOfElements < 2) {
@@ -53,7 +52,6 @@ export class PasswordCheckService {
 
   public checkPasswordValidity(password: string): boolean {
     const numberOfElements = this.countPasswordElements(password);
-
     return (
       numberOfElements === 4 &&
       password.length >= PasswordCheckService.MinimumLength &&
@@ -63,12 +61,10 @@ export class PasswordCheckService {
 
   private countPasswordElements(password: string): number {
     let numberOfElements = 0;
-
-    numberOfElements += /.*[a-z].*/.test(password) ? 1 : 0; // Lowercase letters
-    numberOfElements += /.*[A-Z].*/.test(password) ? 1 : 0; // Uppercase letters
-    numberOfElements += /.*[0-9].*/.test(password) ? 1 : 0; // Numbers
-    numberOfElements += /[^a-zA-Z0-9]/.test(password) ? 1 : 0; // Special characters (inc. space)
-
+    numberOfElements += /.*[a-z].*/.test(password) ? 1 : 0;
+    numberOfElements += /.*[A-Z].*/.test(password) ? 1 : 0;
+    numberOfElements += /.*[0-9].*/.test(password) ? 1 : 0;
+    numberOfElements += /[^a-zA-Z0-9]/.test(password) ? 1 : 0;
     return numberOfElements;
   }
 }

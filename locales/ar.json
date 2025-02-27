@@ -1,4 +1,5 @@
 {
+  "something_wrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى",
   "password_required": "كلمة المرور مطلوبة",
   "complex_password_required": "يجب أن تتكون كلمة المرور من 6 خانات على الأقل، وتتضمن أحرفًا كبيرة وصغيرة وأرقامًا ورموزًا",
   "user_already_exist": "المستخدم موجود مسبقًا",
@@ -15,6 +16,7 @@
   "user_not_found": "المستخدم غير موجود",
   "email_already_exist": "البريد الإلكتروني مستخدم مسبقًا",
   "item_already_exist": "العنصر موجود مسبقًا",
+  "account_blocked": "تم حظر الحساب",
   "ords_connection_error": "خطأ في الاتصال بـ ORDS",
   "smtp_error": "خطأ في مزود SMTP",
   "email_not_exist": "البريد الإلكتروني غير موجود",

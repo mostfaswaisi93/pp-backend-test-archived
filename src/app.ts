@@ -7,6 +7,7 @@ import compression from "compression";
 import http from "http";
 import path from "path";
 import i18n from "i18n";
+import { LANG_LIST } from "./commons/constants/constants";
 import { Logger } from "../src/commons/libs/logger";
 import Controller from "../src/interfaces/controller.interface";
 import { errorHandler } from "./commons/middlewares/exception";
@@ -86,10 +87,11 @@ export class App {
 
   // Configure i18n for localization
   private configureI18n(): void {
+    const lang = LANG_LIST;
     i18n.configure({
-      locales: ["ar", "en"],
+      locales: [lang.Ar, lang.En],
       directory: path.join(__dirname, "../locales"),
-      defaultLocale: "en",
+      defaultLocale: lang.En,
       autoReload: false,
       updateFiles: false,
       syncFiles: false,
@@ -100,7 +102,7 @@ export class App {
 
     // Set locale based on request header
     this.app.all("/*", (req, res, next) => {
-      const accept = req.get("accept-language") || "en";
+      const accept = req.get("accept-language") || lang.En;
       req.setLocale(accept);
       res.header("Content-Type", "application/json; charset=utf-8");
       next();

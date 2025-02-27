@@ -9,18 +9,16 @@ export class RedisClient {
   private static _instance: RedisClient;
   private logger = Logger.Instance.log();
   private redisClientList: RedisClientType<any>[] = [];
-  private redisClientInfo = new Map<RedisClientType<any>, RedisConfigItem>(); // 🟢 حفظ بيانات الاتصال
-  private mongoClient: MongoClient | null = null; // 🟢 تخزين اتصال MongoDB
+  private redisClientInfo = new Map<RedisClientType<any>, RedisConfigItem>();
+  private mongoClient: MongoClient | null = null;
 
   private constructor() {
-    // 🟢 إنشاء عملاء Redis
     config.redisConfig.forEach((options: RedisConfigItem) => {
       const client = this.createRedisClientObject(options);
       this.redisClientList.push(client);
       this.redisClientInfo.set(client, options);
     });
 
-    // 🟢 إنشاء اتصال MongoDB
     this.connectMongoDB();
   }
 
@@ -55,7 +53,6 @@ export class RedisClient {
     );
 
     client.connect();
-    // return client;
     return client as RedisClientType<any>;
   }
 

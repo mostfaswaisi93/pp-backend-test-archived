@@ -1,11 +1,9 @@
-import { HttpException } from "../helpers/exception";
-
 export const exceptionMap = {
   serverError: {
     message: "serverError",
     customCode: "F500",
     status: 500,
-  } as HttpException,
+  },
 
   validationError: {
     message: "validationError",

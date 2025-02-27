@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import amqp, { Connection, Channel, ConsumeMessage, Options } from "amqplib";
+import amqp, { Connection, Channel, ConsumeMessage } from "amqplib";
 import { EventEmitter } from "events";
 
 dotenv.config();

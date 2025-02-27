@@ -11,5 +11,5 @@ export const JWT_CONFIG = {
     "utf8"
   ),
   ALGORITHM: "RS256",
-  TTL: 60 * 60 * 24, // one day
+  TTL: 60 * 60 * 24,
 };

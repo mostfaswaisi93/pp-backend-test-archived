@@ -1,4 +1,5 @@
 {
+  "something_wrong": "Something went wrong. Please try again",
   "password_required": "Password required",
   "complex_password_required": "Password must be at least 6 characters, contain small and uppercase letters, numbers, and symbols",
   "user_already_exist": "User already exists",
@@ -15,6 +16,7 @@
   "user_not_found": "User not found",
   "email_already_exist": "Email already exists",
   "item_already_exist": "Item already exists",
+  "account_blocked": "Account is blocked",
   "ords_connection_error": "ORDS connection error",
   "smtp_error": "SMTP provider error",
   "email_not_exist": "Email does not exist",

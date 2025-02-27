@@ -13,71 +13,71 @@ export class BaseException extends ApplicationException {
 
 // 🔹 400 Bad Request Exceptions
 export class InvalidInputException extends BaseException {
-  constructor(messageKey: string = "invalid_input") {
-    super(messageKey, 400, "INVALID_INPUT");
+  constructor(messageKey: string = i18n.__("invalid_input")) {
+    super(messageKey, 400, i18n.__("invalid_input"));
   }
 }
 
 export class InvalidEmailOrPasswordException extends BaseException {
-  constructor(messageKey: string = "invalid_email_or_password") {
-    super(messageKey, 400, "INVALID_CREDENTIALS");
+  constructor(messageKey: string = i18n.__("invalid_email_or_password")) {
+    super(messageKey, 400, i18n.__("invalid_email_or_password"));
   }
 }
 
 export class AccountNotVerifiedException extends BaseException {
-  constructor(messageKey: string = "account_not_verified") {
-    super(messageKey, 400, "ACCOUNT_NOT_VERIFIED");
+  constructor(messageKey: string = i18n.__("account_not_verified")) {
+    super(messageKey, 400, i18n.__("account_not_verified"));
   }
 }
 
 export class AlreadyExistException extends BaseException {
-  constructor(messageKey: string = "item_already_exist") {
-    super(messageKey, 400, "ITEM_ALREADY_EXISTS");
+  constructor(messageKey: string = i18n.__("item_already_exist")) {
+    super(messageKey, 400, i18n.__("item_already_exist"));
   }
 }
 
 export class AccountBlockedException extends BaseException {
-  constructor(messageKey: string = "account_blocked") {
-    super(messageKey, 400, "ACCOUNT_BLOCKED");
+  constructor(messageKey: string = i18n.__("account_blocked")) {
+    super(messageKey, 400, i18n.__("account_blocked"));
   }
 }
 
 // 🔹 401 Unauthorized Exceptions
 export class UnauthorizedException extends BaseException {
-  constructor(messageKey: string = "unauthorized_access") {
-    super(messageKey, 401, "UNAUTHORIZED_ACCESS");
+  constructor(messageKey: string = i18n.__("unauthorized_access")) {
+    super(messageKey, 401, i18n.__("unauthorized_access"));
   }
 }
 
 export class TokenNotValidException extends BaseException {
-  constructor(messageKey: string = "token_not_valid") {
-    super(messageKey, 401, "TOKEN_NOT_VALID");
+  constructor(messageKey: string = i18n.__("token_not_valid")) {
+    super(messageKey, 401, i18n.__("token_not_valid"));
   }
 }
 
 // 🔹 404 Not Found Exceptions
 export class UserNotFoundException extends BaseException {
-  constructor(messageKey: string = "user_not_found") {
-    super(messageKey, 404, "USER_NOT_FOUND");
+  constructor(messageKey: string = i18n.__("user_not_found")) {
+    super(messageKey, 404, i18n.__("user_not_found"));
   }
 }
 
 export class NotFoundException extends BaseException {
-  constructor(messageKey: string = "item_not_found") {
-    super(messageKey, 404, "ITEM_NOT_FOUND");
+  constructor(messageKey: string = i18n.__("item_not_found")) {
+    super(messageKey, 404, i18n.__("item_not_found"));
   }
 }
 
 // 🔹 500 Internal Server Error Exceptions
 export class OrdsErrorException extends BaseException {
-  constructor(messageKey: string = "ords_connection_error") {
-    super(messageKey, 500, "ORDS_ERROR");
+  constructor(messageKey: string = i18n.__("ords_connection_error")) {
+    super(messageKey, 500, i18n.__("ords_connection_error"));
   }
 }
 
 export class SMTPException extends BaseException {
   constructor(message: string) {
-    super("smtp_error", 500, "SMTP_ERROR");
+    super("smtp_error", 500, i18n.__("smtp_error"));
     Object.setPrototypeOf(this, new.target.prototype);
     this.message = `${i18n.__("smtp_error")}: ${message}`;
   }

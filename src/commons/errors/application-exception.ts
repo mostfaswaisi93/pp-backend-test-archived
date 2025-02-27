@@ -1,25 +1,17 @@
 import i18n from "i18n";
 
 export default class ApplicationException extends Error {
-  public readonly status: number;
-  public readonly code: number;
+  status: number;
+  code: number;
 
-  constructor(
-    messageKey: string = "errors.default",
-    status: number = 500,
-    code: number = 0
-  ) {
-    const message = i18n.__({ phrase: messageKey, locale: i18n.getLocale() });
-    super(message);
+  constructor(messageKey?: string, status: number = 500, code: number = 0) {
+    const errorMessage = messageKey?.trim() || i18n.__("something_wrong");
+    super(errorMessage);
 
-    Object.setPrototypeOf(this, ApplicationException.prototype);
+    Error.captureStackTrace(this, this.constructor);
 
-    this.name = "ApplicationException";
+    this.name = this.constructor.name;
     this.status = status;
     this.code = code;
-
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, ApplicationException);
-    }
   }
 }

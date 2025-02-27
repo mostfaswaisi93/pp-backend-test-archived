@@ -24,17 +24,17 @@ export default class UploadService {
         ? process.env.STORAGE_PATH
         : path.resolve(process.env.STORAGE_PATH!);
 
-    if (!fs.existsSync(storagePath)) {
+    if (!storagePath || !fs.existsSync(storagePath)) {
+      this.logger.log().error("Storage Path Not Exist");
       throw new Error("Storage Path Not Exist");
     }
 
     const storage = multer.diskStorage({
       destination: (_req, _file, cb) => cb(null, storagePath),
-      filename: async (_req, file, cb) =>
-        cb(null, await this.getCryptoName(file)),
+      filename: (_req, file, cb) => cb(null, this.getCryptoName(file)),
     });
 
-    const fileFilter = (_req, file, cb) => {
+    const fileFilter = (_req: any, file: any, cb: any) => {
       const allowedTypes = [
         "image/jpeg",
         "image/png",
@@ -42,36 +42,43 @@ export default class UploadService {
         "application/vnd.ms-excel",
         "application/vnd.ms-excel.sheet.macroenabled.12",
       ];
-      allowedTypes.includes(file.mimetype)
-        ? cb(null, true)
-        : cb(new InvalidInputException(i18n.__("invalid_file_type")));
+      if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(new InvalidInputException(i18n.__("invalid_file_type")));
+      }
     };
 
     return multer({
       storage,
       fileFilter,
-      limits: { fileSize: Number(process.env.FILE_MAX_SIZE) },
+      limits: {
+        fileSize: Number(process.env.FILE_MAX_SIZE) || 2 * 1024 * 1024,
+      },
     });
   }
 
-  private async getCryptoName(file): Promise<string> {
-    const raw = crypto.randomBytes(16);
-    return `${raw.toString("hex")}-${Date.now()}${path.extname(file.originalname)}`;
+  private getCryptoName(file: any): string {
+    const raw = crypto.randomBytes(16).toString("hex");
+    return `${raw}-${Date.now()}${path.extname(file.originalname)}`;
   }
 
   private createRequiredFolders() {
     const baseDir = path.resolve(__dirname, "../../../public");
-    this.mkDirByPathSync(path.join(baseDir, "publications"));
-    this.mkDirByPathSync(path.join(baseDir, "uploads"));
+    ["publications", "uploads"].forEach((dir) =>
+      this.mkDirByPathSync(path.join(baseDir, dir))
+    );
   }
 
-  private async mkDirByPathSync(targetDir: string) {
+  private mkDirByPathSync(targetDir: string) {
     try {
-      await fs.promises.mkdir(targetDir, { recursive: true });
-    } catch (err) {
-      if (err.code !== "EEXIST") {
-        throw new Error(`Failed to create directory: ${targetDir}`);
+      if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
+        this.logger.log().info(`Created directory: ${targetDir}`);
       }
+    } catch (err) {
+      this.logger.log().error(`Failed to create directory: ${targetDir}`, err);
+      throw new Error(`Failed to create directory: ${targetDir}`);
     }
   }
 
@@ -80,10 +87,18 @@ export default class UploadService {
     destPath: string,
     deleteAfter = false
   ) {
-    if (fs.existsSync(srcPath)) {
-      await fs.promises.copyFile(srcPath, destPath);
-      this.logger.log().info(`File copied from ${srcPath} to ${destPath}`);
-      if (deleteAfter) await fs.promises.unlink(srcPath);
+    try {
+      if (fs.existsSync(srcPath)) {
+        await fs.promises.copyFile(srcPath, destPath);
+        this.logger.log().info(`File copied from ${srcPath} to ${destPath}`);
+        if (deleteAfter) {
+          await fs.promises.unlink(srcPath);
+        }
+      }
+    } catch (err) {
+      this.logger
+        .log()
+        .error(`Failed to copy file from ${srcPath} to ${destPath}`, err);
     }
   }
 
@@ -141,8 +156,13 @@ export default class UploadService {
 
   public async deleteOldFiles(folderPath: string, fileName: string) {
     const filePath = path.join(folderPath, fileName);
-    if (fs.existsSync(filePath)) {
-      await fs.promises.unlink(filePath);
+    try {
+      if (fs.existsSync(filePath)) {
+        await fs.promises.unlink(filePath);
+        this.logger.log().info(`Deleted file: ${filePath}`);
+      }
+    } catch (err) {
+      this.logger.log().error(`Failed to delete file: ${filePath}`, err);
     }
   }
 }

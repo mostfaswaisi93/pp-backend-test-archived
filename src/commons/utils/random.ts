@@ -7,12 +7,7 @@ export const getRandomNumber = (length: number): string => {
     .toString()
     .slice(2, length + 2);
 };
-export const getRandomNumberV1 = (length: number): string => {
-  length = length > 10 ? 10 : length;
-  return Math.random()
-    .toString()
-    .slice(2, length + 2);
-};
+
 export const getRandomToken = (): string => {
   return randomBytes(32).toString("hex");
 };
