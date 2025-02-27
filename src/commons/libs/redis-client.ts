@@ -3,17 +3,20 @@ import { MongoClient } from "mongodb";
 import os from "os";
 import { Logger } from "../libs/logger";
 import { config } from "../../config/redis-config";
-import RedisConfigItem from "../../interfaces/redis.interface";
+import RedisConfigInterface from "../../interfaces/redis.interface";
 
 export class RedisClient {
   private static _instance: RedisClient;
   private logger = Logger.Instance.log();
   private redisClientList: RedisClientType<any>[] = [];
-  private redisClientInfo = new Map<RedisClientType<any>, RedisConfigItem>();
+  private redisClientInfo = new Map<
+    RedisClientType<any>,
+    RedisConfigInterface
+  >();
   private mongoClient: MongoClient | null = null;
 
   private constructor() {
-    config.redisConfig.forEach((options: RedisConfigItem) => {
+    config.redisConfig.forEach((options: RedisConfigInterface) => {
       const client = this.createRedisClientObject(options);
       this.redisClientList.push(client);
       this.redisClientInfo.set(client, options);
@@ -30,7 +33,7 @@ export class RedisClient {
   }
 
   private createRedisClientObject(
-    options: RedisConfigItem
+    options: RedisConfigInterface
   ): RedisClientType<any> {
     const client = createClient({
       socket: {

@@ -1,7 +1,7 @@
-interface RedisConfigItem {
+interface RedisConfigInterface {
   host: string;
   port: number;
   db?: number;
 }
 
-export default RedisConfigItem;
+export default RedisConfigInterface;

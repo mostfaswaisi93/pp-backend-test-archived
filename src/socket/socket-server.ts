@@ -1,19 +1,15 @@
 import { Server } from "socket.io";
-import { createServer } from "http";
-import { Logger } from "../commons/libs/logger"; // لاستعمال اللوجر
-// import { redisConfig } from "../config/redis"; // لاستعمال إعدادات Redis
-import { RedisClient } from "../commons/libs/redis-client"; // لاستعمال Redis
+import { Logger } from "../commons/libs/logger";
+import { RedisClient } from "../commons/libs/redis-client";
 const logger = Logger.Instance;
 
 export class SocketServer {
-  // private logger = new Logger().log();
   private io: Server;
 
   constructor(private httpServer: any) {
-    // إنشاء سيرفر Socket.io
     this.io = new Server(this.httpServer, {
       cors: {
-        origin: "*", // إضافة CORS إذا كنت تحتاج للسماح لطلبات عبر النطاقات
+        origin: "*",
         methods: ["GET", "POST"],
       },
     });
@@ -21,7 +17,6 @@ export class SocketServer {
     this.listen();
   }
 
-  // وظيفة الاستماع للتواصل عبر الـ Socket
   listen() {
     this.io.on("connection", (socket) => {
       logger.info(`A user connected: ${socket.id}`);
@@ -30,23 +25,13 @@ export class SocketServer {
         logger.info(`User disconnected: ${socket.id}`);
       });
 
-      // إرسال رسائل إلى Redis عبر `broadcast`
       socket.on("send_message", (message) => {
         this.sendMessageToRedis(message);
       });
     });
   }
 
-  // إرسال رسالة إلى Redis
   private sendMessageToRedis(message: string) {
-    const redisClient = RedisClient.Instance; // الوصول إلى RedisClient
-
-    // redisClient.broadcast("set", "message", message, (err, result) => {
-    //   if (err) {
-    //     logger.error("Error while sending message to Redis:", err);
-    //   } else {
-    //     logger.info("Message sent to Redis:", result);
-    //   }
-    // });
+    const redisClient = RedisClient.Instance;
   }
 }
