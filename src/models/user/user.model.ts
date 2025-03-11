@@ -1,48 +1,52 @@
-import { Schema, model } from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 import * as i18n from "i18n";
 import { IUser } from "./user.interface";
 
-const UserSchema = new Schema<IUser>(
+const userSchema = new Schema<IUser>(
   {
-    deactivateDate: { type: Date, default: null },
-    password: { type: String, required: true, minlength: 8 },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    phone: { type: String, required: true, maxlength: 15 },
-    nameEn: { type: String, required: true },
-    nameAr: { type: String, required: true },
-    verificationCode: { type: String, default: null },
+    firebaseUID: { type: String, default: "" },
+    deviceId: { type: String, default: "" },
+    email: { type: String, required: true },
+    password: { type: String },
+    tempPassword: { type: String },
+    phoneNumber: { type: String, required: true },
+    firstName: { type: String, default: null }, // Can be null instead of undefined
+    lastName: { type: String, default: null }, // Can be null instead of undefined
+    image: [{ type: String }], // Changed from Object to String if images are URLs
+    proEmail: { type: String, default: null }, // Can be null instead of undefined
+    proId: { type: String },
+    emailVerificationCode: { type: String, default: null }, // Can be null instead of undefined
+    mobileVerificationCode: { type: String, default: null }, // Can be null instead of undefined
+    rbac: [{ type: Object }], // It's better to specify a more defined data type instead of Object
+    roles: [{ type: Schema.Types.ObjectId, ref: "Role" }],
+    permissions: [{ type: Schema.Types.ObjectId, ref: "Permission" }], // User-specific permissions
+    vanlynk: { type: String, default: null }, // Can be null instead of undefined
+    leadgen: { type: String, default: null }, // Can be null instead of undefined
+    companyName: { type: String, default: null }, // Can be null instead of undefined
+    companyLogo: { type: String, default: null }, // Can be null instead of undefined
+    isUserRegComplete : { type: Boolean, default: false }, // Changed from String to Boolean
+    isLeadRegComplete: { type: Boolean, default: false }, // Changed from String to Boolean
+    isVanlynkRegComplete: { type: Boolean, default: false }, // Changed from String to Boolean
+    isVerified: { type: Boolean, default: false },
+    isEmailVerified: { type: Boolean, default: false },
+    isMobileVerified: { type: Boolean, default: false },
+    status: { type: String, required: true, default: "Active" },
+    isDeleted: { type: Boolean, default: false },
+    isDeactivated: { type: Boolean, default: false },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-UserSchema.pre<IUser>("save", async function (next) {
-  if (this.isModified("password")) {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-  }
-  if (this.isModified("email")) {
-    this.email = this.email.trim().toLowerCase();
-  }
+userSchema.pre("find", function (next) {
+  this.where({ isDeleted: { $ne: true } });
   next();
 });
 
-UserSchema.methods.toJSON = function () {
-  const user = this.toObject();
-  delete user.password;
-  delete user.verificationCode;
-  user["name"] = i18n.getLocale() === "en" ? user.nameEn : user.nameAr;
-  return user;
-};
-
-const User = model<IUser>("User", UserSchema);
+userSchema.pre("findOne", function (next) {
+  this.where({ isDeleted: { $ne: true } });
+  next();
+});
+const User = model<IUser>("User", userSchema);
 
 export default User;

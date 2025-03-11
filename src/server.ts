@@ -32,9 +32,9 @@ dbConnection().then(() => startServer(server));
 
 // Helper Functions
 // Normalize port value
-function normalizePort(val: string): number | string | false {
-  const port = parseInt(val, 10);
-  if (isNaN(port)) return val;
+function normalizePort(value: string): number | string | false {
+  const port = parseInt(value, 10);
+  if (isNaN(port)) return value;
   if (port >= 0) return port;
   return false;
 }

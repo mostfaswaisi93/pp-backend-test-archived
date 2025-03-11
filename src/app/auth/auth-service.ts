@@ -1,133 +1,135 @@
-import * as crypto from "crypto";
+import i18n from "i18n";
+import bcrypt from "bcrypt";
+import svgCaptcha from "svg-captcha";
 import User from "../../models/user/user.model";
-import {
-  InvalidEmailOrPasswordException,
-  InvalidInputException,
-  AccountNotVerifiedException,
-} from "../../commons/errors/exceptions";
+import { Logger } from "../../commons/libs/logger";
 import AccessTokenService from "./access-token-service";
-import * as i18n from "i18n";
-import { PasswordCheckService } from "../../commons/validators/password-check-service";
-import { USER_TYPES } from "../../commons/constants/constants";
-import * as jwt from "jsonwebtoken";
-import { NextFunction } from "express";
+import { InvalidEmailOrPasswordException } from "../../commons/errors/exceptions";
+import { Role } from "../../models/role/role.model";
+
+const logger = Logger.Instance;
 
 export default class AuthService {
+  private userData = User;
   private accessTokenService = AccessTokenService.Instance;
-  private passwordCheckService = PasswordCheckService.Instance;
-  private userTypes = USER_TYPES;
-
   private static _instance: AuthService;
 
-  static get Instance() {
+  static get Instance(): AuthService {
     return this._instance ?? (this._instance = new this());
   }
 
   constructor() {}
 
+  // ✅ User authentication
   async login(email: string, password: string) {
     if (!email || !password) {
       throw new InvalidEmailOrPasswordException();
     }
 
-    const user = await User.findOne({
-      email: email.trim().toLowerCase(),
-    }).populate("agency");
+    const data = await this.userData.findOne({ email });
 
-    if (!user) {
+    if (
+      !data ||
+      !data.password ||
+      !(await this.validPassword(password, data.password))
+    ) {
       throw new InvalidEmailOrPasswordException();
     }
 
-    // if (user.active === 2 || (user.agency && user.agency.active === 2)) {
-    //   throw new AccountNotVerifiedException();
-    // }
+    const token = await this.accessTokenService.createToken(data);
+    const { password: _, ...userWithoutPassword } = data.toObject();
 
-    if (!this.validPassword(password, user.password)) {
-      throw new InvalidEmailOrPasswordException();
-    }
-
-    const accessToken = this.accessTokenService.createToken(user);
-    return { user, accessToken };
+    return { userWithoutPassword, token };
   }
 
-  async logout(accessToken: string): Promise<any> {
-    return this.accessTokenService.deleteToken(accessToken);
+  // ✅ User logout
+  async logout(token: string): Promise<any> {
+    if (!token) {
+      logger.error("No token provided to logout.");
+      throw new Error("Invalid token");
+    }
+    return this.accessTokenService.deleteToken(token);
   }
 
-  async resetPasswordCheckVerificationCode(verificationCode: string) {
-    if (!verificationCode) {
-      throw new InvalidInputException(i18n.__("verificationCode_is_required"));
+  // ✅ JWT Authentication middleware
+  authenticate = async (req: any, res: any, next: any) => {
+    const token = req.headers.authorization;
+
+    if (!token) {
+      return res.status(401).send({
+        code: 401,
+        message: i18n.__("token_not_valid"),
+      });
     }
 
-    const user = await User.findOne({ verificationCode, active: 1 });
+    try {
+      const payload = await this.accessTokenService.findToken(token);
 
-    if (!user) {
-      throw new InvalidInputException(i18n.__("verificationCode_not_valid"));
+      if (!payload) {
+        return res
+          .status(401)
+          .json({ message: "Access denied: Invalid token" });
+      }
+
+      req.user = payload;
+      next();
+    } catch (error) {
+      return res.status(401).json({ message: "Access denied: Invalid token" });
     }
+  };
+
+  async verifyUserRole(email: string) {
+    const user = await this.userData
+      .findOne(
+        { email },
+        {
+          phoneNumber: 1,
+          roles: 1,
+          _id: 1,
+          email: 1,
+          status: 1,
+          isVanlynkRegComplete: 1,
+          isLeadRegComplete: 1,
+          isUserRegComplete: 1,
+        }
+      )
+      .populate("roles", "roleCode roleDescription");
 
     return user;
   }
 
-  async resetPassword(verificationCode: string, password: string) {
-    if (!password) {
-      throw new InvalidInputException(i18n.__("password_required"));
-    }
-
-    if (!this.passwordCheckService.checkPasswordValidity(password)) {
-      throw new InvalidInputException(i18n.__("complex_password_required"));
-    }
-
-    const user =
-      await this.resetPasswordCheckVerificationCode(verificationCode);
-    user.password = this.setPassword(password);
-    // user.verificationCode = null;
-
-    await user.save();
-    return user;
+  // ✅ Validate password
+  public async validPassword(
+    password: string,
+    hashedPassword: string
+  ): Promise<boolean> {
+    return bcrypt.compareSync(password, hashedPassword);
   }
 
-  async forgetPassword(email: string) {
-    const user = await User.findOne({
-      email: email.trim().toLowerCase(),
-      active: 1,
+  // ✅ Forgot password
+  async forgotPassword(email: string) {}
+
+  // ✅ Reset password
+  async resetPassword(verificationToken: any, password: any) {}
+
+  // ✅ Generate CAPTCHA
+  generateCAPTCHA = async () => {
+    return await svgCaptcha.create({
+      color: true,
+      background: "#8292ab",
+      size: 5,
     });
+  };
 
-    if (!user) {
-      throw new InvalidInputException(i18n.__("email_not_exist"));
-    }
-
-    // user.verificationCode = this.generateVerificationCode();
-    await user.save();
-
-    return true;
-  }
-
-  private generateVerificationCode(): string {
-    const randomChars = "0123456789";
-    let result = "";
-
-    for (let i = 0; i < 5; i++) {
-      result += randomChars.charAt(
-        Math.floor(Math.random() * randomChars.length)
-      );
-    }
-
-    return result;
-  }
-
-  private setPassword(password: string): string {
-    const salt = "e!uAg+-C!3xTkT9F";
-    return crypto
-      .pbkdf2Sync(password, salt, 10000, 64, "sha512")
-      .toString("hex");
-  }
-
-  public validPassword(password: string, dbHash: string): boolean {
-    return this.setPassword(password) === dbHash;
-  }
-
-  isAdmin = (req: any, res: any, next: any) => {
-    if (req.user.userType === this.userTypes.Admin) {
+  // ✅ Admin authorization middleware
+  checkAdmin = (req: any, res: any, next: any) => {
+    let userTypes: any;
+    // userTypes = {
+    //   superadmin: 1,
+    //   pro: 2,
+    //   staff: 3,
+    // };
+    if (req.user.userType === userTypes?.Admin) {
       next();
     } else {
       res.status(401).send({
@@ -136,25 +138,4 @@ export default class AuthService {
       });
     }
   };
-
-  // authenticate = (req: any, res: any, next: any) => {
-  //   const token = req.headers["authorization"]?.split(" ")[1]; // استخراج التوكن من الـ headers
-
-  //   if (!token) {
-  //     return res.status(401).send({ message: "No token provided" });
-  //   }
-
-  //   jwt.verify(token, "your-secret-key", (err: any, decoded: any) => {
-  //     if (err) {
-  //       return res.status(401).send({ message: "Unauthorized" });
-  //     }
-  //     req.user = decoded; // حفظ بيانات المستخدم في request
-  //     next();
-  //   });
-  // };
-
-  authenticate(req: Request, res: Response, next: NextFunction) {
-    console.log("Authenticating...");
-    next();
-  }
 }

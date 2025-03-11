@@ -4,11 +4,11 @@ import { validationResult, ValidationError } from "express-validator";
 import i18n from "i18n";
 
 export default function validationMiddleware(
-  req: Request,
-  res: Response,
+  request: Request,
+  response: Response,
   next: NextFunction
 ) {
-  const errors = validationResult(req);
+  const errors = validationResult(request);
 
   if (!errors.isEmpty()) {
     const extractedErrors = errors

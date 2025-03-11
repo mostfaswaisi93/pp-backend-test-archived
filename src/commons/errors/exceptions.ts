@@ -31,8 +31,8 @@ export class AccountNotVerifiedException extends BaseException {
 }
 
 export class AlreadyExistException extends BaseException {
-  constructor(messageKey: string = i18n.__("item_already_exist")) {
-    super(messageKey, 400, i18n.__("item_already_exist"));
+  constructor(messageKey: string = i18n.__("item_already_exists")) {
+    super(messageKey, 400, i18n.__("item_already_exists"));
   }
 }
 

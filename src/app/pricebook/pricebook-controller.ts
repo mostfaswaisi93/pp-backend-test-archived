@@ -5,5 +5,12 @@ export default class PriceBookController implements Controller {
   public path = "/pricebook";
   public router = express.Router();
 
-  constructor() {}
+  constructor() {
+    this.initializeRoutes();
+  }
+
+  private initializeRoutes() {
+    // this.router.get("/", this.getPriceBook);
+    // this.router.post("/", this.createPriceBook);
+  }
 }

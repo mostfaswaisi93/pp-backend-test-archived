@@ -45,7 +45,7 @@ export function drawImage(
   let fullName: string = `${firstName} ${lastName}`;
   const canvass = createCanvas(200, 200);
   const context = canvass.getContext("2d");
-  context.fillStyle = stringToHslColor(fullName, 40, 60); //colours[colourIndex]
+  context.fillStyle = stringToHslColor(fullName, 40, 60); // colours[colourIndex]
   context.fillRect(0, 0, canvass.width, canvass.height);
   context.font = "100px Lato";
   context.textAlign = "center";
@@ -53,7 +53,7 @@ export function drawImage(
   context.fillText(initials, canvasCssWidth / 2, canvasCssHeight / 1.5);
   const buffer = canvass.toBuffer("image/png");
   let fileName = `${id}-${Date.now()}.png`;
-  let pathToImage = path.resolve(process.env.Image_Path || "", fileName);
+  let pathToImage = path.resolve(process.env.IMAGE_PATH || "", fileName);
   fs.writeFileSync(pathToImage, buffer);
   return fileName;
 }

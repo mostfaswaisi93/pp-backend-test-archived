@@ -13,54 +13,66 @@ export class UserService {
   }
 
   async create(userData: Partial<IUser>) {
-    if (
-      !userData.password ||
-      !this.passwordCheckService.checkPasswordValidity(userData.password)
-    ) {
-      throw new InvalidInputException(i18n.__("complex_password_required"));
-    }
+    try {
+      if (
+        !userData.password ||
+        !this.passwordCheckService.checkPasswordValidity(userData.password)
+      ) {
+        throw new InvalidInputException(i18n.__("complex_password_required"));
+      }
 
-    if (await User.exists({ email: userData.email })) {
-      throw new InvalidInputException(i18n.__("email_already_exist"));
-    }
+      if (await User.exists({ email: userData.email })) {
+        throw new InvalidInputException(i18n.__("email_already_exists"));
+      }
 
-    if (await User.exists({ phone: userData.phone })) {
-      throw new InvalidInputException(i18n.__("mobile_already_exist"));
+      const user = new User(userData);
+      return await user.save();
+    } catch (error) {
+      throw this.handleError(error);
     }
-
-    if (await User.exists({ nameAr: userData.nameAr })) {
-      throw new InvalidInputException(i18n.__("name_already_exist"));
-    }
-
-    if (await User.exists({ nameEn: userData.nameEn })) {
-      throw new InvalidInputException(i18n.__("name_already_exist"));
-    }
-
-    const user = new User(userData);
-    return await user.save();
   }
 
   async getAllUsers() {
-    return await User.find();
+    try {
+      return await User.find();
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
   async getUserById(id: string) {
-    const user = await User.findById(id);
-    if (!user) throw new InvalidInputException(i18n.__("user_not_found"));
-    return user;
+    try {
+      const user = await User.findById(id);
+      if (!user) throw new InvalidInputException(i18n.__("user_not_found"));
+      return user;
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
   async update(id: string, userData: Partial<IUser>) {
-    const updatedUser = await User.findByIdAndUpdate(id, userData, {
-      new: true,
-    });
-    if (!updatedUser)
-      throw new InvalidInputException(i18n.__("user_not_found"));
-    return updatedUser;
+    try {
+      const updatedUser = await User.findByIdAndUpdate(id, userData, {
+        new: true,
+      });
+      if (!updatedUser)
+        throw new InvalidInputException(i18n.__("user_not_found"));
+      return updatedUser;
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
   async delete(id: string) {
-    const user = await User.findByIdAndDelete(id);
-    if (!user) throw new InvalidInputException(i18n.__("user_not_found"));
+    try {
+      const user = await User.findByIdAndDelete(id);
+      if (!user) throw new InvalidInputException(i18n.__("user_not_found"));
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  private handleError(error: any) {
+    throw new InvalidInputException(i18n.__("operation_failed"));
   }
 }

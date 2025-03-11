@@ -12,13 +12,16 @@ image/*
 # public folder
 public/
 
+# postman folder
+postman/
+
 package-lock.json
 pull.sh
 package-lock.*
 
 # dubugger config
-# .env
-# .env-production
+.env
+.env-production
 
 # IDEs and editors
 /.idea

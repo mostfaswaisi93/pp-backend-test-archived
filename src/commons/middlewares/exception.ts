@@ -3,18 +3,18 @@ import { Request, Response, NextFunction } from "express";
 import ApplicationException from "../../commons/errors/application-exception";
 
 export const errorHandler = (
-  err: any,
-  req: Request,
-  res: Response,
+  error: any,
+  request: Request,
+  response: Response,
   next: NextFunction
 ) => {
-  if (err instanceof ApplicationException) {
-    res.status(err.status).send({
-      message: err.message,
-      code: err.code,
+  if (error instanceof ApplicationException) {
+    response.status(error.status).send({
+      message: error.message,
+      code: error.code,
     });
   } else {
-    console.error(err.stack);
-    res.status(500).send({ message: i18n.__("something_wrong") });
+    console.error(error.stack);
+    response.status(500).send({ message: i18n.__("something_wrong") });
   }
 };

@@ -15,11 +15,17 @@ export default class HttpResWrapper {
     return this._instance;
   }
 
-  public success(response: Response, data: any = null): void {
+  // message: string in the middel
+  public success(response: Response, data: any = null, token?: any): void {
     this.logger.info("Success response sent.");
     response.status(200).json({
-      success: true,
-      data: data || null,
+      // success: true,
+      status: 200,
+      result: "success",
+      // message: message,
+      // response: message,
+      data,
+      token,
     });
   }
 

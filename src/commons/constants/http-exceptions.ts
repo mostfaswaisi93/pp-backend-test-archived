@@ -23,8 +23,8 @@ export const exceptionMap = {
     status: 404,
   },
 
-  EmailAlreadyExsis: {
-    message: "EmailAlreadyExsis",
+  EmailAlreadyExists: {
+    message: "EmailAlreadyExists",
     customCode: "UEA409",
     status: 409,
   },

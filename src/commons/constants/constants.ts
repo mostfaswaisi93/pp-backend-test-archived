@@ -5,8 +5,8 @@ export const systemUserId = 0;
 export enum USER_ROLES {
   TABLE_OWNER = 1,
   DATA_OWNER,
-  TABLE_OWNER_SUPROVISOR,
-  DATA_OWNER_SUPROVISOR,
+  TABLE_OWNER_SUPERVISOR,
+  DATA_OWNER_SUPERVISOR,
   DESIGNER,
   SYSTEM,
 }
@@ -19,7 +19,7 @@ export enum STATUSES {
   UPLOADED,
   LOADED,
   ACCEPTED,
-  FORMATED,
+  FORMATTED,
   REJECTED,
 }
 
@@ -28,20 +28,20 @@ export enum EMAIL_TYPES {
   SOURCE_REMINDER_1 = 2,
   SOURCE_REMINDER_2 = 3,
   SOURCE_REMINDER_3 = 4,
-  NOTIFY_THE_OWNER_DATA_NOT_RECIEVED = 5,
-  NOTIFY_THE_OWNER_DATA_RECIEVIED = 6,
+  NOTIFY_THE_OWNER_DATA_NOT_RECEIVED = 5,
+  NOTIFY_THE_OWNER_DATA_RECEIVED = 6,
   RETURN_DATA = 7,
   REMINDER_TO_CORRECT_AND_RETURN_DATA = 8,
   NOTIFY_THE_OWNER_OF_NOT_RETURNING_DATA_FROM_THE_SOURCE = 9,
   NOTIFY_THE_OWNER_OF_NOT_RETURNING_DATA_FROM_THE_SOURCE_AFTER_CALL = 10,
   SOURCE_DATA_APPROVAL_NOTIFICATION = 11,
   NOTIFY_DESIGNER_OF_THE_PUBLISHING_DEPARTMENT = 12,
-  NOTIFY_THE_OWNER_DATA_NOT_RECIEVED_AFTER_CALL = 13,
+  NOTIFY_THE_OWNER_DATA_NOT_RECEIVED_AFTER_CALL = 13,
 }
 
 export enum ACTION_LOG_TYPE {
-  ADD_BOOK_BULLITEN = 1,
-  EDIT_BOOK_BULLITEN,
+  ADD_BOOK_BULLETIN = 1,
+  EDIT_BOOK_BULLETIN,
   ADD_DESIGNERS,
   EDIT_DESIGNER_INFORMATION,
   ADD_CHAPTERS,
@@ -83,7 +83,7 @@ export enum ACTION_LOG_TYPE {
 export enum ACTION_LOG_REF_TYPE {
   TABLE = 1,
   BOOK,
-  BULLETEN,
+  BULLETIN,
   SECTION,
   CHAPTER,
   AGENCY,
@@ -93,7 +93,7 @@ export enum ACTION_LOG_REF_TYPE {
   RULE,
 }
 
-export enum DEFULAT_VARIABLES {
+export enum DEFAULT_VARIABLES {
   password = "123456789",
   jwtExpireIn = "15min",
   jwtRefreshExpireIn = "30day",
@@ -102,16 +102,15 @@ export enum DEFULAT_VARIABLES {
   colorPaletteSize = 26,
 }
 
-export enum DEFAULT_FORMATTS {
+export enum DEFAULT_FORMATS {
   dataBaseDateFormat = "%d/%m/%Y",
 }
 
 export enum RECOVER_TOKEN_TYPE {
   setPassword = 2,
-  forgetPassword = 1,
+  forgotPassword = 1,
 }
 
-export enum RolesEnum {}
 export enum LANG_LIST {
   "Ar" = "ar",
   "En" = "en",
@@ -131,7 +130,7 @@ export enum TASK_STATUS {
   "Need Approval" = 3,
 }
 
-export enum PRODCUT_ACTION_TYPE {
+export enum PRODUCT_ACTION_TYPE {
   needApproval = 3,
   rejected = 2,
   approved = 1,
@@ -175,7 +174,7 @@ export const WEEK_DAY_NAMES = [
   "monday",
   "tuesday",
   "wednesday",
-  "thuersday",
+  "thursday",
   "friday",
   "saturday",
 ];
@@ -193,7 +192,7 @@ export enum WEEKLY_DAYS {
 export enum DATE_CALCULATION_FUNCTION {
   startDate = 1,
   endDate = 2,
-  duraion = 3,
+  duration = 3,
 }
 
 export enum RECURRING_CALCULATION_FUNCTION {
@@ -229,7 +228,7 @@ export enum ATTACHMENT_TYPES {
   Image = 4,
 }
 
-export enum REPORT_ESCALACTION_TARGET_TYPES {
+export enum REPORT_ESCALATION_TARGET_TYPES {
   Auto = 1,
   Selective = 2,
 }
@@ -327,7 +326,7 @@ export enum ACTIVITY_LOG_REF_TYPE {
 }
 
 export enum NOTIFICATION_TYPE {
-  GENERAL_NOTIFICATION = DEFULAT_VARIABLES.generalNotificationId,
+  GENERAL_NOTIFICATION = DEFAULT_VARIABLES.generalNotificationId,
   ADD_NEW_TASK = 11,
   ASSIGN_DEPARTMENT = 10,
   ASSIGN_EMPLOYEE = 9,
@@ -383,7 +382,7 @@ export enum LOGIC_OPERATORS {
   OR,
 }
 
-export enum ATRRIBUTE_TYPE {
+export enum ATTRIBUTE_TYPE {
   BOOLEAN = 5,
   DATE = 1,
   STRING = 2,
@@ -392,10 +391,10 @@ export enum ATRRIBUTE_TYPE {
 
 export enum ARITHMETIC_OPERATORS {
   EQUAL = 1,
-  GRATER_THEN,
-  LESS_THEN,
-  GRATER_THEN_OR_EQUAL,
-  LESS_THEN_OR_EQUAL,
+  GREATER_THAN,
+  LESS_THAN,
+  GREATER_THAN_OR_EQUAL,
+  LESS_THAN_OR_EQUAL,
   NOT_EQUAL,
   IN,
   NOT_IN,
@@ -411,35 +410,20 @@ export enum RECURRING_POSITION {
 
 export const COLOR_PALETTE = [
   "rgb(100, 124, 138)",
-
   "rgb(63, 81, 181)",
-
   "rgb(0, 184, 98)",
-
   "rgb(175, 223, 10)",
-
   "rgb(167, 182, 26)",
-
   "rgb(243, 229, 98)",
-
   "rgb(255, 152, 0)",
-
   "rgb(255, 87, 34)",
-
   "rgb(100, 124, 138)",
-
   "rgb(63, 81, 181)",
-
   "rgb(33, 150, 243)",
-
   "rgb(0, 184, 98)",
-
   "rgb(167, 182, 26)",
-
   "rgb(243, 229, 98)",
-
   "rgb(255, 87, 34)",
-
   "rgb(255, 69, 20)",
 ];
 
@@ -475,3 +459,43 @@ export enum DeviceType {
   phone = 1,
   desktop = 2,
 }
+
+export const SYSTEM_CODES = {
+  // SYSTEM CODES CONSTANTS
+  PRO_CODE: "PR",
+  STAFF_CODE: "ST",
+  WORKORDER_CODE: "WO",
+  VENDOR_CODE: "VD",
+  ESTIMATE_CODE: "ES",
+  PAYMENT_CODE: "PMT",
+  REFUND_CODE: "RFT",
+  REFUNDS_CODE: "RFN",
+  NONINVENTORY_CODE: "NON",
+  PRICEBOOK_CODE: "PB",
+  INVENTORY_CODE: "IN",
+  LOCATION_CODE: "LO",
+  CUSTOMER_CODE: "CU",
+  LEAD_CODE: "LD",
+  PROMOTION_CODE: "PM",
+  EQUIPMENT_CODE: "EQ",
+  PURCHASE_ORDERS_CODE: "PO",
+  BOOK_CODE: "BP",
+  JOB_CODE: "JB",
+  SCORE_CODE: "SC",
+  SEQUENCE_CODE: "sequence",
+  TRUCK_ORDER: "TSL",
+  PRE_CODE: "PRW",
+  POST_CODE: "POW",
+  CSR_CODE: "CSR",
+  REPORT_PRO: "RAP",
+  DIRECT_BOOKING_LEAD_CODE: "DBL",
+  GET_QUOTE_LEAD_CODE: "GQL",
+  SMS_CODE: "SM", // for TEST SMS
+  WRITEOFF_CODE: "WTO",
+  ORDER_CODE: "ORD",
+  // SYSTEM CODES CONSTANTS
+};
+
+export const DATE_FORMATS = {
+  CURRENT_DATE: `${new Date().getFullYear()}${new Date().getMonth() + 1}${new Date().getDate()}`,
+};

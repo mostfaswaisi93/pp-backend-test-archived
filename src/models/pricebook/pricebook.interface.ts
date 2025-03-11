@@ -1,4 +1,43 @@
-export interface IPricebook {
-  name: string;
-  price: number;
+import { Document } from "mongoose";
+
+export interface IPriceBook extends Document {
+  loginId?: string;
+  proId?: string;
+  serviceId: string;
+  category: string;
+  subCategory: string;
+  serviceTitle: string;
+  leadCostApply?: boolean;
+  leadCost?: number;
+  truckOrderCostApply?: boolean;
+  truckOrderCost?: number;
+  inventory?: Record<string, any>[];
+  laborRate?: number;
+  numberHours?: number;
+  subTotal?: number;
+  laborCost?: number;
+  totalCost?: number;
+  standard?: number;
+  value?: number;
+  member?: number;
+  standardPercent?: number;
+  valuePercent?: number;
+  memberPercent?: number;
+  totalMaterialCost?: number;
+  image?: string[];
+  filename?: string;
+  documentName?: string;
+  serviceDescription?: string;
+  installationDescription?: string;
+  status: string;
+  qrImage?: string;
+  createdOn?: string;
+  createdBy?: string;
+  updatedOn?: string;
+  updatedBy?: string;
+  createdByEmailId?: string;
+  updatedByEmailId?: string;
+  updatedByImage?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

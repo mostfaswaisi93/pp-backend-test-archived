@@ -25,8 +25,8 @@ export default class UploadService {
         : path.resolve(process.env.STORAGE_PATH!);
 
     if (!storagePath || !fs.existsSync(storagePath)) {
-      this.logger.log().error("Storage Path Not Exist");
-      throw new Error("Storage Path Not Exist");
+      this.logger.log().error("Storage path does not exist.");
+      throw new Error("Storage path does not exist.");
     }
 
     const storage = multer.diskStorage({
@@ -76,8 +76,10 @@ export default class UploadService {
         fs.mkdirSync(targetDir, { recursive: true });
         this.logger.log().info(`Created directory: ${targetDir}`);
       }
-    } catch (err) {
-      this.logger.log().error(`Failed to create directory: ${targetDir}`, err);
+    } catch (error) {
+      this.logger
+        .log()
+        .error(`Failed to create directory: ${targetDir}`, error);
       throw new Error(`Failed to create directory: ${targetDir}`);
     }
   }
@@ -93,12 +95,13 @@ export default class UploadService {
         this.logger.log().info(`File copied from ${srcPath} to ${destPath}`);
         if (deleteAfter) {
           await fs.promises.unlink(srcPath);
+          this.logger.log().info(`Deleted source file: ${srcPath}`);
         }
       }
-    } catch (err) {
+    } catch (error) {
       this.logger
         .log()
-        .error(`Failed to copy file from ${srcPath} to ${destPath}`, err);
+        .error(`Failed to copy file from ${srcPath} to ${destPath}`, error);
     }
   }
 
@@ -161,8 +164,8 @@ export default class UploadService {
         await fs.promises.unlink(filePath);
         this.logger.log().info(`Deleted file: ${filePath}`);
       }
-    } catch (err) {
-      this.logger.log().error(`Failed to delete file: ${filePath}`, err);
+    } catch (error) {
+      this.logger.log().error(`Failed to delete file: ${filePath}`, error);
     }
   }
 }
