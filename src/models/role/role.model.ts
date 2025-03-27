@@ -8,7 +8,12 @@ const roleSchema = new Schema<IRole>(
     roleDescription: { type: String },
     permissions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Permission" }],
     isAdminFlag: { type: Boolean },
-    status: { type: String, default: "ACTIVE", required: true },
+    status: {
+      type: String,
+      enum: ["ACTIVE", "INACTIVE"],
+      default: "ACTIVE",
+      required: true,
+    },
   },
   { timestamps: true }
 );

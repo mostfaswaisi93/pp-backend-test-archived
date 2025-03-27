@@ -1,8 +1,8 @@
-import { InvalidInputException } from "../../commons/errors/exceptions";
 import * as i18n from "i18n";
-import { PasswordCheckService } from "../../commons/validators/password-check-service";
 import User from "../../models/user/user.model";
 import { IUser } from "../../models/user/user.interface";
+import { InvalidInputException } from "../../commons/errors/exceptions";
+import { PasswordCheckService } from "../../commons/validators/password-check-service";
 
 export class UserService {
   private static _instance: UserService;

@@ -113,8 +113,8 @@ export const runProSeeder = async () => {
 
   try {
     await Pro.insertMany(proData);
-    console.log("Seed data inserted successfully!");
+    console.log("Pro seed data inserted successfully!");
   } catch (error) {
-    console.error("Error inserting seed data:", error);
+    console.error("Error inserting pro seed data:", error);
   }
 };

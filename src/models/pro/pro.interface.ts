@@ -1,13 +1,14 @@
 import { Document } from "mongoose";
 
 export interface IPro extends Document {
+  _id: string;
   firstName: string;
   lastName: string;
   middleName?: string;
   dob?: string;
-  socialSecurity?: string;
+  socialSecurityNumber?: string;
   proId?: string;
-  qrImage?: string;
+  qrCodeImage?: string;
   userId?: string;
   businessName: string;
   businessType: string;
@@ -15,8 +16,8 @@ export interface IPro extends Document {
   zipcode: string;
   city: string;
   state: string;
-  emailId: string;
-  mobileNumber: string;
+  email: string;
+  mobile: string;
   leadPhoneNumber?: string;
   latitude?: string;
   longitude?: string;
@@ -31,6 +32,7 @@ export interface IPro extends Document {
   license?: string;
   verified?: string;
   adminStatus?: string;
+  status?: string;
   yelp_Address?: {
     businessAddress?: string;
     zipcode?: string;
@@ -63,18 +65,18 @@ export interface IPro extends Document {
     lessThanFive?: number;
   };
   businessInformation?: {
-    businessInformation?: string;
+    businessDescription?: string;
     isBusinessSince?: string;
     isInsured?: string;
     isBonded?: string;
     isWarrantyOffered?: string;
     isCreditCardAccepted?: string;
     isEstimatesFree?: string;
-    noOfEmployees?: string;
+    noOfTrucks?: string;
     noOftrucks?: string;
     aboutService?: string;
   };
-  licenseDetails?: object[];
+  licenseInfo?: object[];
   areaOfExpertise?: {
     areaOfExpertise?: string;
     additionalInfo?: string;
@@ -83,8 +85,8 @@ export interface IPro extends Document {
   categoryName?: object[];
   Summary?: object[];
   serviceArea?: object[];
-  firsttimecomponentcall?: string;
-  DefaultCountyDeleteFlag?: string;
+  isFirstComponentCall?: string;
+  countyDeleteFlag?: string;
   roles?: object[];
   permissions?: object[];
   cards?: object[];
@@ -96,5 +98,4 @@ export interface IPro extends Document {
   reportNote?: string;
   reportFile?: string;
   isTPAdmin?: boolean;
-  status: string;
 }

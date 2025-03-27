@@ -1,8 +1,8 @@
-import { createClient, RedisClientType } from "redis";
-import { MongoClient } from "mongodb";
 import os from "os";
+import { MongoClient } from "mongodb";
 import { Logger } from "../libs/logger";
 import { config } from "../../config/redis";
+import { createClient, RedisClientType } from "redis";
 import RedisConfigInterface from "../../interfaces/redis.interface";
 
 export class RedisClient {
@@ -14,11 +14,15 @@ export class RedisClient {
     RedisConfigInterface
   >();
   private mongoClient: MongoClient | null = null;
+  private maxRetries = 30;
 
   private constructor() {
     this.initializeRedisClients();
-    this.connectMongoDB();
+    // this.connectMongoDB();
     this.handleProcessExit();
+    // setImmediate(() => {
+    //   this.checkRedisConnection();
+    // });
   }
 
   static get Instance(): RedisClient {
@@ -44,7 +48,7 @@ export class RedisClient {
         host: options.host,
         port: options.port,
         reconnectStrategy: (retries) =>
-          retries > 30 ? new Error("Retry limit exceeded") : 3000,
+          retries > this.maxRetries ? new Error("Retry limit exceeded") : 3000,
       },
       database: options.db ?? 0,
     });
@@ -93,7 +97,7 @@ export class RedisClient {
     });
   }
 
-  public receive(methodName: string, ...args: any[]) {
+  public async receive(methodName: string, ...args: any[]) {
     const _redisClient = this.redisClientList.find((redisClient) => {
       const clientInfo = this.redisClientInfo.get(redisClient);
       return clientInfo && this.isLocalHost(clientInfo.host);
@@ -106,9 +110,28 @@ export class RedisClient {
       return null;
     }
 
+    if (methodName === "get") {
+      try {
+        const result = await _redisClient.get(args[0]);
+        if (result === null || result === undefined) {
+          this.logger.warn(`⚠️ No data found for key: ${args[0]}`);
+          return null;
+        }
+        return result;
+      } catch (error) {
+        this.logger.error(`❌ Error executing get for key ${args[0]}:`, error);
+        return null;
+      }
+    }
+
     const method = _redisClient[methodName as keyof RedisClientType<any>];
     if (typeof method === "function") {
-      return (method as Function)(...args);
+      try {
+        return await (method as Function)(...args);
+      } catch (error) {
+        this.logger.error(`❌ Error executing ${methodName}:`, error);
+        return null;
+      }
     } else {
       this.logger.warn(
         `⚠️ Method ${methodName} is not a valid function on the Redis client.`
@@ -128,7 +151,7 @@ export class RedisClient {
       .some((iface) => iface?.address === address);
   }
 
-  async del(key: string): Promise<void> {
+  async delete(key: string): Promise<void> {
     try {
       for (const redisClient of this.redisClientList) {
         await redisClient.del(key);
@@ -179,5 +202,20 @@ export class RedisClient {
       await this.disconnectAll();
       process.exit(0);
     });
+  }
+
+  private async checkRedisConnection() {
+    for (const client of this.redisClientList) {
+      try {
+        const pong = await client.ping();
+        if (pong === "PONG") {
+          this.logger.info(`✅ Redis client is connected.`);
+        } else {
+          this.logger.warn(`⚠️ Redis client ping failed.`);
+        }
+      } catch (error) {
+        this.logger.error(`❌ Error checking Redis connection: ${error}`);
+      }
+    }
   }
 }

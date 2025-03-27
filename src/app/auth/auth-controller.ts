@@ -29,7 +29,6 @@ export default class AuthController implements Controller {
   private initializeRoutes() {
     this.router.post("/login", login, this.login);
     this.router.get("/generateCaptcha", this.generateCAPTCHA);
-    this.router.get("/verifyUser/:email", this.verifyUserRole);
     this.router.post("/forgot-password", forgotPassword, this.forgotPassword);
     this.router.post("/reset-password", resetPassword, this.resetPassword);
     this.router.delete("/logout", this.authService.authenticate, this.logout);
@@ -39,10 +38,18 @@ export default class AuthController implements Controller {
   private login = async (request: Request, response: Response) => {
     const email = (request.body.email as string).toLowerCase().trim();
     const password = request.body.password.trim();
+
     try {
-      let user = await this.authService.login(email, password);
+      const user = await this.authService.login(email, password);
       const { userWithoutPassword, token } = user;
-      this.httpResWrapper.success(response, userWithoutPassword, token);
+
+      const message = "Login successful.";
+      this.httpResWrapper.success(
+        response,
+        message,
+        userWithoutPassword,
+        token
+      );
     } catch (error) {
       this.httpResWrapper.error(response, error);
     }
@@ -50,80 +57,67 @@ export default class AuthController implements Controller {
 
   // ✅ Logout
   private logout = async (request: Request, response: Response) => {
-    const token = request.headers.authorization;
+    const token = request.headers.authorization ?? "";
+
     if (!token) {
-      response
-        .status(401)
-        .json({ success: false, message: "No token provided" });
-      return;
+      const message = "No token provided.";
+      this.httpResWrapper.error(response, message, 401);
+      return this.httpResWrapper.error(response, message, 401);
     }
+
     try {
       await this.authService.logout(token);
-      let message = "Logged out successfully";
+      const message = "Logged out successfully.";
       this.httpResWrapper.success(response, message);
     } catch (error) {
       this.httpResWrapper.error(response, error);
     }
   };
 
-  verifyUserRole = async (
+  // ✅ Forgot Password
+  private forgotPassword = async (
     request: Request,
     response: Response,
     next: NextFunction
   ) => {
     const email = request.body.email;
-    try {
-      const result = await this.authService.verifyUserRole(email);
-      console.log(result);
-      
 
-      //   if (result.length > 0) {
-      //     return apiResponses.successResponseWithData(res, 'Fetched User Successfully', result);
-      // } else {
-      //     return apiResponses.notFoundResponse(res, 'User Not Found');
-      // }
-      return this.httpResWrapper.success(response, result);
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  forgotPassword = async (
-    request: Request,
-    response: Response,
-    next: NextFunction
-  ) => {
-    const email = request.body.email;
     try {
       const result = await this.authService.forgotPassword(email);
-      return this.httpResWrapper.success(response, result);
+      const message = "Password reset link sent successfully.";
+      return this.httpResWrapper.success(response, message, result);
     } catch (error) {
       next(error);
     }
   };
 
-  resetPassword = async (
+  // ✅ Reset Password
+  private resetPassword = async (
     request: Request,
     response: Response,
     next: NextFunction
   ) => {
     const password = request.body.password;
     const verificationToken = request.body.verificationToken;
+
     try {
       const user = await this.authService.resetPassword(
         verificationToken,
         password
       );
-      return this.httpResWrapper.success(response, user);
+      const message = "Password reset successfully.";
+      return this.httpResWrapper.success(response, message, user);
     } catch (error) {
       next(error);
     }
   };
 
-  generateCAPTCHA = async (req: Request, res: Response) => {
+  // ✅ Generate CAPTCHA
+  private generateCAPTCHA = async (req: Request, res: Response) => {
     try {
-      let captcha = await this.authService.generateCAPTCHA();
-      this.httpResWrapper.success(res, captcha);
+      const captcha = await this.authService.generateCAPTCHA();
+      const message = "CAPTCHA generated successfully.";
+      this.httpResWrapper.success(res, message, captcha);
     } catch (error) {
       this.httpResWrapper.error(res, error);
     }

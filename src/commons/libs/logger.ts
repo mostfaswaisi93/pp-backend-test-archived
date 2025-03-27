@@ -37,6 +37,10 @@ export class Logger {
       this.shutdown();
       process.exit(0);
     });
+    process.on("SIGTERM", () => {
+      this.shutdown();
+      process.exit(0);
+    });
   }
 
   private async ensureLogDirectory(): Promise<void> {
@@ -88,10 +92,12 @@ export class Logger {
 
   public shutdown(): void {
     try {
-      if (typeof (this.logStream as any).flush === "function") {
-        (this.logStream as any).flush();
-      }
-      console.log("Logger has been shut down gracefully.");
+      setImmediate(() => {
+        if (typeof (this.logStream as any).flush === "function") {
+          (this.logStream as any).flush();
+        }
+        console.log("Logger has been shut down gracefully.");
+      });
     } catch (error) {
       console.error("Error shutting down logger:", error);
     }

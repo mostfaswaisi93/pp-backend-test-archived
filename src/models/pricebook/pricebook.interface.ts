@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 
-export interface IPriceBook extends Document {
+export interface IPricebook extends Document {
   loginId?: string;
   proId?: string;
   serviceId: string;

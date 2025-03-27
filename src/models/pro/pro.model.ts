@@ -1,15 +1,15 @@
 import mongoose, { Schema } from "mongoose";
 import { IPro } from "./pro.interface";
 
-const ProSchema = new Schema<IPro>(
+const proSchema = new Schema<IPro>(
   {
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     middleName: { type: String },
-    dob: { type: String },
-    socialSecurity: { type: String },
+    dob: { type: Date }, // Changed to Date instead of String for better date handling
+    socialSecurityNumber: { type: String }, // Changed to a more specific name
     proId: { type: String },
-    qrImage: { type: String },
+    qrCodeImage: { type: String }, // Changed to make it clearer
     userId: { type: String },
     businessName: { type: String, required: true },
     businessType: { type: String, required: true },
@@ -17,8 +17,8 @@ const ProSchema = new Schema<IPro>(
     zipcode: { type: String, required: true },
     city: { type: String, required: true },
     state: { type: String, required: true },
-    emailId: { type: String, required: true },
-    mobileNumber: { type: String, required: true },
+    email: { type: String, required: true }, // Changed to "email" for clarity
+    mobile: { type: String, required: true }, // Changed to "mobile" for simplicity
     leadPhoneNumber: { type: String, default: "" },
     latitude: { type: String },
     longitude: { type: String },
@@ -33,6 +33,7 @@ const ProSchema = new Schema<IPro>(
     license: { type: String, default: "0" },
     verified: { type: String },
     adminStatus: { type: String, default: "Active" },
+    status: { type: String, required: true, default: "ACTIVE" },
     yelp_Address: {
       businessAddress: String,
       zipcode: String,
@@ -61,7 +62,7 @@ const ProSchema = new Schema<IPro>(
       lessThanFive: Number,
     },
     businessInformation: {
-      businessInformation: String,
+      businessDescription: String, // Changed to avoid repetition
       isBusinessSince: String,
       isInsured: String,
       isBonded: String,
@@ -69,17 +70,17 @@ const ProSchema = new Schema<IPro>(
       isCreditCardAccepted: String,
       isEstimatesFree: String,
       noOfEmployees: String,
-      noOftrucks: String,
+      noOfTrucks: String, // Changed to use correct plural form
       aboutService: String,
     },
-    licenseDetails: [{ type: Object }],
+    licenseInfo: [{ type: Object }], // Changed to more meaningful name
     areaOfExpertise: { areaOfExpertise: String, additionalInfo: String },
     locations: [{ type: Object }],
     categoryName: [{ type: Object }],
     Summary: [{ type: Object }],
     serviceArea: [{ type: Object }],
-    firsttimecomponentcall: { type: String },
-    DefaultCountyDeleteFlag: { type: String },
+    isFirstComponentCall: { type: String }, // Changed to more meaningful name
+    countyDeleteFlag: { type: String }, // Changed to simplify and improve clarity
     roles: [{ type: Object }],
     permissions: [{ type: Object }],
     cards: [{ type: Object }],
@@ -91,10 +92,9 @@ const ProSchema = new Schema<IPro>(
     reportNote: { type: String },
     reportFile: { type: String },
     isTPAdmin: { type: Boolean, default: false },
-    status: { type: String, required: true, default: "ACTIVE" },
   },
   { timestamps: true }
 );
 
-const Pro = mongoose.model<IPro>("Pro", ProSchema);
+const Pro = mongoose.model<IPro>("Pro", proSchema);
 export default Pro;

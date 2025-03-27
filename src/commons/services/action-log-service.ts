@@ -1,8 +1,8 @@
+import User from "../../models/user/user.model";
 import { Logger } from "../../commons/libs/logger";
+import { ActionLog } from "../../models/action-log/action-log.model";
 import { ACTION_LOG_REF_TYPE, ACTION_LOG_TYPE } from "../constants/constants";
-import { UserModel } from "../../database/models/User";
-import { ActionLogModel } from "../../database/models/ActionLog";
-import { ActionLogTypeModel } from "../../database/models/ActionLogType";
+import { ActionLogType } from "../../models/action-log-type/action-log-type.model";
 
 export class ActionLogService {
   private static _instance: ActionLogService;
@@ -20,26 +20,29 @@ export class ActionLogService {
   public async insertAction(
     actionType: ACTION_LOG_TYPE,
     input: Record<string, string | number | boolean>,
-    userId: number,
+    userId: string,
     actionRefType: ACTION_LOG_REF_TYPE | null = null,
     actionRefId: number | null = null
   ): Promise<void> {
     try {
-      const logType = await ActionLogTypeModel.findById(actionType);
+      const logType = await ActionLogType.findOne({
+        where: { id: actionType },
+      });
       if (!logType) throw new Error("Invalid log type");
 
-      const user = await UserModel.findOne({ userId });
-      if (!user) throw new Error("User not found");
+      let messege: string | null = logType.logMessege;
+      let user = await User.findOne({ _id: userId }); // Use _id instead of userId
+      input["firstName"] = user?.firstName ?? "Default Name"; // Ensure firstName is not null or undefined
+      if (messege === null) {
+        throw new Error("Log message cannot be null");
+      }
 
-      let logMessage = logType.logMessage;
-      input["name"] = user.nameEn;
-      logMessage = Object.keys(input).reduce(
-        (msg, key) => msg.replace(`{${key}}`, String(input[key])),
-        logMessage
-      );
+      for (let key in input) {
+        messege = messege.replace("{" + key + "}", input[key].toString());
+      }
 
-      const newLog = new ActionLogModel({
-        logMessage,
+      const newLog = new ActionLog({
+        logMessege: messege,
         actionLogTypeId: actionType,
         logRefType: actionRefType,
         logRefId: actionRefId,
@@ -47,9 +50,10 @@ export class ActionLogService {
       });
 
       await newLog.save();
-      this.logger.info(`Action log inserted: ${logMessage}`);
-    } catch (error) {
-      this.logger.error("Error inserting action log", error);
+      this.logger.info(`Action log inserted: ${messege}`);
+    } catch (error: any) {
+      // this.logger.error("Error inserting action log", error);
+      this.logger.error("Error inserting action log");
     }
   }
 }

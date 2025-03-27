@@ -1,16 +1,16 @@
-import express from "express";
 import cors from "cors";
-import helmet from "helmet";
-import morgan from "morgan";
-import requestIp from "request-ip";
-import compression from "compression";
 import http from "http";
 import path from "path";
 import i18n from "i18n";
-import { LANG_LIST } from "./commons/constants/constants";
+import helmet from "helmet";
+import morgan from "morgan";
+import express from "express";
+import requestIp from "request-ip";
+import compression from "compression";
 import { Logger } from "../src/commons/libs/logger";
-import Controller from "../src/interfaces/controller.interface";
+import { LANG_LIST } from "./commons/constants/constants";
 import { errorHandler } from "./commons/middlewares/exception";
+import Controller from "../src/interfaces/controller.interface";
 
 const logger = Logger.Instance.log();
 

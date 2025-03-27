@@ -3,11 +3,9 @@ export const USER_TYPES = { Admin: 1, Pro: 2 };
 export const systemUserId = 0;
 
 export enum USER_ROLES {
-  TABLE_OWNER = 1,
-  DATA_OWNER,
-  TABLE_OWNER_SUPERVISOR,
-  DATA_OWNER_SUPERVISOR,
-  DESIGNER,
+  ADMIN = 1,
+  PRO,
+  STAFF,
   SYSTEM,
 }
 
@@ -21,22 +19,6 @@ export enum STATUSES {
   ACCEPTED,
   FORMATTED,
   REJECTED,
-}
-
-export enum EMAIL_TYPES {
-  REQUESTING_DATA = 1,
-  SOURCE_REMINDER_1 = 2,
-  SOURCE_REMINDER_2 = 3,
-  SOURCE_REMINDER_3 = 4,
-  NOTIFY_THE_OWNER_DATA_NOT_RECEIVED = 5,
-  NOTIFY_THE_OWNER_DATA_RECEIVED = 6,
-  RETURN_DATA = 7,
-  REMINDER_TO_CORRECT_AND_RETURN_DATA = 8,
-  NOTIFY_THE_OWNER_OF_NOT_RETURNING_DATA_FROM_THE_SOURCE = 9,
-  NOTIFY_THE_OWNER_OF_NOT_RETURNING_DATA_FROM_THE_SOURCE_AFTER_CALL = 10,
-  SOURCE_DATA_APPROVAL_NOTIFICATION = 11,
-  NOTIFY_DESIGNER_OF_THE_PUBLISHING_DEPARTMENT = 12,
-  NOTIFY_THE_OWNER_DATA_NOT_RECEIVED_AFTER_CALL = 13,
 }
 
 export enum ACTION_LOG_TYPE {
@@ -130,36 +112,12 @@ export enum TASK_STATUS {
   "Need Approval" = 3,
 }
 
-export enum PRODUCT_ACTION_TYPE {
-  needApproval = 3,
-  rejected = 2,
-  approved = 1,
-  default = 0,
-}
-
-export enum PRODUCT_ACTION_FLOW_TYPES {
-  taskOwner = 1,
-  productOwner = 2,
-  custom = 3,
-}
-
-export enum PRODUCT_FUNCTION {
-  updateStatus = -1,
-  updateColor = -2,
-  updateData = -3,
-  deleteProduct = -4,
-  duplicateProduct = -5,
-  exportProduct = -6,
-  convertToTemplate = -7,
-  addProduct = 123,
-}
-
 export enum PRODUCT_STATUS {
   planned = 1,
   inProgress = 2,
   Delayed = 3,
   Canceled = 4,
-  completed = 6,
+  completed = 5,
 }
 
 export enum RECURRING_TYPE {
@@ -207,12 +165,8 @@ export enum REPORT_TYPE {
 }
 
 export enum REPORT_SEARCH_TYPE {
-  incoming = 2,
   outgoing = 1,
-}
-
-export enum DEFAULT_IDS {
-  statusGroupId = 100321,
+  incoming = 2,
 }
 
 export enum PRODUCT_ACTIONS {

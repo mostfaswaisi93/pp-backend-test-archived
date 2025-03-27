@@ -17,6 +17,12 @@ import TruckOrder from "./truck-order/truck-order.model";
 import Transaction from "./transaction/transaction.model";
 import { PurchaseOrder } from "./purchase-order/purchase-order.model";
 import { PayrollReport } from "./payroll-report/payroll-report.model";
+import { Category } from "./category/category.model";
+import { SubCategory } from "./sub-category/subcategory.model";
+import { Zipcode } from "./zipcode/zipcode.model";
+import { Year } from "./year/year.model";
+import { State } from "./state/state.model";
+import { BusinessHour } from "./business-hour/business-hour.model";
 
 mongoose.Promise = global.Promise;
 
@@ -35,6 +41,12 @@ interface IDb {
   ProCustomer: typeof ProCustomer;
   Promo: typeof Promo;
   Role: typeof Role;
+  Category: typeof Category;
+  SubCategory: typeof SubCategory;
+  Zipcode: typeof Zipcode;
+  BusinessHour: typeof BusinessHour;
+  Year: typeof Year;
+  State: typeof State;
   Staff: typeof Staff;
   TruckOrder: typeof TruckOrder;
   Transaction: typeof Transaction;
@@ -58,6 +70,12 @@ const db: IDb = {
   ProCustomer,
   Promo,
   Role,
+  Category,
+  SubCategory,
+  Zipcode,
+  BusinessHour,
+  Year,
+  State,
   Staff,
   TruckOrder,
   Transaction,

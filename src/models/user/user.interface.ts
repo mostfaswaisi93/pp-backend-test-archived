@@ -1,6 +1,7 @@
 import mongoose, { Document } from "mongoose";
 
 export interface IUser extends Document {
+  _id: string;
   firebaseUID: string; // Changed firebaseId to firebaseUID
   deviceId: string;
   email: string; // Changed emailId to email

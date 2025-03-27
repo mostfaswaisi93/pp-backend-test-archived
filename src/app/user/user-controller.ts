@@ -1,10 +1,10 @@
-import { NextFunction, Request, Response } from "express";
 import * as express from "express";
-import HttpResWrapper from "../../commons/http-response/http-res-wrapper";
+import { create } from "./user-validation";
 import { UserService } from "./user-service";
 import AuthService from "../auth/auth-service";
+import { NextFunction, Request, Response } from "express";
 import Controller from "../../interfaces/controller.interface";
-import { create } from "./user-validation";
+import HttpResWrapper from "../../commons/http-response/http-res-wrapper";
 
 export default class UserController implements Controller {
   public path = "/users";
@@ -35,7 +35,8 @@ export default class UserController implements Controller {
   private getUsers = async (request: Request, response: Response) => {
     try {
       const users = await this.userService.getAllUsers();
-      return this.httpResWrapper.success(response, users);
+      const message = "get Users successful";
+      return this.httpResWrapper.success(response, message, users);
     } catch (error) {
       return this.handleError(response, error);
     }
@@ -44,7 +45,8 @@ export default class UserController implements Controller {
   private getUserById = async (request: Request, response: Response) => {
     try {
       const user = await this.userService.getUserById(request.params.id);
-      return this.httpResWrapper.success(response, user);
+      const message = "get User By Id successful";
+      return this.httpResWrapper.success(response, message, user);
     } catch (error) {
       return this.handleError(response, error);
     }
@@ -57,7 +59,8 @@ export default class UserController implements Controller {
   ) => {
     try {
       const createdUser = await this.userService.create(request.body);
-      return this.httpResWrapper.success(response, createdUser);
+      const message = "create User successful";
+      return this.httpResWrapper.success(response, message, createdUser);
     } catch (error) {
       return this.handleError(response, error);
     }
@@ -69,7 +72,8 @@ export default class UserController implements Controller {
         request.params.id,
         request.body
       );
-      return this.httpResWrapper.success(response, updatedUser);
+      const message = "update User successful";
+      return this.httpResWrapper.success(response, message, updatedUser);
     } catch (error) {
       return this.handleError(response, error);
     }
@@ -78,9 +82,8 @@ export default class UserController implements Controller {
   private deleteUser = async (request: Request, response: Response) => {
     try {
       await this.userService.delete(request.params.id);
-      return this.httpResWrapper.success(response, {
-        message: "User deleted successfully",
-      });
+      const message = "User deleted successfully";
+      return this.httpResWrapper.success(response, message);
     } catch (error) {
       return this.handleError(response, error);
     }

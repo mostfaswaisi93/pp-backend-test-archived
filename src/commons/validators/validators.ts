@@ -1,6 +1,9 @@
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 
 // Helper functions for common validation patterns
+export const isValidMongoId = (field: string) =>
+  param(field).isMongoId().withMessage("Invalid MongoDB ID");
+
 export const isValidString = (field: string) =>
   body(field).isString().withMessage("invalid_input");
 

@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
-import { IPriceBook } from "./pricebook.interface";
+import { IPricebook } from "./pricebook.interface";
 
-const pricebookSchema = new Schema<IPriceBook>(
+const pricebookSchema = new Schema<IPricebook>(
   {
     loginId: { type: String },
     proId: { type: String },
@@ -44,4 +44,4 @@ const pricebookSchema = new Schema<IPriceBook>(
   { timestamps: true }
 );
 
-export const Pricebook = model<IPriceBook>("Pricebook", pricebookSchema);
+export const Pricebook = model<IPricebook>("Pricebook", pricebookSchema);

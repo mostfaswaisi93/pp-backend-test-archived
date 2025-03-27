@@ -43,7 +43,8 @@ export default class ProController implements Controller {
   private getPros = async (request: Request, response: Response) => {
     try {
       const pros = await this.proService.getAllPros();
-      return this.httpResWrapper.success(response, pros);
+      const message = "Get Pros successful";
+      return this.httpResWrapper.success(response, message, pros);
     } catch (error) {
       return this.httpResWrapper.error(response, error);
     }
@@ -52,7 +53,8 @@ export default class ProController implements Controller {
   private getProById = async (request: Request, response: Response) => {
     try {
       const pro = await this.proService.getProById(request.params.id);
-      return this.httpResWrapper.success(response, pro);
+      const message = "Get Pro By Id successful";
+      return this.httpResWrapper.success(response, message, pro);
     } catch (error) {
       return this.httpResWrapper.error(response, error);
     }
@@ -65,7 +67,8 @@ export default class ProController implements Controller {
   ) => {
     try {
       const createdPro = await this.proService.create(request.body);
-      return this.httpResWrapper.success(response, createdPro);
+      const message = "Created Pro successful";
+      return this.httpResWrapper.success(response, message, createdPro);
     } catch (error) {
       return this.httpResWrapper.error(response, error);
     }
@@ -77,7 +80,8 @@ export default class ProController implements Controller {
         request.params.id,
         request.body
       );
-      return this.httpResWrapper.success(response, updatedPro);
+      const message = "Update Pro successful";
+      return this.httpResWrapper.success(response, message, updatedPro);
     } catch (error) {
       return this.httpResWrapper.error(response, error);
     }
@@ -86,9 +90,8 @@ export default class ProController implements Controller {
   private deletePro = async (request: Request, response: Response) => {
     try {
       await this.proService.delete(request.params.id);
-      return this.httpResWrapper.success(response, {
-        message: "Pro deleted successfully",
-      });
+      const message = "Pro deleted successfully";
+      return this.httpResWrapper.success(response, message);
     } catch (error) {
       return this.httpResWrapper.error(response, error);
     }

@@ -25,13 +25,18 @@ const userSchema = new Schema<IUser>(
     leadgen: { type: String, default: null }, // Can be null instead of undefined
     companyName: { type: String, default: null }, // Can be null instead of undefined
     companyLogo: { type: String, default: null }, // Can be null instead of undefined
-    isUserRegComplete : { type: Boolean, default: false }, // Changed from String to Boolean
+    isUserRegComplete: { type: Boolean, default: false }, // Changed from String to Boolean
     isLeadRegComplete: { type: Boolean, default: false }, // Changed from String to Boolean
     isVanlynkRegComplete: { type: Boolean, default: false }, // Changed from String to Boolean
     isVerified: { type: Boolean, default: false },
     isEmailVerified: { type: Boolean, default: false },
     isMobileVerified: { type: Boolean, default: false },
-    status: { type: String, required: true, default: "Active" },
+    status: {
+      type: String,
+      enum: ["ACTIVE", "INACTIVE"],
+      default: "ACTIVE",
+      required: true,
+    },
     isDeleted: { type: Boolean, default: false },
     isDeactivated: { type: Boolean, default: false },
   },

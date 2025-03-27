@@ -1,17 +1,23 @@
 import http from "http";
 import debugLib from "debug";
 import App from "../src/app";
-import { connectToDatabase } from "./config/database";
-import { Server as SocketServer } from "socket.io";
-import { RedisClient } from "./commons/libs/redis-client";
-import { Logger } from "./commons/libs/logger";
 import * as controllers from "./app/index";
+import { Logger } from "./commons/libs/logger";
+import { Server as SocketServer } from "socket.io";
+import { connectToDatabase } from "./config/database";
+import { RedisClient } from "./commons/libs/redis-client";
 import Controller from "./interfaces/controller.interface";
 
 // Variables
 const debug = debugLib("peakproz-backend:server");
 const logger = Logger.Instance.log();
-const PORT: number | string | false = normalizePort(process.env.PORT || "8000");
+
+if (!process.env.PORT) {
+  console.error("❌ Missing required PORT in environment variables.");
+  process.exit(1);
+}
+
+const PORT: number | string | false = normalizePort(process.env.PORT);
 
 // Initialize App
 const appInstance = new App(getControllers());

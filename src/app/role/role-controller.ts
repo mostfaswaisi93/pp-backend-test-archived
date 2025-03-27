@@ -44,10 +44,11 @@ export default class RoleController implements Controller {
       //   return this.httpResWrapper.error(response, new Error("User ID is missing"));
       // }
       // console.log(userId);
-      
+
       // let role = await this.roleService.create(request.body, userId);
-      let role = await this.roleService.create(request.body);
-      return this.httpResWrapper.success(response, role);
+      const role = await this.roleService.create(request.body);
+      const message = "Created Role successful";
+      return this.httpResWrapper.success(response, message, role);
     } catch (error) {
       this.httpResWrapper.error(response, error);
     }
@@ -60,7 +61,8 @@ export default class RoleController implements Controller {
   ) => {
     try {
       const role = await this.roleService.getRoleById(req.params.roleId);
-      return this.httpResWrapper.success(res, role);
+      const message = "Get By Role Id successful";
+      return this.httpResWrapper.success(res, message, role);
     } catch (error) {
       return this.httpResWrapper.error(res, error);
     }
@@ -76,7 +78,8 @@ export default class RoleController implements Controller {
         req.params.roleId,
         req.body
       );
-      return this.httpResWrapper.success(res, updatedRole);
+      const message = "Update Role successful";
+      return this.httpResWrapper.success(res, message, updatedRole);
     } catch (error) {
       return this.httpResWrapper.error(res, error);
     }
@@ -89,9 +92,8 @@ export default class RoleController implements Controller {
   ) => {
     try {
       await this.roleService.delete(req.params.roleId);
-      return this.httpResWrapper.success(res, {
-        message: "Role deleted successfully",
-      });
+      const message = "Role deleted successfully";
+      return this.httpResWrapper.success(res, message);
     } catch (error) {
       return this.httpResWrapper.error(res, error);
     }
