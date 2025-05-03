@@ -1,8 +1,8 @@
-import { InvalidInputException } from "../../commons/errors/exceptions";
 import * as i18n from "i18n";
-import { PasswordCheckService } from "../../commons/validators/password-check-service";
-import { IPro } from "../../models/pro/pro.interface";
 import Pro from "../../models/pro/pro.model";
+import { IPro } from "../../models/pro/pro.interface";
+import { InvalidInputException } from "../../commons/errors/exceptions";
+import { PasswordCheckService } from "../../commons/validators/password-check-service";
 
 export class ProService {
   private static _instance: ProService;
@@ -12,31 +12,92 @@ export class ProService {
     return this._instance ?? (this._instance = new this());
   }
 
-  async create(proData: Partial<IPro>) {
+  async create(data: Partial<IPro>): Promise<IPro> {
+    if (await Pro.exists({ email: data.email })) {
+      throw new InvalidInputException(i18n.__("email_already_exists"));
+    }
+
+    if (await Pro.exists({ mobile: data.mobile })) {
+      throw new InvalidInputException(i18n.__("mobile_already_exists"));
+    }
+
     // if (
-    //   !proData.password ||
-    //   !this.passwordCheckService.checkPasswordValidity(proData.password)
+    //   data.password &&
+    //   !this.passwordCheckService.checkPasswordValidity(data.password)
     // ) {
     //   throw new InvalidInputException(i18n.__("complex_password_required"));
     // }
 
-    // if (await Pro.exists({ email: proData.email })) {
-    //   throw new InvalidInputException(i18n.__("email_already_exists"));
-    // }
+    const currentDate = new Date().toISOString();
 
-    // if (await Pro.exists({ phone: proData.phone })) {
-    //   throw new InvalidInputException(i18n.__("mobile_already_exists"));
-    // }
+    const pro = new Pro({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      middleName: data.middleName,
+      dob: data.dob,
+      socialSecurityNumber: data.socialSecurityNumber,
+      proId: data.proId,
+      qrCodeImage: data.qrCodeImage,
+      userId: data.userId,
+      businessName: data.businessName,
+      businessType: data.businessType,
+      businessAddress: data.businessAddress,
+      zipcode: data.zipcode,
+      city: data.city,
+      state: data.state,
+      email: data.email,
+      mobile: data.mobile,
+      leadPhoneNumber: data.leadPhoneNumber || "",
+      latitude: data.latitude,
+      longitude: data.longitude,
+      companyLogo: data.companyLogo,
+      attachments: data.attachments || [],
+      proProfileImage: data.proProfileImage,
+      businessHours: data.businessHours || [],
+      vanlynk: data.vanlynk,
+      leadgen: data.leadgen,
+      vanlynkStatus: data.vanlynkStatus,
+      leadgenStatus: data.leadgenStatus,
+      license: data.license || "0",
+      verified: data.verified,
+      adminStatus: data.adminStatus || "Active",
+      status: data.status || "ACTIVE",
+      yelp_Address: data.yelp_Address || {},
+      google_Address: data.google_Address || {},
+      socialMediaLinks: data.socialMediaLinks || {},
+      reviews: data.reviews || { avgRating: 0, noOfReviews: 0, noOfHired: 0 },
+      ratingsCount: data.ratingsCount || {
+        lessThanOne: 0,
+        lessThanTwo: 0,
+        lessThanThree: 0,
+        lessThanFour: 0,
+        lessThanFive: 0,
+      },
+      businessInformation: data.businessInformation || {},
+      licenseInfo: data.licenseInfo || [],
+      areaOfExpertise: data.areaOfExpertise || {
+        areaOfExpertise: "",
+        additionalInfo: "",
+      },
+      locations: data.locations || [],
+      categoryName: data.categoryName || [],
+      Summary: data.Summary || [],
+      serviceArea: data.serviceArea || [],
+      isFirstComponentCall: data.isFirstComponentCall,
+      countyDeleteFlag: data.countyDeleteFlag,
+      roles: data.roles || [],
+      permissions: data.permissions || [],
+      cards: data.cards || [],
+      // createdBy,
+      createdOn: currentDate,
+      // modifiedBy: createdBy,
+      modifiedOn: currentDate,
+      createdDate: currentDate,
+      reportNote: data.reportNote,
+      reportFile: data.reportFile,
+      isTPAdmin: data.isTPAdmin || false,
+    });
 
-    // if (await Pro.exists({ nameAr: proData.nameAr })) {
-    //   throw new InvalidInputException(i18n.__("name_already_exists"));
-    // }
-
-    // if (await Pro.exists({ nameEn: proData.nameEn })) {
-    //   throw new InvalidInputException(i18n.__("name_already_exists"));
-    // }
-
-    const pro = new Pro(proData);
     return await pro.save();
   }
 
@@ -50,10 +111,82 @@ export class ProService {
     return pro;
   }
 
-  async update(id: string, proData: Partial<IPro>) {
-    const updatedPro = await Pro.findByIdAndUpdate(id, proData, {
-      new: true,
-    });
+  async update(
+    id: string,
+    data: Partial<IPro>,
+    // modifiedBy: string
+  ): Promise<IPro> {
+    const currentDate = new Date().toISOString();
+
+    const updatedPro = await Pro.findByIdAndUpdate(
+      id,
+      {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        middleName: data.middleName,
+        dob: data.dob,
+        socialSecurityNumber: data.socialSecurityNumber,
+        proId: data.proId,
+        qrCodeImage: data.qrCodeImage,
+        userId: data.userId,
+        businessName: data.businessName,
+        businessType: data.businessType,
+        businessAddress: data.businessAddress,
+        zipcode: data.zipcode,
+        city: data.city,
+        state: data.state,
+        email: data.email,
+        mobile: data.mobile,
+        leadPhoneNumber: data.leadPhoneNumber || "",
+        latitude: data.latitude,
+        longitude: data.longitude,
+        companyLogo: data.companyLogo,
+        attachments: data.attachments || [],
+        proProfileImage: data.proProfileImage,
+        businessHours: data.businessHours || [],
+        vanlynk: data.vanlynk,
+        leadgen: data.leadgen,
+        vanlynkStatus: data.vanlynkStatus,
+        leadgenStatus: data.leadgenStatus,
+        license: data.license || "0",
+        verified: data.verified,
+        adminStatus: data.adminStatus || "Active",
+        status: data.status || "ACTIVE",
+        yelp_Address: data.yelp_Address || {},
+        google_Address: data.google_Address || {},
+        socialMediaLinks: data.socialMediaLinks || {},
+        reviews: data.reviews || { avgRating: 0, noOfReviews: 0, noOfHired: 0 },
+        ratingsCount: data.ratingsCount || {
+          lessThanOne: 0,
+          lessThanTwo: 0,
+          lessThanThree: 0,
+          lessThanFour: 0,
+          lessThanFive: 0,
+        },
+        businessInformation: data.businessInformation || {},
+        licenseInfo: data.licenseInfo || [],
+        areaOfExpertise: data.areaOfExpertise || {
+          areaOfExpertise: "",
+          additionalInfo: "",
+        },
+        locations: data.locations || [],
+        categoryName: data.categoryName || [],
+        Summary: data.Summary || [],
+        serviceArea: data.serviceArea || [],
+        isFirstComponentCall: data.isFirstComponentCall,
+        countyDeleteFlag: data.countyDeleteFlag,
+        roles: data.roles || [],
+        permissions: data.permissions || [],
+        cards: data.cards || [],
+        // modifiedBy,
+        modifiedOn: currentDate,
+        reportNote: data.reportNote,
+        reportFile: data.reportFile,
+        isTPAdmin: data.isTPAdmin || false,
+      },
+      { new: true }
+    );
+
     if (!updatedPro) throw new InvalidInputException(i18n.__("pro_not_found"));
     return updatedPro;
   }

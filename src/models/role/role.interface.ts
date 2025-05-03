@@ -2,12 +2,12 @@ import mongoose from "mongoose";
 
 export interface IRole {
   _id: string;
-  roleName: string;
-  roleCode: string;
-  roleDescription: string;
+  name: string;
+  code?: string;
+  description?: string;
   permissions: mongoose.Types.ObjectId[];
-  isAdminFlag: boolean;
-  status: string;
+  isAdmin?: boolean;
+  status: "ACTIVE" | "INACTIVE";
   createdAt: Date;
   updatedAt: Date;
 }

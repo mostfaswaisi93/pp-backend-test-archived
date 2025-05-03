@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import amqp, { Connection, Channel, ConsumeMessage } from "amqplib";
+import amqp, { Channel, ConsumeMessage } from "amqplib";
 import { EventEmitter } from "events";
 
 dotenv.config();
@@ -17,19 +17,17 @@ const promoImageQueue = "promoimage";
 const equipmentQueue = "equipment-queue";
 const invoiceQueue = "invoice-queue";
 
-let connection: Connection | null = null;
 let channel: Channel | null = null;
-
 const EM = new EventEmitter();
 
 async function startConnection(): Promise<Channel | null> {
   try {
-    connection = await amqp.connect(process.env.RABBITMQ_APL!);
+    const connection = await amqp.connect(process.env.RABBITMQ_APL!);
     channel = await connection.createChannel();
 
     await channel.assertExchange(exchangeName, "direct", { durable: false });
-    const q = await channel.assertQueue("", { exclusive: true });
 
+    const q = await channel.assertQueue("", { exclusive: true });
     channel.bindQueue(q.queue, exchangeName, routingKey);
 
     await Promise.all([
@@ -57,6 +55,21 @@ async function startConnection(): Promise<Channel | null> {
   }
 })();
 
+async function sendToQueue(queue: string, payload: object): Promise<void> {
+  try {
+    if (channel) {
+      await channel.sendToQueue(queue, Buffer.from(JSON.stringify(payload)), {
+        persistent: true,
+      });
+      console.log(`Job sent to [${queue}] => ${JSON.stringify(payload)}`);
+    } else {
+      console.error("Channel is not available");
+    }
+  } catch (e) {
+    console.error(`Error sending job to [${queue}]`, e);
+  }
+}
+
 async function sendMessage(payload: object): Promise<void> {
   try {
     if (channel) {
@@ -66,96 +79,35 @@ async function sendMessage(payload: object): Promise<void> {
         Buffer.from(JSON.stringify(payload)),
         { persistent: true }
       );
-      console.log(`Job sent successfully => ${JSON.stringify(payload)}`);
+      console.log(`Message sent => ${JSON.stringify(payload)}`);
+    } else {
+      console.error("Channel is not available");
     }
   } catch (e) {
     console.error("Error sending message:", e);
   }
 }
 
-async function sendEmailWork(payload: object): Promise<void> {
-  try {
-    if (channel) {
-      await channel.sendToQueue(
-        emailQueue,
-        Buffer.from(JSON.stringify(payload)),
-        { persistent: true }
-      );
-      console.log(`Email job sent successfully => ${JSON.stringify(payload)}`);
-    }
-  } catch (e) {
-    console.error("Error sending email message:", e);
-  }
-}
-
-async function sendPromoImage(payload: object): Promise<void> {
-  try {
-    if (channel) {
-      await channel.sendToQueue(
-        promoImageQueue,
-        Buffer.from(JSON.stringify(payload)),
-        { persistent: true }
-      );
-      console.log(
-        `Promo image job sent successfully => ${JSON.stringify(payload)}`
-      );
-    }
-  } catch (e) {
-    console.error("Error sending promo image job:", e);
-  }
-}
-
-async function sendEquipmentBooking(payload: object): Promise<void> {
-  try {
-    if (channel) {
-      await channel.sendToQueue(
-        equipmentQueue,
-        Buffer.from(JSON.stringify(payload)),
-        { persistent: true }
-      );
-      console.log(
-        `Equipment booking job sent successfully => ${JSON.stringify(payload)}`
-      );
-    }
-  } catch (e) {
-    console.error("Error sending equipment booking job:", e);
-  }
-}
-
-async function sendInvoice(payload: object): Promise<void> {
-  try {
-    if (channel) {
-      await channel.sendToQueue(
-        invoiceQueue,
-        Buffer.from(JSON.stringify(payload)),
-        { persistent: true }
-      );
-      console.log(
-        `Invoice job sent successfully => ${JSON.stringify(payload)}`
-      );
-    }
-  } catch (e) {
-    console.error("Error sending invoice job:", e);
-  }
-}
+const sendEmailWork = (payload: object) => sendToQueue(emailQueue, payload);
+const sendPromoImage = (payload: object) =>
+  sendToQueue(promoImageQueue, payload);
+const sendEquipmentBooking = (payload: object) =>
+  sendToQueue(equipmentQueue, payload);
+const sendInvoice = (payload: object) => sendToQueue(invoiceQueue, payload);
 
 async function consumeMessages(): Promise<void> {
   try {
-    if (channel === null) {
-      throw new Error("Channel is not initialized");
-    }
+    if (!channel) throw new Error("Channel is not initialized");
 
     const q = await channel.assertQueue("", { exclusive: true });
     console.log(`Waiting for messages in queue ${q.queue}`);
+
     channel.bindQueue(q.queue, exchangeName, routingKey);
 
     channel.consume(q.queue, (msg: ConsumeMessage | null) => {
       if (msg) {
         console.log(`Received message: ${msg.content.toString()}`);
-
-        if (channel) {
-          channel.ack(msg);
-        }
+        channel!.ack(msg);
       }
     });
   } catch (e) {
@@ -163,6 +115,7 @@ async function consumeMessages(): Promise<void> {
   }
 }
 
+// Getter functions
 function getChannel() {
   return { channel, timecardQueue };
 }

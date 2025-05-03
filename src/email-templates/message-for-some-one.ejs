@@ -1,0 +1,167 @@
+<html>
+
+<head>
+
+    <!-- CHARSET -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+    <!-- MOBILE FIRST -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+    <!-- GOOGLE FONTS -->
+
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu" type="text/css" rel="stylesheet">
+
+    <!-- RESPONSIVE CSS -->
+    <style type="text/css">
+        @media only screen and (max-width: 550px) {
+            .responsive_at_550 {
+                width: 90% !important;
+                max-width: 90% !important;
+            }
+        }
+    </style>
+ 
+</head>
+<!-- END HEAD -->
+
+<!-- START BODY -->
+
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" style="background-color:rgb(231, 231, 231);">
+
+    <!-- START WRAPPER TABLE CONTENT -->
+    <table class="wrapper" width="100%" border="0" cellpadding="0" cellspacing="0" align="center"
+        style="background-color:rgb(231, 231, 231);">
+        <tbody style="background-color:rgb(231, 231, 231);">
+            <tr style="background-color:rgb(231, 231, 231);">
+                <td align="center" bgcolor="#F1F4FD" style="background-color:rgb(231, 231, 231);">
+
+                    <!-- START EMAIL CONTENT TABLE -->
+                    <table class="email-content" width="100%" border="0" cellpadding="0" cellspacing="0" align="center">
+                        <tbody>
+                            <tr>
+                                <td width="100%" align="center">
+
+                                    <!-- START SPACING -->
+                                    <table class="spacing" width="100%" border="0" cellpadding="0" cellspacing="0"
+                                        align="center">
+                                        <tbody>
+                                            <tr>
+                                                <td height="40">&nbsp;</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <!-- END SPACING -->
+
+                                    <!-- START LOGO TABLE -->
+                                    <table class="logo" width="200" border="0" cellpadding="0" cellspacing="0"
+                                        align="center">
+                                        <tbody>
+                                            <tr>
+                                                <td width="100%" align="center">
+                                                    <img width="200"
+                                                        src="http://peakproz2.s3-website-us-east-1.amazonaws.com/assets/img/tp-new-logofull.png"
+                                                        alt="peakproz Logo" border="0" style="text-align: center;" />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <!-- END LOGO TABLE -->
+
+                                    <!-- START SPACING -->
+                                    <table class="spacing" width="100%" border="0" cellpadding="0" cellspacing="0"
+                                        align="center">
+                                        <tbody>
+                                            <tr>
+                                                <td height="40">&nbsp;</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <!-- END SPACING -->
+
+                                    <!-- START MAIN CONTENT CARD -->
+                                    <table width="900" border="0" radius="30px" cellpadding="0" cellspacing="0"
+                                        align="center"
+                                        style="padding-left:20px; padding-right:20px;border-radius: 25px;min-width: 883px;"
+                                        class="responsive_at_550 email-card">
+                                        <tbody>
+                                            <tr style="direction: ltr !important;">
+                                                <td align="center" style=" border-radius: 25px;position: relative;"
+                                                    bgcolor="#ffffff">
+
+                                                    <!-- START SPACING -->
+                                                    <table class="spacing" width="100%" border="0" cellpadding="0"
+                                                        cellspacing="0" align="center">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td height="40">&nbsp;</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <!-- END SPACING -->
+
+                                                    <!-- START HEADING -->
+                                                    <table class="email-card-heading" width="90%" border="0"
+                                                        cellpadding="0" cellspacing="0" align="center">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td width="100%" align="left">
+                                                                    <h1
+                                                                        style="font-family:'Ubuntu', sans-serif; font-size:22px;margin-bottom: 24px; color:#202020; font-weight:bold; padding-left:20px; padding-right:20px;">
+                                                                        Hello <%= mailData.name %>, </h1>
+
+                                                                    <h3
+                                                                        style="font-family:'Ubuntu', sans-serif; font-size:21px; font-weight: 500; line-height:28px; color:#202020; padding-left:20px; padding-right:20px; text-align:justify;">
+                                                                        <%= mailData.message %>
+                                                                    </h3>
+                                                                    <!--    <%- mailData.message %> -->
+
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <!-- END HEADING -->
+
+                                                     <!-- START SPACING -->
+                                                     <table class="spacing" width="100%" border="0" cellpadding="0"
+                                                     cellspacing="0" align="center">
+                                                     <tbody>
+                                                         <tr>
+                                                             <td height="40">&nbsp;</td>
+                                                         </tr>
+                                                     </tbody>
+                                                 </table>
+                                                 <!-- END SPACING -->
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <!-- END MAIN CONTENT CARD -->
+
+                                    <!-- START SPACING -->
+                                    <table class="spacer" width="100%" border="0" cellpadding="0" cellspacing="0"
+                                        align="center">
+                                        <tbody>
+                                            <tr>
+                                                <td height="40">&nbsp;</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <!-- END SPACING -->
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <!-- END EMAIL CONTENT TABLE -->
+
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <!-- END WRAPPER -->
+
+    <!-- END BODY -->
+</body>
+
+</html>

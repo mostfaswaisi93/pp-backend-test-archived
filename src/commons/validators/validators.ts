@@ -7,6 +7,9 @@ export const isValidMongoId = (field: string) =>
 export const isValidString = (field: string) =>
   body(field).isString().withMessage("invalid_input");
 
+export const isValidOptionalString = (field: string) =>
+  body(field).optional().isString().withMessage("invalid_input");
+
 export const isValidInt = (field: string) =>
   body(field).isInt().withMessage("invalid_input");
 

@@ -13,22 +13,29 @@ export class PurchaseOrderService {
   }
 
   async create(data: IPurchaseOrder) {
-    // if (!data.day || !data.fromTime || !data.toTime) {
-    //   throw new InvalidInputException("Missing required fields");
-    // }
-
-    let existingPurchaseOrder = await PurchaseOrder.findOne({
-      // day: data.day,
-    });
-    if (existingPurchaseOrder) {
-      throw new InvalidInputException(
-        "PurchaseOrder already exists for this day"
-      );
-    }
-
-    let purchaseOrder = new PurchaseOrder({
-      // day: data.day,
-      // status: data.status ?? "OPEN",
+    const purchaseOrder = new PurchaseOrder({
+      workOrderNumber: data.workOrderNumber,
+      workOrderId: data.workOrderId,
+      workOrderStatus: data.workOrderStatus,
+      customerName: data.customerName,
+      customerId: data.customerId,
+      phoneNumber: data.phoneNumber,
+      jobTitle: data.jobTitle,
+      location: data.location,
+      staffId: data.staffId,
+      status: data.status,
+      staffNotes: data.staffNotes,
+      managerNotes: data.managerNotes,
+      purchaseOrderDetails: data.purchaseOrderDetails,
+      totalCost: data.totalCost,
+      proId: data.proId,
+      userId: data.userId,
+      proEmailId: data.proEmailId,
+      purchaseOrderId: data.purchaseOrderId,
+      description: data.description,
+      files: data.files,
+      createdBy: data.createdBy,
+      updatedBy: data.updatedBy,
     });
 
     try {
@@ -39,7 +46,7 @@ export class PurchaseOrderService {
   }
 
   public async getPurchaseOrderById(_id: string) {
-    const purchaseOrder = await PurchaseOrder.findById({ _id });
+    const purchaseOrder = await PurchaseOrder.findById(_id);
     if (!purchaseOrder)
       throw new InvalidInputException("Purchase order not found");
     return purchaseOrder;
@@ -48,9 +55,8 @@ export class PurchaseOrderService {
   public async getPurchaseOrders() {
     const purchaseOrders = await PurchaseOrder.find({
       status: "ACTIVE",
-    }).sort({
-      state: 1,
-    });
+    }).sort({ state: 1 });
+
     if (purchaseOrders.length === 0)
       throw new InvalidInputException("Purchase orders not found");
     return purchaseOrders;
@@ -62,63 +68,61 @@ export class PurchaseOrderService {
       throw new NotFoundException("Purchase order not found");
     }
 
-    // if (data.day) {
-    //   let existingPurchaseOrder = await PurchaseOrder.findOne({
-    //     day: data.day,
-    //     _id: { $ne: _id },
-    //   });
-    //   if (existingPurchaseOrder) {
-    //     throw new InvalidInputException(
-    //       "Purchase order already exists for this day"
-    //     );
-    //   }
-    // }
-
-    let updatedPurchaseOrder = await PurchaseOrder.findByIdAndUpdate(
+    const updatedPurchaseOrder = await PurchaseOrder.findByIdAndUpdate(
       _id,
       {
         $set: {
-          // day: data.day ?? purchaseOrder.day,
-          // fromTime: data.fromTime ?? purchaseOrder.fromTime,
-          // toTime: data.toTime ?? purchaseOrder.toTime,
-          // status: data.status ?? purchaseOrder.status,
+          workOrderNumber: data.workOrderNumber,
+          workOrderId: data.workOrderId,
+          workOrderStatus: data.workOrderStatus,
+          customerName: data.customerName,
+          customerId: data.customerId,
+          phoneNumber: data.phoneNumber,
+          jobTitle: data.jobTitle,
+          location: data.location,
+          staffId: data.staffId,
+          status: data.status,
+          staffNotes: data.staffNotes,
+          managerNotes: data.managerNotes,
+          purchaseOrderDetails: data.purchaseOrderDetails,
+          totalCost: data.totalCost,
+          proId: data.proId,
+          userId: data.userId,
+          proEmailId: data.proEmailId,
+          purchaseOrderId: data.purchaseOrderId,
+          description: data.description,
+          files: data.files,
+          createdBy: data.createdBy,
+          updatedBy: data.updatedBy,
         },
       },
       { new: true }
     );
 
     if (!updatedPurchaseOrder) {
-      throw new InvalidInputException("Failed to update Purchase order");
+      throw new InvalidInputException("Failed to update purchase order");
     }
+
     return updatedPurchaseOrder;
   }
 
-  public async updateStatus(_id: string, data: IPurchaseOrder) {
-    let purchaseOrder = await PurchaseOrder.findOne({ _id });
-
+  public async updateStatus(_id: string, data: { status: string }) {
+    const purchaseOrder = await PurchaseOrder.findById(_id);
     if (!purchaseOrder) {
-      throw new NotFoundException();
+      throw new NotFoundException("Purchase order not found");
     }
 
-    let updateStatus = await PurchaseOrder.findByIdAndUpdate(
-      _id,
-      {
-        $set: {
-          // status: data.status || purchaseOrder.status,
-        },
-      },
-      {
-        new: true,
-      }
-    );
+    purchaseOrder.status = data.status;
 
-    if (!updateStatus)
-      throw new InvalidInputException("Purchase order not found");
-    return updateStatus;
+    try {
+      return await purchaseOrder.save();
+    } catch (error: any) {
+      throw new Error("Error updating status: " + error.message);
+    }
   }
 
   public async delete(_id: string) {
-    const purchaseOrder = await PurchaseOrder.findByIdAndDelete({ _id });
+    const purchaseOrder = await PurchaseOrder.findByIdAndDelete(_id);
     if (!purchaseOrder)
       throw new InvalidInputException("Purchase order not found");
   }

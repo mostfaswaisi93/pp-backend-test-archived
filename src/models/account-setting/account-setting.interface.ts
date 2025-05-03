@@ -1,7 +1,8 @@
 import { Document } from "mongoose";
 
 export interface IAccountSetting extends Document {
-  loginId?: string;
+  _id: string;
+  userId?: string;
   General?: Record<string, any>[];
   StaffRoles?: Record<string, any>[];
   StaffAgreements?: Record<string, any>[];

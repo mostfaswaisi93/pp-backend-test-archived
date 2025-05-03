@@ -3,11 +3,11 @@ import { IRole } from "./role.interface";
 
 const roleSchema = new Schema<IRole>(
   {
-    roleName: { type: String, required: true, unique: true },
-    roleCode: { type: String },
-    roleDescription: { type: String },
+    name: { type: String, required: true, unique: true },
+    code: { type: String },
+    description: { type: String },
     permissions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Permission" }],
-    isAdminFlag: { type: Boolean },
+    isAdmin: { type: Boolean },
     status: {
       type: String,
       enum: ["ACTIVE", "INACTIVE"],

@@ -1,6 +1,7 @@
 export { default as accountsetting } from "./account-setting/account-setting-controller";
 export { default as auth } from "./auth/auth-controller";
 export { default as estimate } from "./estimate/estimate-controller";
+export { default as inventory } from "./inventory/inventory-controller";
 export { default as invoice } from "./invoice/invoice-controller";
 export { default as notification } from "./notification/notification-controller";
 export { default as payrollreport } from "./payroll-report/payroll-report-controller";

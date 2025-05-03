@@ -1,16 +1,17 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { IProCustomer } from "./pro-customer.interface";
 
-const ProCustomerSchema: Schema = new Schema(
+const proCustomerSchema: Schema = new Schema(
   {
     customerId: { type: String },
     customerEmailId: { type: String },
     proEmailId: { type: String },
-    proLoginId: { type: mongoose.Schema.Types.ObjectId, ref: "Login" },
+    proUserId: { type: Schema.Types.ObjectId, ref: "User" },
     proId: { type: String },
-    customerLoginId: { type: mongoose.Schema.Types.ObjectId, ref: "Login" },
-    customer: { type: mongoose.Schema.Types.ObjectId, ref: "Customer" },
-    pro: { type: mongoose.Schema.Types.ObjectId, ref: "Pro" },
+    type: { type: String },
+    customerUserId: { type: Schema.Types.ObjectId, ref: "User" },
+    customerRef: { type: Schema.Types.ObjectId, ref: "Customer" },
+    proRef: { type: Schema.Types.ObjectId, ref: "Pro" },
     customerType: { type: String, enum: ["Residential", "Business"] },
     businessName: { type: String },
     phoneNumber: { type: String },
@@ -23,24 +24,35 @@ const ProCustomerSchema: Schema = new Schema(
     taxExempt: { type: Boolean, default: false },
     poRequired: { type: Boolean, default: false },
     doNotServe: { type: Boolean, default: false },
-    doNotServeNotes: { type: String },
-    SubscribeToReceiveMarketingEmails: { type: Boolean, default: true },
-    picturesAndVideos: [{ type: Object }],
+    doNotServeReason: { type: String },
+    subscribeToReceiveMarketingEmails: { type: Boolean, default: true },
+    mediaFiles: [{ type: Object }],
     status: {
       type: String,
-      enum: ["Active", "InActive", "Do Not Serve"],
+      enum: ["Active", "Inactive", "Do Not Serve"],
       default: "Active",
     },
     createdBy: { type: String },
-    createdOn: { type: String },
+    createdOn: { type: Date }, // changed type
     createdByEmail: { type: String },
-    createdByLoginId: { type: mongoose.Schema.Types.ObjectId },
+    createdById: { type: Schema.Types.ObjectId },
     createdByRole: { type: String },
-    staffAssignedLoginIds: { type: Array },
+    staffAssignedLoginIds: { type: [String] },
     updatedBy: { type: String },
-    updatedByImage: { type: String },
+    updatedByImageUrl: { type: String },
     updatedByEmail: { type: String },
-    customerBillingAddress: { type: Object },
+    customerBillingAddress: {
+      firstName: { type: String },
+      lastName: { type: String },
+      userType: { type: String },
+      address: { type: String },
+      invoiceEmail: { type: String },
+      city: { type: String },
+      country: { type: String },
+      state: { type: String },
+      zipCode: { type: String },
+      adminNotes: { type: String },
+    },
     isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true }
@@ -48,7 +60,7 @@ const ProCustomerSchema: Schema = new Schema(
 
 const ProCustomer = mongoose.model<IProCustomer>(
   "ProCustomer",
-  ProCustomerSchema
+  proCustomerSchema
 );
 
 export default ProCustomer;

@@ -1,28 +1,31 @@
-import mongoose, { Mongoose } from "mongoose";
-import User from "./user/user.model";
 import Pro from "./pro/pro.model";
-import { Vendor } from "./vendor/vendor.model";
-import { Workorder } from "./workorder/workorder.model";
-import { Estimate } from "./estimate/estimate.model";
-import { AccountSetting } from "./account-setting/account-setting.model";
-import { Invoice } from "./invoice/invoice.model";
-import { Permission } from "./permission/permission.model";
-import { PriceList } from "./price-list/price-list.model";
-import { Pricebook } from "./pricebook/pricebook.model";
-import ProCustomer from "./pro-customer/pro-customer.model";
-import { Promo } from "./promo/promo.model";
+import User from "./user/user.model";
 import { Role } from "./role/role.model";
+import { Year } from "./year/year.model";
+import { Promo } from "./promo/promo.model";
 import { Staff } from "./staff/staff.model";
+import { State } from "./state/state.model";
+import mongoose, { Mongoose } from "mongoose";
+import { Vendor } from "./vendor/vendor.model";
+import { Invoice } from "./invoice/invoice.model";
+import { Zipcode } from "./zipcode/zipcode.model";
+import { Estimate } from "./estimate/estimate.model";
+import { Category } from "./category/category.model";
+import { Workorder } from "./workorder/workorder.model";
+import { Pricebook } from "./pricebook/pricebook.model";
+import { Inventory } from "./inventory/inventory.model";
 import TruckOrder from "./truck-order/truck-order.model";
+import { PriceList } from "./price-list/price-list.model";
 import Transaction from "./transaction/transaction.model";
+import { Permission } from "./permission/permission.model";
+import ProCustomer from "./pro-customer/pro-customer.model";
+import { SubCategory } from "./sub-category/subcategory.model";
+import { BusinessHour } from "./business-hour/business-hour.model";
 import { PurchaseOrder } from "./purchase-order/purchase-order.model";
 import { PayrollReport } from "./payroll-report/payroll-report.model";
-import { Category } from "./category/category.model";
-import { SubCategory } from "./sub-category/subcategory.model";
-import { Zipcode } from "./zipcode/zipcode.model";
-import { Year } from "./year/year.model";
-import { State } from "./state/state.model";
-import { BusinessHour } from "./business-hour/business-hour.model";
+import { AccountSetting } from "./account-setting/account-setting.model";
+import { AccountHistory } from "./account-history/account-history.model";
+import { AutoIncrementor } from "./auto-incrementor/auto-incrementor.model";
 
 mongoose.Promise = global.Promise;
 
@@ -53,6 +56,9 @@ interface IDb {
   PurchaseOrder: typeof PurchaseOrder;
   PayrollReport: typeof PayrollReport;
   Notification: typeof Notification;
+  AutoIncrementor: typeof AutoIncrementor;
+  Inventory: typeof Inventory;
+  AccountHistory: typeof AccountHistory;
 }
 
 const db: IDb = {
@@ -82,6 +88,9 @@ const db: IDb = {
   PurchaseOrder,
   PayrollReport,
   Notification,
+  AutoIncrementor,
+  Inventory,
+  AccountHistory,
 };
 
 export default db;

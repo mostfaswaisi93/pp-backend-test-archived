@@ -67,11 +67,12 @@ async function createRole(roleName: string) {
   const formattedRoleName = roleName.replace(/_/g, " ").trim();
 
   const role = new Role({
-    roleCode: formattedRoleName,
-    roleName: formattedRoleName,
-    roleDescription: formattedRoleName,
-    isAdminFlag: false,
+    name: formattedRoleName,
+    code: formattedRoleName,
+    description: formattedRoleName,
+    isAdmin: false,
     permissions: [],
+    status: "ACTIVE",
   });
 
   await role.save();

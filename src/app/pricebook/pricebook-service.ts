@@ -13,20 +13,64 @@ export class PricebookService {
   }
 
   async create(data: IPricebook) {
-    // if (!data.day || !data.fromTime || !data.toTime) {
-    //   throw new InvalidInputException("Missing required fields");
-    // }
+    if (
+      !data.serviceId ||
+      !data.category ||
+      !data.subCategory ||
+      !data.serviceTitle
+    ) {
+      throw new InvalidInputException("Missing required fields");
+    }
 
     let existingPricebook = await Pricebook.findOne({
-      // day: data.day,
+      serviceId: data.serviceId,
+      category: data.category,
+      subCategory: data.subCategory,
     });
     if (existingPricebook) {
-      throw new InvalidInputException("Pricebook already exists for this day");
+      throw new InvalidInputException(
+        "Pricebook already exists for this service"
+      );
     }
 
     let pricebook = new Pricebook({
-      // day: data.day,
-      // status: data.status ?? "OPEN",
+      userId: data.userId,
+      proId: data.proId,
+      serviceId: data.serviceId,
+      category: data.category,
+      subCategory: data.subCategory,
+      serviceTitle: data.serviceTitle,
+      isLeadCostApplied: data.isLeadCostApplied,
+      leadCost: data.leadCost,
+      isTruckOrderCostApplied: data.isTruckOrderCostApplied,
+      truckOrderCost: data.truckOrderCost,
+      inventoryItems: data.inventoryItems,
+      laborRate: data.laborRate,
+      numberHours: data.numberHours,
+      subTotal: data.subTotal,
+      laborCost: data.laborCost,
+      totalCost: data.totalCost,
+      standard: data.standard,
+      value: data.value,
+      member: data.member,
+      standardPercent: data.standardPercent,
+      valuePercent: data.valuePercent,
+      memberPercent: data.memberPercent,
+      totalMaterialCost: data.totalMaterialCost,
+      imageUrls: data.imageUrls,
+      documentFilename: data.documentFilename,
+      documentName: data.documentName,
+      serviceDescription: data.serviceDescription,
+      installationDescription: data.installationDescription,
+      serviceStatus: data.serviceStatus,
+      qrImageUrl: data.qrImageUrl,
+      createdAt: data.createdAt,
+      createdBy: data.createdBy,
+      updatedAt: data.updatedAt,
+      updatedBy: data.updatedBy,
+      createdByEmail: data.createdByEmail,
+      updatedByEmail: data.updatedByEmail,
+      updatedByImage: data.updatedByImage,
     });
 
     try {
@@ -37,20 +81,19 @@ export class PricebookService {
   }
 
   public async getPricebookById(_id: string) {
-    const pricebook = await Pricebook.findById({ _id });
+    if (!/_id/.test(_id)) throw new InvalidInputException("Invalid ID format");
+    const pricebook = await Pricebook.findById(_id);
     if (!pricebook) throw new InvalidInputException("Pricebook not found");
     return pricebook;
   }
 
   public async getPricebooks() {
-    const Pricebooks = await Pricebook.find({
-      status: "ACTIVE",
-    }).sort({
+    const pricebooks = await Pricebook.find({ status: "ACTIVE" }).sort({
       state: 1,
     });
-    if (Pricebooks.length === 0)
+    if (pricebooks.length === 0)
       throw new InvalidInputException("Pricebooks not found");
-    return Pricebooks;
+    return pricebooks;
   }
 
   public async update(_id: string, data: IPricebook) {
@@ -59,26 +102,44 @@ export class PricebookService {
       throw new NotFoundException("Pricebook not found");
     }
 
-    // if (data.day) {
-    //   let existingPricebook = await Pricebook.findOne({
-    //     day: data.day,
-    //     _id: { $ne: _id },
-    //   });
-    //   if (existingPricebook) {
-    //     throw new InvalidInputException(
-    //       "Pricebook already exists for this day"
-    //     );
-    //   }
-    // }
-
     let updatedPricebook = await Pricebook.findByIdAndUpdate(
       _id,
       {
         $set: {
-          // day: data.day ?? pricebook.day,
-          // fromTime: data.fromTime ?? pricebook.fromTime,
-          // toTime: data.toTime ?? pricebook.toTime,
-          // status: data.status ?? pricebook.status,
+          userId: data.userId,
+          proId: data.proId,
+          serviceId: data.serviceId,
+          category: data.category,
+          subCategory: data.subCategory,
+          serviceTitle: data.serviceTitle,
+          isLeadCostApplied: data.isLeadCostApplied,
+          leadCost: data.leadCost,
+          isTruckOrderCostApplied: data.isTruckOrderCostApplied,
+          truckOrderCost: data.truckOrderCost,
+          inventoryItems: data.inventoryItems,
+          laborRate: data.laborRate,
+          numberHours: data.numberHours,
+          subTotal: data.subTotal,
+          laborCost: data.laborCost,
+          totalCost: data.totalCost,
+          standard: data.standard,
+          value: data.value,
+          member: data.member,
+          standardPercent: data.standardPercent,
+          valuePercent: data.valuePercent,
+          memberPercent: data.memberPercent,
+          totalMaterialCost: data.totalMaterialCost,
+          imageUrls: data.imageUrls,
+          documentFilename: data.documentFilename,
+          documentName: data.documentName,
+          serviceDescription: data.serviceDescription,
+          installationDescription: data.installationDescription,
+          serviceStatus: data.serviceStatus,
+          qrImageUrl: data.qrImageUrl,
+          updatedAt: data.updatedAt,
+          updatedBy: data.updatedBy,
+          updatedByEmail: data.updatedByEmail,
+          updatedByImage: data.updatedByImage,
         },
       },
       { new: true }
@@ -87,34 +148,38 @@ export class PricebookService {
     if (!updatedPricebook) {
       throw new InvalidInputException("Failed to update pricebook");
     }
+
     return updatedPricebook;
   }
 
   public async updateStatus(_id: string, data: IPricebook) {
-    let pricebook = await Pricebook.findOne({ _id });
-
+    const pricebook = await Pricebook.findById(_id);
     if (!pricebook) {
-      throw new NotFoundException();
+      throw new NotFoundException("Pricebook not found");
     }
 
-    let updateStatus = await Pricebook.findByIdAndUpdate(
+    if (
+      !data.serviceStatus ||
+      !["ACTIVE", "INACTIVE"].includes(data.serviceStatus)
+    ) {
+      throw new InvalidInputException("Invalid service status");
+    }
+
+    let updatedPricebook = await Pricebook.findByIdAndUpdate(
       _id,
-      {
-        $set: {
-          // status: data.status || pricebook.status,
-        },
-      },
-      {
-        new: true,
-      }
+      { $set: { serviceStatus: data.serviceStatus } },
+      { new: true }
     );
 
-    if (!updateStatus) throw new InvalidInputException("Pricebook not found");
-    return updateStatus;
+    if (!updatedPricebook) {
+      throw new InvalidInputException("Failed to update pricebook status");
+    }
+
+    return updatedPricebook;
   }
 
   public async delete(_id: string) {
-    const pricebook = await Pricebook.findByIdAndDelete({ _id });
+    const pricebook = await Pricebook.findByIdAndDelete(_id);
     if (!pricebook) throw new InvalidInputException("Pricebook not found");
   }
 }

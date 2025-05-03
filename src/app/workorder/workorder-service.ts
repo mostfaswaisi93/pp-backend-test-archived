@@ -13,20 +13,43 @@ export class WorkorderService {
   }
 
   async create(data: IWorkorder) {
-    // if (!data.day || !data.fromTime || !data.toTime) {
-    //   throw new InvalidInputException("Missing required fields");
-    // }
+    if (
+      !data.email ||
+      !data.firstName ||
+      !data.lastName ||
+      !data.streetAddress ||
+      !data.zipcode ||
+      !data.city ||
+      !data.state ||
+      !data.county
+    ) {
+      throw new InvalidInputException("Missing required fields");
+    }
 
     let existingWorkorder = await Workorder.findOne({
-      // day: data.day,
+      email: data.email,
     });
+
     if (existingWorkorder) {
-      throw new InvalidInputException("Workorder already exists for this day");
+      throw new InvalidInputException(
+        "Workorder already exists for this email"
+      );
     }
 
     let workorder = new Workorder({
-      // day: data.day,
-      // status: data.status ?? "OPEN",
+      email: data.email,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      phone: data.phone,
+      phoneCategory: data.phoneCategory,
+      streetAddress: data.streetAddress,
+      zipcode: data.zipcode,
+      city: data.city,
+      state: data.state,
+      county: data.county,
+      status: data.status ?? "OPEN",
+      createdDate: new Date().toISOString(),
+      modifiedDate: new Date().toISOString(),
     });
 
     try {
@@ -38,7 +61,7 @@ export class WorkorderService {
 
   public async getWorkorderById(_id: string) {
     const workorder = await Workorder.findById({ _id });
-    if (!workorder) throw new InvalidInputException("Workorder not found");
+    if (!workorder) throw new NotFoundException("Workorder not found");
     return workorder;
   }
 
@@ -59,26 +82,22 @@ export class WorkorderService {
       throw new NotFoundException("Workorder not found");
     }
 
-    // if (data.day) {
-    //   let existingWorkorder = await Workorder.findOne({
-    //     day: data.day,
-    //     _id: { $ne: _id },
-    //   });
-    //   if (existingWorkorder) {
-    //     throw new InvalidInputException(
-    //       "Workorder already exists for this day"
-    //     );
-    //   }
-    // }
-
     let updatedWorkorder = await Workorder.findByIdAndUpdate(
       _id,
       {
         $set: {
-          // day: data.day ?? workorder.day,
-          // fromTime: data.fromTime ?? workorder.fromTime,
-          // toTime: data.toTime ?? workorder.toTime,
-          // status: data.status ?? workorder.status,
+          email: data.email ?? workorder.email,
+          firstName: data.firstName ?? workorder.firstName,
+          lastName: data.lastName ?? workorder.lastName,
+          phone: data.phone ?? workorder.phone,
+          phoneCategory: data.phoneCategory ?? workorder.phoneCategory,
+          streetAddress: data.streetAddress ?? workorder.streetAddress,
+          zipcode: data.zipcode ?? workorder.zipcode,
+          city: data.city ?? workorder.city,
+          state: data.state ?? workorder.state,
+          county: data.county ?? workorder.county,
+          status: data.status ?? workorder.status,
+          modifiedDate: new Date().toISOString(),
         },
       },
       { new: true }
@@ -94,14 +113,15 @@ export class WorkorderService {
     let workorder = await Workorder.findOne({ _id });
 
     if (!workorder) {
-      throw new NotFoundException();
+      throw new NotFoundException("Workorder not found");
     }
 
     let updateStatus = await Workorder.findByIdAndUpdate(
       _id,
       {
         $set: {
-          // status: data.status || workorder.status,
+          status: data.status ?? workorder.status,
+          modifiedDate: new Date().toISOString(),
         },
       },
       {

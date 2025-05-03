@@ -13,20 +13,54 @@ export class VendorService {
   }
 
   async create(data: IVendor) {
-    // if (!data.day || !data.fromTime || !data.toTime) {
-    //   throw new InvalidInputException("Missing required fields");
-    // }
-
-    let existingVendor = await Vendor.findOne({
-      // day: data.day,
-    });
-    if (existingVendor) {
-      throw new InvalidInputException("Vendor already exists for this day");
+    if (
+      !data.vendorName ||
+      !data.vendorId ||
+      data.eligible1099 === undefined ||
+      !data.status
+    ) {
+      throw new InvalidInputException(
+        "Missing required fields: vendorName, vendorId, eligible1099, or status"
+      );
     }
 
-    let vendor = new Vendor({
-      // day: data.day,
-      // status: data.status ?? "OPEN",
+    const existingVendor = await Vendor.findOne({
+      $or: [{ vendorName: data.vendorName }, { vendorId: data.vendorId }],
+    });
+
+    if (existingVendor) {
+      throw new InvalidInputException(
+        "Vendor with this name or ID already exists"
+      );
+    }
+
+    const vendor = new Vendor({
+      proId: data.proId,
+      userId: data.userId,
+      vendorId: data.vendorId,
+      vendorName: data.vendorName,
+      taxIdOrEIN: data.taxIdOrEIN,
+      representativeName: data.representativeName,
+      eligible1099: data.eligible1099,
+      vendorCategory: data.vendorCategory,
+      representativeEmail: data.representativeEmail,
+      accountNumber: data.accountNumber,
+      phoneNumber: data.phoneNumber,
+      extension: data.extension,
+      streetAddress: data.streetAddress,
+      unit: data.unit,
+      state: data.state,
+      city: data.city,
+      zipcode: data.zipcode,
+      specialNotes: data.specialNotes,
+      searchByValues: data.searchByValues,
+      searchQuery: data.searchQuery,
+      createdOn: new Date(),
+      createdBy: data.createdBy,
+      updatedByImage: data.updatedByImage,
+      updatedByName: data.updatedByName,
+      updatedByEmail: data.updatedByEmail,
+      status: data.status,
     });
 
     try {
@@ -37,84 +71,81 @@ export class VendorService {
   }
 
   public async getVendorById(_id: string) {
-    const vendor = await Vendor.findById({ _id });
-    if (!vendor) throw new InvalidInputException("Vendor not found");
+    const vendor = await Vendor.findById(_id).lean();
+    if (!vendor) throw new NotFoundException("Vendor not found");
     return vendor;
   }
 
   public async getVendors() {
-    const vendors = await Vendor.find({
-      status: "ACTIVE",
-    }).sort({
-      state: 1,
-    });
-    if (vendors.length === 0)
-      throw new InvalidInputException("Vendors not found");
+    const vendors = await Vendor.find({ status: "ACTIVE" })
+      .sort({ state: 1 })
+      .lean();
+
+    if (vendors.length === 0) {
+      throw new NotFoundException("No active vendors found");
+    }
+
     return vendors;
   }
 
-  public async update(_id: string, data: IVendor) {
+  public async update(_id: string, data: Partial<IVendor>) {
     const vendor = await Vendor.findById(_id);
     if (!vendor) {
       throw new NotFoundException("Vendor not found");
     }
 
-    // if (data.day) {
-    //   let existingVendor = await Vendor.findOne({
-    //     day: data.day,
-    //     _id: { $ne: _id },
-    //   });
-    //   if (existingVendor) {
-    //     throw new InvalidInputException(
-    //       "Vendor already exists for this day"
-    //     );
-    //   }
-    // }
+    Object.assign(vendor, {
+      proId: data.proId ?? vendor.proId,
+      userId: data.userId ?? vendor.userId,
+      vendorId: data.vendorId ?? vendor.vendorId,
+      vendorName: data.vendorName ?? vendor.vendorName,
+      taxIdOrEIN: data.taxIdOrEIN ?? vendor.taxIdOrEIN,
+      representativeName: data.representativeName ?? vendor.representativeName,
+      eligible1099: data.eligible1099 ?? vendor.eligible1099,
+      vendorCategory: data.vendorCategory ?? vendor.vendorCategory,
+      representativeEmail:
+        data.representativeEmail ?? vendor.representativeEmail,
+      accountNumber: data.accountNumber ?? vendor.accountNumber,
+      phoneNumber: data.phoneNumber ?? vendor.phoneNumber,
+      extension: data.extension ?? vendor.extension,
+      streetAddress: data.streetAddress ?? vendor.streetAddress,
+      unit: data.unit ?? vendor.unit,
+      state: data.state ?? vendor.state,
+      city: data.city ?? vendor.city,
+      zipcode: data.zipcode ?? vendor.zipcode,
+      specialNotes: data.specialNotes ?? vendor.specialNotes,
+      searchByValues: data.searchByValues ?? vendor.searchByValues,
+      searchQuery: data.searchQuery ?? vendor.searchQuery,
+      updatedByImage: data.updatedByImage ?? vendor.updatedByImage,
+      updatedByName: data.updatedByName ?? vendor.updatedByName,
+      updatedByEmail: data.updatedByEmail ?? vendor.updatedByEmail,
+      status: data.status ?? vendor.status,
+    });
 
-    let updatedVendor = await Vendor.findByIdAndUpdate(
-      _id,
-      {
-        $set: {
-          // day: data.day ?? vendor.day,
-          // fromTime: data.fromTime ?? vendor.fromTime,
-          // toTime: data.toTime ?? vendor.toTime,
-          // status: data.status ?? vendor.status,
-        },
-      },
-      { new: true }
-    );
-
-    if (!updatedVendor) {
-      throw new InvalidInputException("Failed to update vendor");
+    try {
+      return await vendor.save();
+    } catch (error: any) {
+      throw new Error("Error updating vendor: " + error.message);
     }
-    return updatedVendor;
   }
 
-  public async updateStatus(_id: string, data: IVendor) {
-    let vendor = await Vendor.findOne({ _id });
-
+  public async updateStatus(_id: string, status: "ACTIVE" | "INACTIVE") {
+    const vendor = await Vendor.findById(_id);
     if (!vendor) {
-      throw new NotFoundException();
+      throw new NotFoundException("Vendor not found");
     }
 
-    let updateStatus = await Vendor.findByIdAndUpdate(
-      _id,
-      {
-        $set: {
-          // status: data.status || vendor.status,
-        },
-      },
-      {
-        new: true,
-      }
-    );
+    vendor.status = status;
 
-    if (!updateStatus) throw new InvalidInputException("Vendor not found");
-    return updateStatus;
+    try {
+      return await vendor.save();
+    } catch (error: any) {
+      throw new Error("Error updating vendor status: " + error.message);
+    }
   }
 
   public async delete(_id: string) {
-    const vendor = await Vendor.findByIdAndDelete({ _id });
-    if (!vendor) throw new InvalidInputException("Vendor not found");
+    const vendor = await Vendor.findByIdAndDelete(_id);
+    if (!vendor) throw new NotFoundException("Vendor not found");
   }
 }

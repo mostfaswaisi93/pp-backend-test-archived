@@ -13,22 +13,71 @@ export class ProCustomerService {
   }
 
   async create(data: IProCustomer) {
-    // if (!data.day || !data.fromTime || !data.toTime) {
-    //   throw new InvalidInputException("Missing required fields");
-    // }
-
-    let existingProCustomer = await ProCustomer.findOne({
-      // day: data.day,
-    });
-    if (existingProCustomer) {
+    if (!data.customerId || !data.customerEmailId || !data.proUserId) {
       throw new InvalidInputException(
-        "Pro customer already exists for this day"
+        "Missing required fields: customerId, customerEmailId, or proUserId"
       );
     }
 
-    let proCustomer = new ProCustomer({
-      // day: data.day,
-      // status: data.status ?? "OPEN",
+    let existingProCustomer = await ProCustomer.findOne({
+      customerId: data.customerId,
+      proUserId: data.proUserId,
+    });
+
+    if (existingProCustomer) {
+      throw new InvalidInputException(
+        "Pro customer already exists for this customer and pro"
+      );
+    }
+
+    const proCustomer = new ProCustomer({
+      customerId: data.customerId,
+      customerEmailId: data.customerEmailId,
+      proEmailId: data.proEmailId,
+      proUserId: data.proUserId,
+      proId: data.proId,
+      type: data.type,
+      customerUserId: data.customerUserId,
+      customerRef: data.customerRef,
+      proRef: data.proRef,
+      customerType: data.customerType,
+      businessName: data.businessName,
+      phoneNumber: data.phoneNumber,
+      dispatchTextNumber: data.dispatchTextNumber,
+      source: data.source,
+      vendor: data.vendor,
+      paymentMethod: data.paymentMethod,
+      creditLimit: data.creditLimit,
+      paymentTerms: data.paymentTerms,
+      taxExempt: data.taxExempt,
+      poRequired: data.poRequired,
+      doNotServe: data.doNotServe,
+      doNotServeReason: data.doNotServeReason,
+      subscribeToReceiveMarketingEmails: data.subscribeToReceiveMarketingEmails,
+      mediaFiles: data.mediaFiles,
+      status: data.status ?? "Active",
+      createdBy: data.createdBy,
+      createdOn: new Date(),
+      createdByEmail: data.createdByEmail,
+      createdById: data.createdById,
+      createdByRole: data.createdByRole,
+      staffAssignedLoginIds: data.staffAssignedLoginIds,
+      updatedBy: data.updatedBy,
+      updatedByImageUrl: data.updatedByImageUrl,
+      updatedByEmail: data.updatedByEmail,
+      customerBillingAddress: {
+        firstName: data.customerBillingAddress?.firstName,
+        lastName: data.customerBillingAddress?.lastName,
+        userType: data.customerBillingAddress?.userType,
+        address: data.customerBillingAddress?.address,
+        invoiceEmail: data.customerBillingAddress?.invoiceEmail,
+        city: data.customerBillingAddress?.city,
+        country: data.customerBillingAddress?.country,
+        state: data.customerBillingAddress?.state,
+        zipCode: data.customerBillingAddress?.zipCode,
+        adminNotes: data.customerBillingAddress?.adminNotes,
+      },
+      isDeleted: data.isDeleted,
     });
 
     try {
@@ -55,40 +104,72 @@ export class ProCustomerService {
     return proCustomers;
   }
 
-  public async update(_id: string, data: IProCustomer) {
-    const proCustomer = await ProCustomer.findById(_id);
-    if (!proCustomer) {
-      throw new NotFoundException("Pro Customer not found");
+  public async update(_id: string, data: Partial<IProCustomer>) {
+    if (!Object.keys(data).length) {
+      throw new InvalidInputException("No update data provided");
     }
 
-    // if (data.day) {
-    //   let existingProCustomer = await ProCustomer.findOne({
-    //     day: data.day,
-    //     _id: { $ne: _id },
-    //   });
-    //   if (existingProCustomer) {
-    //     throw new InvalidInputException(
-    //       "Pro customer already exists for this day"
-    //     );
-    //   }
-    // }
-
-    let updatedProCustomer = await ProCustomer.findByIdAndUpdate(
+    const updatedProCustomer = await ProCustomer.findByIdAndUpdate(
       _id,
       {
         $set: {
-          // day: data.day ?? proCustomer.day,
-          // fromTime: data.fromTime ?? proCustomer.fromTime,
-          // toTime: data.toTime ?? proCustomer.toTime,
-          // status: data.status ?? proCustomer.status,
+          customerId: data.customerId,
+          customerEmailId: data.customerEmailId,
+          proEmailId: data.proEmailId,
+          proUserId: data.proUserId,
+          proId: data.proId,
+          type: data.type,
+          customerUserId: data.customerUserId,
+          customerRef: data.customerRef,
+          proRef: data.proRef,
+          customerType: data.customerType,
+          businessName: data.businessName,
+          phoneNumber: data.phoneNumber,
+          dispatchTextNumber: data.dispatchTextNumber,
+          source: data.source,
+          vendor: data.vendor,
+          paymentMethod: data.paymentMethod,
+          creditLimit: data.creditLimit,
+          paymentTerms: data.paymentTerms,
+          taxExempt: data.taxExempt,
+          poRequired: data.poRequired,
+          doNotServe: data.doNotServe,
+          doNotServeReason: data.doNotServeReason,
+          subscribeToReceiveMarketingEmails:
+            data.subscribeToReceiveMarketingEmails,
+          mediaFiles: data.mediaFiles,
+          status: data.status,
+          createdBy: data.createdBy,
+          createdOn: data.createdOn,
+          createdByEmail: data.createdByEmail,
+          createdById: data.createdById,
+          createdByRole: data.createdByRole,
+          staffAssignedLoginIds: data.staffAssignedLoginIds,
+          updatedBy: data.updatedBy,
+          updatedByImageUrl: data.updatedByImageUrl,
+          updatedByEmail: data.updatedByEmail,
+          customerBillingAddress: {
+            firstName: data.customerBillingAddress?.firstName,
+            lastName: data.customerBillingAddress?.lastName,
+            userType: data.customerBillingAddress?.userType,
+            address: data.customerBillingAddress?.address,
+            invoiceEmail: data.customerBillingAddress?.invoiceEmail,
+            city: data.customerBillingAddress?.city,
+            country: data.customerBillingAddress?.country,
+            state: data.customerBillingAddress?.state,
+            zipCode: data.customerBillingAddress?.zipCode,
+            adminNotes: data.customerBillingAddress?.adminNotes,
+          },
+          isDeleted: data.isDeleted,
         },
       },
       { new: true }
     );
 
     if (!updatedProCustomer) {
-      throw new InvalidInputException("Failed to update pro customer");
+      throw new NotFoundException("Pro Customer not found or update failed");
     }
+
     return updatedProCustomer;
   }
 

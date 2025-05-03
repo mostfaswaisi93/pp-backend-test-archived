@@ -7,22 +7,22 @@ const notificationSchema = new Schema<INotification>(
     time: { type: String },
     name: { type: String },
     emailId: { type: String },
-    fireBaseId: { type: String },
+    firebaseId: { type: String }, // Improve naming fireBaseId
     deviceId: { type: String },
     proId: { type: String },
     proLoginId: { type: String },
     proEmailId: { type: String },
     role: { type: String, default: "STAFF" },
-    workordernumber: { type: String },
+    workOrderNumber: { type: String }, // Improve naming workordernumber
     image: { type: String },
-    deleteFlag: { type: Boolean, default: false },
-    loginId: { type: String },
+    isDeleted: { type: Boolean, default: false }, // Improve naming deleteFlag
+    userId: { type: String },
     title: { type: String },
     body: { type: String },
-    notificationType: { type: String },
+    type: { type: String }, // Improve naming notificationType
     isRead: { type: Boolean, default: false },
     answer: { type: String },
-    otherData: { type: Schema.Types.Mixed }, // ALP CODE DO NOT TOUCH
+    otherData: { type: Schema.Types.Mixed },
   },
   { timestamps: true }
 );

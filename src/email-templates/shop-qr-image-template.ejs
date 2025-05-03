@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      background: #F0F3F4;
+      font-family: Arial, sans-serif;
+    }
+  
+    .content {
+        width: 328px;
+        height: 403px;
+      margin: auto;
+      /* padding: 10px; */
+      background-color: #ffffff;
+      border: 2.27937px solid #FF5700;
+      border-color: <%= mailData.color %>;
+      border-radius: 9.1175px 9.1175px;
+    }
+    .content img {
+     width: 100%;
+     height: 328px;
+     border-radius: 9.1175px 9.1175px 0px 0px;
+    }
+    .content p {
+        font-weight: 300;
+        font-size: 22.7938px;
+        line-height: 34px;
+        color: white;
+        margin: 11px 0px;
+    }
+    .bg-color{
+        background: <%= mailData.color %>;
+        border-radius: 0px 0px 9.1175px 9.1175px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 9.1175px 9.1175px;
+    }
+
+    .bg-color img{
+      width: 145px;
+    height: 23px;
+    position: relative;
+    top: 5px;
+    margin: 0;
+    }
+
+    .orange-text{
+      color:#FF5700 !important;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+  </style>
+</head>
+<body>
+ 
+  <div class="content">
+    <img src="<%= mailData.qrImgUrl %>" alt="QR code">
+    <% if(mailData.color == '#FFFFFF'){ %>
+      <div class="bg-color">
+        <p class="orange-text">Powered by <img style="width: 120px; height: 33px;top: -1%;"
+            src="http://peakproz2.s3-website-us-east-1.amazonaws.com/assets/img/tp-new-logofull.png" alt="TP logo"></p>
+      </div>
+      <% }else{ %>
+          <div class="bg-color">
+            <p>Powered by <img width="145" height="28"
+                src="https://peakproz2-uploads.s3.amazonaws.com/images/peakproz-white-logo.svg" alt="TP logo"></p>
+          </div>
+          <% } %>
+
+
+  </div>
+</body>
+</html>

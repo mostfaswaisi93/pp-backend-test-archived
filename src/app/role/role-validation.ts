@@ -15,36 +15,33 @@ export const getRole = [validateRoleId(), validate];
 
 // Validation for Create Role
 export const create = [
-  body("roleName")
+  body("name")
     .isString()
     .withMessage("Role name is required")
     .notEmpty()
     .withMessage(messages.requiredField), // Role Name is required
 
-  body("roleCode")
-    .optional()
-    .isString()
-    .withMessage("Role code must be a string"),
+  body("code").optional().isString().withMessage("Role code must be a string"),
 
-  body("roleDescription")
+  body("description")
     .optional()
     .isString()
     .withMessage("Role description must be a string"),
 
   body("permissions")
+    .optional()
     .isArray()
-    .withMessage("Permissions must be an array of ObjectIds")
-    .optional(),
+    .withMessage("Permissions must be an array of ObjectIds"),
 
-  body("isAdminFlag")
+  body("isAdmin")
+    .optional()
     .isBoolean()
-    .withMessage("isAdminFlag must be a boolean")
-    .optional(),
+    .withMessage("isAdmin must be a boolean"),
 
   body("status")
+    .optional()
     .isIn(["ACTIVE", "INACTIVE"])
-    .withMessage("Status must be either ACTIVE or INACTIVE")
-    .optional(),
+    .withMessage("Status must be either ACTIVE or INACTIVE"),
 
   validate,
 ];
@@ -53,37 +50,34 @@ export const create = [
 export const update = [
   validateRoleId(),
 
-  body("roleName")
+  body("name")
     .optional()
     .isString()
     .withMessage("Role name must be a string")
     .notEmpty()
     .withMessage(messages.requiredField), // Role Name is required (if provided)
 
-  body("roleCode")
-    .optional()
-    .isString()
-    .withMessage("Role code must be a string"),
+  body("code").optional().isString().withMessage("Role code must be a string"),
 
-  body("roleDescription")
+  body("description")
     .optional()
     .isString()
     .withMessage("Role description must be a string"),
 
   body("permissions")
+    .optional()
     .isArray()
-    .withMessage("Permissions must be an array of ObjectIds")
-    .optional(),
+    .withMessage("Permissions must be an array of ObjectIds"),
 
-  body("isAdminFlag")
+  body("isAdmin")
+    .optional()
     .isBoolean()
-    .withMessage("isAdminFlag must be a boolean")
-    .optional(),
+    .withMessage("isAdmin must be a boolean"),
 
   body("status")
+    .optional()
     .isIn(["ACTIVE", "INACTIVE"])
-    .withMessage("Status must be either ACTIVE or INACTIVE")
-    .optional(),
+    .withMessage("Status must be either ACTIVE or INACTIVE"),
 
   validate,
 ];

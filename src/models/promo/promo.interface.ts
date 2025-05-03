@@ -1,33 +1,33 @@
 import { Document } from "mongoose";
 
 export interface IPromo extends Document {
-  loginId: string;
+  _id: string;
+  userId: string;
   proId: string;
-  promotionCode: string;
-  promotionName: string;
+  promoCode: string;
+  promoName: string;
   vendorName: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date; // Changed from 'string' to 'Date' for accurate date storage
+  endDate: Date; // Changed from 'string' to 'Date' for accurate date storage
   marketingMediaType: string;
-  recurring: string;
-  promotionFees: number;
-  promotionpercentValue: number;
-  promotionpercent: string;
-  promotiondollorValue: number;
-  totalprice: number;
-  totalTicket: number;
+  recurring: boolean; // Changed from 'string' to 'boolean' if it indicates whether the promo is recurring or not
+  promoFees: number;
+  promoPercentageValue: number; // Changed for better clarity
+  promoPercentage: string;
+  promoDollarValue: number; // Corrected spelling from 'promodollorValue' to 'promoDollarValue'
+  totalPrice: number; // Followed camelCase convention
+  totalTickets: number; // Corrected plural form from 'totalTicket' to 'totalTickets'
   description: string;
   mode: string;
-  promotionImage: string[];
-  qrcode: string[];
-  promotionservicecost: number;
-  promotionNotes: string;
+  promoImages: string[]; // Followed plural form for consistency
+  qrCodes: string[]; // Followed plural form for consistency
+  promoServiceCost: number; // Followed camelCase convention
+  notes: string; // Simplified the name
   createdBy: string;
-  createdOn: string;
   status: string;
   theme: string;
   isReadyToShare: boolean;
-  lastEmailSendOn?: Date;
+  lastEmailSendOn: Date;
   createdAt: Date;
   updatedAt: Date;
 }

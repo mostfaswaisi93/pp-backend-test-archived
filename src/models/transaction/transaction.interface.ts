@@ -1,8 +1,9 @@
 import mongoose, { Document } from "mongoose";
 
 export interface ITransaction extends Document {
+  _id: mongoose.Types.ObjectId;
   customerId: mongoose.Types.ObjectId;
-  proLoginId: mongoose.Types.ObjectId;
+  proUserId: mongoose.Types.ObjectId;
   invoiceId: mongoose.Types.ObjectId;
   invoiceNumber: string;
   transactionId: string;
@@ -10,33 +11,33 @@ export interface ITransaction extends Document {
   creditCard: string;
   cardName: string;
   transactionType: "PAYMENT" | "REFUND" | "WRITE-OFF";
-  docType: "ESTIMATE" | "INVOICE";
+  documentType: "ESTIMATE" | "INVOICE";
   status: "FAILED" | "SUCCESS";
   amount: number;
   creditCardProcessingFee: number;
   creditCardPF: number;
   totalAmount: number;
   paymentType: string;
-  ZelleId?: string;
-  VenmoId?: string;
-  AppleId?: string;
-  GoogleId?: string;
-  PayPalEmail?: string;
-  CompanyName?: string;
-  CheckNumber?: string;
-  InsuranceName?: string;
-  BankName?: string;
-  transactionDate: string;
-  transactionNotes?: string;
-  writeOffReason?: string;
-  message?: string;
-  createdFrom: "AUTHORIZE" | "PRO" | "CREDIT";
-  isRefundRequested: boolean;
-  creditAppliedFrom?: mongoose.Types.ObjectId;
+  zelleId?: string;
+  venmoId?: string;
+  appleId?: string;
+  googleId?: string;
+  payPalEmail?: string;
+  companyName?: string;
+  checkNumber?: string;
+  insuranceName?: string;
+  bankName?: string;
+  transactionTimestamp: string;
+  transactionRemarks: string;
+  writeOffReason: string;
+  message: string;
+  source: "AUTHORIZE" | "PRO" | "CREDIT";
+  refundRequested: boolean;
+  creditAppliedFrom?: string;
   isVoided: boolean;
-  voidReason?: string;
+  cancellationReason?: string;
   createdBy: string;
-  createdByRole: string;
+  creatorRole: string;
   voidedBy?: string;
   voidedAt?: Date;
   details: {
@@ -51,5 +52,5 @@ export interface ITransaction extends Document {
     zipcode: string;
   };
   isVerified: boolean;
-  verifiedBy?: mongoose.Types.ObjectId;
+  verifiedBy?: string;
 }

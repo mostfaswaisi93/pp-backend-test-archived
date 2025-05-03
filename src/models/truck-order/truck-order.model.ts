@@ -31,7 +31,7 @@ function arrayLimit(val: ITruckStockingListDetail[]) {
 const truckOrderSchema = new Schema<ITruckOrder>(
   {
     proId: { type: String, required: true },
-    loginId: { type: String, required: true },
+    userId: { type: String, required: true },
     proEmailId: { type: String, required: true },
     trucklocationId: { type: String, required: true },
     truckOrderId: { type: String, required: true },

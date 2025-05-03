@@ -3,7 +3,7 @@ import { IAccountSetting } from "./account-setting.interface";
 
 const accountSettingSchema = new Schema<IAccountSetting>(
   {
-    loginId: { type: String },
+    userId: { type: String },
     General: [{ type: Object }],
     StaffRoles: [{ type: Object }],
     StaffAgreements: [{ type: Object }],

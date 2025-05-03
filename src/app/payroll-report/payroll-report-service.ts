@@ -13,22 +13,32 @@ export class PayrollReportService {
   }
 
   async create(data: IPayrollReport) {
-    // if (!data.day || !data.fromTime || !data.toTime) {
-    //   throw new InvalidInputException("Missing required fields");
-    // }
-
     let existingPayrollReport = await PayrollReport.findOne({
-      // day: data.day,
+      payrollReportId: data.payrollReportId,
     });
     if (existingPayrollReport) {
       throw new InvalidInputException(
-        "PayrollReport already exists for this day"
+        "PayrollReport already exists for this ID"
       );
     }
 
     let payrollReport = new PayrollReport({
-      // day: data.day,
-      // status: data.status ?? "OPEN",
+      startTime: data.startTime,
+      endTime: data.endTime,
+      payrollReportId: data.payrollReportId,
+      commissionReportIds: data.commissionReportIds,
+      salary: data.salary,
+      totalGrossSales: data.totalGrossSales,
+      totalEarnings: data.totalEarnings,
+      totalCommission: data.totalCommission,
+      bonus: data.bonus,
+      spiffBonus: data.spiffBonus,
+      reimbursementAmount: data.reimbursementAmount,
+      status: data.status ?? "STAFF DRAFT",
+      paymentStatus: data.paymentStatus ?? "PENDING",
+      paidOn: data.paidOn,
+      reportPath: data.reportPath,
+      createdBy: data.createdBy,
     });
 
     try {
@@ -56,32 +66,37 @@ export class PayrollReportService {
     return payrollReports;
   }
 
-  public async update(_id: string, data: IPayrollReport) {
+  public async update(_id: string, data: Partial<IPayrollReport>) {
     const payrollReport = await PayrollReport.findById(_id);
     if (!payrollReport) {
       throw new NotFoundException("Payroll report not found");
     }
 
-    // if (data.day) {
-    //   let existingPayrollReport = await PayrollReport.findOne({
-    //     day: data.day,
-    //     _id: { $ne: _id },
-    //   });
-    //   if (existingPayrollReport) {
-    //     throw new InvalidInputException(
-    //       "PayrollReport already exists for this day"
-    //     );
-    //   }
-    // }
-
     let updatedPayrollReport = await PayrollReport.findByIdAndUpdate(
       _id,
       {
         $set: {
-          // day: data.day ?? payrollReport.day,
-          // fromTime: data.fromTime ?? payrollReport.fromTime,
-          // toTime: data.toTime ?? payrollReport.toTime,
-          // status: data.status ?? payrollReport.status,
+          startTime: data.startTime ?? payrollReport.startTime,
+          endTime: data.endTime ?? payrollReport.endTime,
+          payrollReportId:
+            data.payrollReportId ?? payrollReport.payrollReportId,
+          commissionReportIds:
+            data.commissionReportIds ?? payrollReport.commissionReportIds,
+          salary: data.salary ?? payrollReport.salary,
+          totalGrossSales:
+            data.totalGrossSales ?? payrollReport.totalGrossSales,
+          totalEarnings: data.totalEarnings ?? payrollReport.totalEarnings,
+          totalCommission:
+            data.totalCommission ?? payrollReport.totalCommission,
+          bonus: data.bonus ?? payrollReport.bonus,
+          spiffBonus: data.spiffBonus ?? payrollReport.spiffBonus,
+          reimbursementAmount:
+            data.reimbursementAmount ?? payrollReport.reimbursementAmount,
+          status: data.status ?? payrollReport.status,
+          paymentStatus: data.paymentStatus ?? payrollReport.paymentStatus,
+          paidOn: data.paidOn ?? payrollReport.paidOn,
+          reportPath: data.reportPath ?? payrollReport.reportPath,
+          createdBy: data.createdBy ?? payrollReport.createdBy,
         },
       },
       { new: true }

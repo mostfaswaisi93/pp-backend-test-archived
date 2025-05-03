@@ -13,23 +13,49 @@ export class PromoService {
   }
 
   async create(data: IPromo) {
-    // if (!data.day || !data.fromTime || !data.toTime) {
-    //   throw new InvalidInputException("Missing required fields");
-    // }
-
-    let existingPromo = await Promo.findOne({
-      // day: data.day,
-    });
-    if (existingPromo) {
-      throw new InvalidInputException("Promo already exists for this day");
+    if (
+      !data.promoCode ||
+      !data.promoName ||
+      !data.startDate ||
+      !data.endDate
+    ) {
+      throw new InvalidInputException("Missing required fields");
     }
 
-    let promo = new Promo({
-      // day: data.day,
-      // status: data.status ?? "OPEN",
-    });
+    const existingPromo = await Promo.findOne({ promoCode: data.promoCode });
+    if (existingPromo) {
+      throw new InvalidInputException("Promo with this code already exists");
+    }
 
     try {
+      const promo = new Promo({
+        userId: data.userId,
+        proId: data.proId,
+        promoCode: data.promoCode,
+        promoName: data.promoName,
+        vendorName: data.vendorName,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        marketingMediaType: data.marketingMediaType,
+        recurring: data.recurring,
+        promoFees: data.promoFees,
+        promoPercentageValue: data.promoPercentageValue,
+        promoPercentage: data.promoPercentage,
+        promoDollarValue: data.promoDollarValue,
+        totalPrice: data.totalPrice,
+        totalTickets: data.totalTickets,
+        description: data.description,
+        mode: data.mode,
+        promoImages: data.promoImages,
+        qrCodes: data.qrCodes,
+        promoServiceCost: data.promoServiceCost,
+        notes: data.notes,
+        createdBy: data.createdBy,
+        status: data.status ?? "DRAFT",
+        theme: data.theme,
+        isReadyToShare: data.isReadyToShare,
+        lastEmailSendOn: data.lastEmailSendOn,
+      });
       return await promo.save();
     } catch (error: any) {
       throw new Error("Error saving Promo: " + error.message);
@@ -43,10 +69,8 @@ export class PromoService {
   }
 
   public async getPromos() {
-    const promos = await Promo.find({
-      status: "ACTIVE",
-    }).sort({
-      state: 1,
+    const promos = await Promo.find({ status: "ACTIVE" }).sort({
+      startDate: 1,
     });
     if (promos.length === 0)
       throw new InvalidInputException("Promos not found");
@@ -59,62 +83,86 @@ export class PromoService {
       throw new NotFoundException("Promo not found");
     }
 
-    // if (data.day) {
-    //   let existingPromo = await Promo.findOne({
-    //     day: data.day,
-    //     _id: { $ne: _id },
-    //   });
-    //   if (existingPromo) {
-    //     throw new InvalidInputException(
-    //       "Promo already exists for this day"
-    //     );
-    //   }
-    // }
-
-    let updatedPromo = await Promo.findByIdAndUpdate(
-      _id,
-      {
-        $set: {
-          // day: data.day ?? promo.day,
-          // fromTime: data.fromTime ?? promo.fromTime,
-          // toTime: data.toTime ?? promo.toTime,
-          // status: data.status ?? promo.status,
-        },
-      },
-      { new: true }
-    );
-
-    if (!updatedPromo) {
-      throw new InvalidInputException("Failed to update promo");
+    if (data.promoCode) {
+      const existingPromo = await Promo.findOne({
+        promoCode: data.promoCode,
+        _id: { $ne: _id },
+      });
+      if (existingPromo) {
+        throw new InvalidInputException(
+          "Another promo with this code already exists"
+        );
+      }
     }
-    return updatedPromo;
+
+    try {
+      const updatedPromo = await Promo.findByIdAndUpdate(
+        _id,
+        {
+          $set: {
+            userId: data.userId,
+            proId: data.proId,
+            promoCode: data.promoCode,
+            promoName: data.promoName,
+            vendorName: data.vendorName,
+            startDate: data.startDate,
+            endDate: data.endDate,
+            marketingMediaType: data.marketingMediaType,
+            recurring: data.recurring,
+            promoFees: data.promoFees,
+            promoPercentageValue: data.promoPercentageValue,
+            promoPercentage: data.promoPercentage,
+            promoDollarValue: data.promoDollarValue,
+            totalPrice: data.totalPrice,
+            totalTickets: data.totalTickets,
+            description: data.description,
+            mode: data.mode,
+            promoImages: data.promoImages,
+            qrCodes: data.qrCodes,
+            promoServiceCost: data.promoServiceCost,
+            notes: data.notes,
+            createdBy: data.createdBy,
+            status: data.status,
+            theme: data.theme,
+            isReadyToShare: data.isReadyToShare,
+            lastEmailSendOn: data.lastEmailSendOn,
+          },
+        },
+        { new: true }
+      );
+
+      if (!updatedPromo) {
+        throw new InvalidInputException("Failed to update promo");
+      }
+      return updatedPromo;
+    } catch (error: any) {
+      throw new Error("Error updating Promo: " + error.message);
+    }
   }
 
-  public async updateStatus(_id: string, data: IPromo) {
-    let promo = await Promo.findOne({ _id });
-
+  public async updateStatus(_id: string, status: string) {
+    const promo = await Promo.findById(_id);
     if (!promo) {
-      throw new NotFoundException();
+      throw new NotFoundException("Promo not found");
     }
 
-    let updateStatus = await Promo.findByIdAndUpdate(
-      _id,
-      {
-        $set: {
-          // status: data.status || promo.status,
-        },
-      },
-      {
-        new: true,
-      }
-    );
+    try {
+      const updateStatus = await Promo.findByIdAndUpdate(
+        _id,
+        { $set: { status } },
+        { new: true }
+      );
 
-    if (!updateStatus) throw new InvalidInputException("Promo not found");
-    return updateStatus;
+      if (!updateStatus)
+        throw new InvalidInputException("Failed to update status");
+      return updateStatus;
+    } catch (error: any) {
+      throw new Error("Error updating promo status: " + error.message);
+    }
   }
 
   public async delete(_id: string) {
-    const promo = await Promo.findByIdAndDelete({ _id });
+    const promo = await Promo.findByIdAndDelete(_id);
     if (!promo) throw new InvalidInputException("Promo not found");
   }
 }

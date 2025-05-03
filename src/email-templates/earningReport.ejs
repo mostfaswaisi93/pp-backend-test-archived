@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%
+ formatTime = function(time){
+    let hr = Math.floor(time / 3600)
+    let min = Math.floor((time%3600) / 60)
+    return (hr > 9 ? hr : '0' + hr) + ":" + (min > 9 ? min : '0' + min) 
+  }
+%>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"></script>
+    <title>Invoice</title>
+</head>
+<style>
+    * {
+        font-size: 10px;
+    }
+    body {
+        margin-left: 10%;
+        margin-right: 10%;
+        margin-top: 30px;
+    }
+    .staffDetails {
+        top: 90px;
+        left: 16px;
+        padding: 10px;
+        border-radius: 3px;
+        border: 1px;
+        gap: 5px;
+        background: linear-gradient(0deg, rgba(234, 234, 234, 0.4), rgba(234, 234, 234, 0.4)),
+            linear-gradient(0deg, rgba(250, 250, 250, 0.5), rgba(250, 250, 250, 0.5));
+        border: 1px solid #EAEAEA66;
+    }
+    .table thead tr th {
+       border-width: 1px;
+    }
+    .table tbody tr td {
+       border-width: 1px;
+    }
+    .theading {
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 20px;
+        letter-spacing: 0px;
+        text-align: left;
+        padding: 10px 10px 10px 0px;
+
+    }
+    .timeActivWrp {
+    width: 100%;
+    display: block;
+    margin-bottom: 30px;
+}
+h2.timeHeading {
+    margin-top: 0;
+}
+
+h2.timeHeading {
+    width: 100%;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 150%;
+    color: #000000;
+    margin-bottom: 10px;
+}
+.earnLltBody {
+    width: 100%;
+    background: #F0F3F4;
+    border-radius: 3px;
+}
+
+.earnLltBody ul {
+    padding: 8px 0;
+    margin: 0;
+    width: 80%;
+    display: flex;
+    height: 100%;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flex;
+    display: -o-flex;
+    justify-content: inherit;
+    align-items: center;
+}
+.earnLltBody .otherIncome {
+  padding: 8px 0;
+  margin: 0;
+  width: 80%;
+  display: flex;
+  height: 100%;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flex;
+  display: -o-flex;
+  justify-content: inherit;
+  align-items: center;
+}
+
+.earnLltBody .item {
+    list-style: none;
+    padding: 0 20px;
+    font-size: 14px;
+    line-height: 150%;
+    color: #303135;
+}
+.earnLltBody ul li  {
+    list-style: none;
+    padding: 0 20px;
+    font-size: 14px;
+    line-height: 150%;
+    color: #303135;
+    font-weight: 500;
+}
+
+.earnLltBody .otherIncome div{
+  padding: 0 10px;
+}
+
+.earnLltBody ul li span {
+    margin-right: 10px;
+    font-weight: 500;
+}
+
+.earnLltBody .otherIncome div span {
+  margin-right: 10px;
+  font-weight: 500;
+}
+
+
+</style>
+
+<body>
+    <div style="display: flex; margin-bottom: 40px;">
+        <div style="width: 70%; display: flex;">
+            <img src="https://peakproz2-uploads.s3.amazonaws.com/images/1671556899758.RHP%20logo.png" alt="" srcset="">
+            <div style="padding-left: 10px;">
+                <span style="font-weight: 500; font-size: 12px;">Red Hat Plumbling and Rooter</span><br>
+                <span>PO Box 927, Camarillo CA 93066<br>
+                    (850) 888-98999</span>
+            </div>
+        </div>
+        <div style="width: 30%; text-align: end;">
+            <div style="font-weight: 500; font-size: 12px;">Earning Report</div>
+            <div><%- user.salesReport?.serId%></div>
+        </div>
+    </div>
+    <div style="display: flex;">
+        <div style="width: 40%;" class="staffDetails">
+            <div style="display: flex; line-height: 20px;" >
+                <div style="width: 50%;">Staff name:</div>
+                <div style="width: 50%; font-weight: 500;"> <%- user.staff?.firstName%> <%- user.staff?.lastName%></div>
+            </div>
+            <div style="display: flex; line-height: 20px;">
+                <div style="width: 50%;">Staff ID:</div>
+                <div style="width: 50%; font-weight: 500;"> <%- user.staff?.staffId%></div>
+            </div>
+            <div style="display: flex; line-height: 20px;">
+                <div style="width: 50%;">Staff Role:</div>
+                <div style="width: 50%; font-weight: 500;"> <%- user.staff?.role%></div>
+            </div>
+        </div>
+        <div style="width: 3%;"></div>
+
+        <div style="width: 40%;" class="staffDetails">
+            <div style="display: flex; line-height: 20px;">
+                <div style="width: 50%;">Start Date:</div>
+                <div style="width: 50%; font-weight: 500;"> <%- user.salesReport?.fStartTime%></div>
+            </div>
+            <div style="display: flex; line-height: 20px;">
+                <div style="width: 50%;">End Date:</div>
+                <div style="width: 50%; font-weight: 500;"> <%- user.salesReport?.fEndTime%></div>
+            </div>
+            <div style="display: flex; line-height: 20px;">
+                <div style="width: 50%;">Payroll Frequency:</div>
+                <div style="width: 50%; font-weight: 500;"> <%= user?.staff?.weeklySalary == 'hourly' ? user?.staff?.hourlyRateValue : user?.staff?.weeklySalaryValue %>/HR (<%- user.salesReport.payrollFrequency%>)</div>
+            </div>
+        </div>
+    </div>
+    <h4 class="theading">Time Cards</h4>
+    <div>
+        <table class="table" style="border: 1px solid #EAEAEA; border-radius: 3px;">
+            <thead>
+                <tr style="border-width: 1px;">
+                    <th >Date</th>
+                    <th >ST</th>
+                    <th >OT</th>
+                    <th >DOT</th>
+                    <th >Payable Hrs</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for(var i=0; i < user?.weeklyData?.length; i++) {%>
+                    <tr style="border-width: 1px;">
+                        <td><%= user?.weeklyData[i].date %></td>
+                        <td><%= formatTime(user?.weeklyData[i].payable?.st) %></td>
+                        <td><%= formatTime(user?.weeklyData[i]?.payable?.ot) %></td>
+                        <td><%= formatTime(user?.weeklyData[i]?.payable?.dot) %></td>
+                        <td><%= formatTime(user?.weeklyData[i]?.payable?.st + user?.weeklyData[i]?.payable?.dot + user?.weeklyData[i]?.payable?.ot) %></td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+
+    </div>
+    <h4 class="theading">Payable Hrs</h4>
+    <div>
+        <table class="table" style="border: 1px solid #EAEAEA;  border-radius: 3px;">
+            <thead>
+                <tr style="border-width: 1px;">
+                    <th >Total</th>
+                    <th >Standard Time</th>
+                    <th >Over Time</th>
+                    <th >Double Over time</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-width: 1px;">
+                    <td><%- formatTime(user.dailyData.payable.totalHours)%></td>
+                    <td><%- formatTime(user.dailyData.payable.st)%></td>
+                    <td><%- formatTime(user.dailyData.payable.ot)%></td>
+                    <td><%- formatTime(user.dailyData.payable.dot)%></td>
+                    
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+    <div class="timeActivWrp">
+        <h2 class="theading">
+            Earnings:
+        </h2>
+        <!-- <div class="col-md-6"> -->
+        <div class="earnLitWrp">
+            <div class="earnLltBody">
+                <div style="display: flex;">
+                    <div style="width: 30%;" class="item">
+                        <div>Total Hourly/Salary Pay:</div>
+                        <div>$<%- parseFloat(user.salesReport?.salary)?.toFixed(2)%></div>
+                    </div>
+                    <div class="item">=</div>
+                    <div style="width: 30%;" class="item">
+                        <div>Regular Pay</div>
+                        <div>$<%- parseFloat(user.salesReport?.regularPay)?.toFixed(2)%></div>
+                    </div>
+                    <div class="item">+</div>
+                    <div style="width: 15%;"  class="item">
+                        <div>OT Pay</div>
+                        <div>$<%- parseFloat(user.salesReport?.otPay)?.toFixed(2)%></div>
+                    </div>
+                    <div class="item">+</div>
+                    <div style="width: 15%;" class="item">
+                        <div>DOT Pay</div>
+                        <div>$<%- parseFloat(user.salesReport?.dotPay)?.toFixed(2)%></div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="earnLltBody">
+                <div style="display: flex;">
+                    <div style="width: 30%;" class="item">
+                        <div>Total Earnings:</div>
+                        <div>$<%- parseFloat(user.salesReport?.totalEarnings)?.toFixed(2)%></div>
+                    </div>
+                    <div class="item">=</div>
+                    <div style="width: 30%;"  class="item">
+                        <div>Total Hourly/Salary Pay:</div>
+                        <div>$<%- parseFloat(user.salesReport?.salary)?.toFixed(2)%></div>
+                    </div>
+                    <div class="item">+</div>
+                    <div style="width: 15%;" class="item">
+                        <div>Commissions</div>
+                        <div>$<%- parseFloat(user.salesReport?.totalCommission)?.toFixed(2)%></div>
+                    </div>
+                    <div class="item"></div>
+                    <div style="width: 15%;" class="item">
+                        <!-- <div>DOT Pay</div>
+                        <div>$<%- user.salesReport?.dotPay%></div> -->
+                    </div>
+                    
+                    
+                </div>
+            </div>
+
+        </div>
+        <!-- </div> -->
+
+    </div>
+    <div class="timeActivWrp">
+        <div>
+            <p class="theading">
+               Other Income:
+            </p>
+        </div>
+        <div class="earnLitWrp">
+            <div class="earnLltBody">
+                <div class="otherIncome" style="display: flex; width: 100%;">
+
+                    <div style="font-weight: 500; width: 60%;">
+                        <div style="line-height: 25px;">Description:</div>
+                    </div>
+                    <div  style="font-weight: 500; width: 20%; ">
+                        <div style="line-height: 25px;">Type:</div>
+                    </div>
+                    <div  style="font-weight: 500; width: 15%; ">
+                        <div style="line-height: 25px;">Amount:</div>
+                    </div>
+                    <hr>
+                </div>
+                <% for(var i=0; i < user?.salesReport?.otherIncome?.length; i++) {%>
+                    <div class="otherIncome" style="display: flex; width: 100%;">
+
+                        <div style="font-weight: 300; width: 60%;">
+                            <div><%- user?.salesReport?.otherIncome[i].description%></div>
+                        </div>
+                        <div  style="font-weight: 300; width: 20%; ">
+                            <div><%- user?.salesReport?.otherIncome[i].type%></div>
+                        </div>
+                        <div  style="font-weight: 300; width: 15%; ">
+                            <div>$<%- parseFloat(user?.salesReport?.otherIncome[i].amount).toFixed(2)%></div>
+                        </div>
+                        <hr>
+                    </div>
+                    <% } %>
+
+                
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

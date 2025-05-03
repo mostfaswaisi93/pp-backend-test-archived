@@ -1,33 +1,40 @@
-import { Category } from "../../models/category/category.model";
-import { ICategory } from "../../models/category/category.interface";
+import { SubCategory } from "../../models/sub-category/subcategory.model";
+import { ISubCategory } from "../../models/sub-category/subcategory.interface";
 import {
   NotFoundException,
   InvalidInputException,
 } from "../../commons/errors/exceptions";
 
-const generateCategoryCode = async (categoryName: string): Promise<string> => {
-  const words = categoryName.split(" ");
-  let categoryPrefix = words
-    .map((word) => word.slice(0, 2).toUpperCase())
+// Function to generate a unique subcategory code based on the subcategory name
+const generateSubCategoryCode = async (
+  subcategoryName: string
+): Promise<string> => {
+  const words = subcategoryName.split(" ");
+  let subcategoryPrefix = words
+    .map((word) => word.slice(0, 2).toUpperCase()) // Taking the first two letters of each word and converting to uppercase
     .join("");
-  categoryPrefix = categoryPrefix.slice(0, 6);
+  subcategoryPrefix = subcategoryPrefix.slice(0, 6); // Limiting to 6 characters for the prefix
 
-  const lastCategory = await Category.findOne().sort({ code: -1 }).exec();
+  const lastSubCategory = await SubCategory.findOne()
+    .sort({ subcategoryCode: -1 })
+    .exec();
   let lastNumber = 0;
 
-  if (lastCategory) {
-    const lastCodeNumber = lastCategory.code.slice(6);
+  if (lastSubCategory) {
+    const lastCodeNumber = lastSubCategory.subcategoryCode.slice(6); // Extracting the number part of the last subcategory code
     const parsedNumber = parseInt(lastCodeNumber);
     if (!isNaN(parsedNumber)) {
-      lastNumber = parsedNumber;
+      lastNumber = parsedNumber; // Getting the last subcategory number
     }
   }
 
-  let newCode = `${categoryPrefix}${(lastNumber + 1).toString().padStart(4, "0")}`;
-  const existingCategory = await Category.findOne({ code: newCode }).exec();
+  let newCode = `${subcategoryPrefix}${(lastNumber + 1).toString().padStart(4, "0")}`; // Generating new subcategory code
+  const existingSubCategory = await SubCategory.findOne({
+    subcategoryCode: newCode,
+  }).exec();
 
-  if (existingCategory) {
-    newCode = `${categoryPrefix}${(lastNumber + 2).toString().padStart(4, "0")}`;
+  if (existingSubCategory) {
+    newCode = `${subcategoryPrefix}${(lastNumber + 2).toString().padStart(4, "0")}`; // If the new code exists, try with the next number
   }
 
   return newCode;
@@ -40,129 +47,109 @@ export class SubCategoryService {
     return this._instance ?? (this._instance = new this());
   }
 
-  async create(data: ICategory) {
+  // Create a new subcategory
+  async create(data: ISubCategory) {
     if (data.name) {
-      let nameExist = await Category.findOne({ name: data.name });
+      let nameExist = await SubCategory.findOne({ name: data.name });
       if (nameExist) {
-        throw new InvalidInputException("Category name already exists");
+        throw new InvalidInputException("Subcategory name already exists");
       }
     }
 
-    const generatedCode = await generateCategoryCode(data.name);
+    const generatedCode = await generateSubCategoryCode(data.name);
 
     if (generatedCode) {
-      let codeExist = await Category.findOne({ code: generatedCode });
+      let codeExist = await SubCategory.findOne({
+        subcategoryCode: generatedCode,
+      });
       if (codeExist) {
-        throw new InvalidInputException("Category code already exists");
+        throw new InvalidInputException("Subcategory code already exists");
       }
     }
 
-    let category = new Category({
-      code: generatedCode,
+    let subcategory = new SubCategory({
+      subcategoryCode: generatedCode,
       name: data.name,
       description: data.description,
-      icon: data.icon,
-      image: data.image,
+      categoryId: data.categoryId,
       price: data.price,
+      bapPrice: data.bapPrice,
+      isStandardQuestionLoaded: data.isStandardQuestionLoaded ?? false,
       createdBy: "SYSTEM ADMIN",
       status: data.status ?? "ACTIVE",
-      isAdminOnly: data.isAdminOnly ?? false,
-      isPopularCategory: data.isPopularCategory ?? true,
     });
 
     try {
-      let result = await category.save();
+      let result = await subcategory.save();
       return result;
     } catch (error) {
       throw error;
     }
   }
 
-  public async getCategoryById(_id: string) {
-    const category = await Category.findById({ _id });
-    if (!category) throw new InvalidInputException("Category not found");
-    return category;
+  // Get a subcategory by its ID
+  public async getSubCategoryById(_id: string) {
+    const subcategory = await SubCategory.findById({ _id });
+    if (!subcategory) throw new InvalidInputException("Subcategory not found");
+    return subcategory;
   }
 
-  public async getLastCategoryId() {
-    const lastCategory = await Category.findOne().sort({ _id: -1 });
-    if (!lastCategory)
-      throw new InvalidInputException("There are no categories.");
-    return lastCategory;
+  // Get the last subcategory created
+  public async getLastSubCategoryId() {
+    const lastSubCategory = await SubCategory.findOne().sort({ _id: -1 });
+    if (!lastSubCategory)
+      throw new InvalidInputException("There are no subcategories.");
+    return lastSubCategory;
   }
 
-  public async getCategories() {
-    const categories = await Category.find({ status: "ACTIVE" }).sort({
+  // Get all active subcategories
+  public async getSubCategories() {
+    const subcategories = await SubCategory.find({ status: "ACTIVE" }).sort({
       name: 1,
     });
-    if (!categories) throw new InvalidInputException("Categories not found");
-    return categories;
+    if (!subcategories)
+      throw new InvalidInputException("Subcategories not found");
+    return subcategories;
   }
 
-  public async getCategoriesWithSSP() {
-    const categories = await Category.find({ status: "ACTIVE" }).sort({
-      name: 1,
-    });
-    if (!categories) throw new InvalidInputException("Categories not found");
-    return categories;
-  }
-
-  public async getCategoryName(body: any) {
-    if (!Array.isArray(body)) {
-      return {
-        error: true,
-        message: "Invalid request body. An array is expected.",
-      };
-    }
-
-    const tradeLicenseArray: string[] = body.map(
-      (item: { tradeLicense: string }) => item.tradeLicense
-    );
-
-    const categories = await Category.find({
-      status: "ACTIVE",
-      code: { $in: tradeLicenseArray },
-    });
-
-    if (!categories) throw new InvalidInputException("Categories not found");
-    return { error: false, categories: categories ?? [] };
-  }
-
-  public async update(_id: string, data: ICategory) {
-    const category = await Category.findOne({ _id });
-    if (!category) {
+  // Update a subcategory by its ID
+  public async update(_id: string, data: ISubCategory) {
+    const subcategory = await SubCategory.findOne({ _id });
+    if (!subcategory) {
       throw new NotFoundException();
     }
 
-    if (data.name && data.name !== category.name) {
-      let nameExist = await Category.findOne({ name: data.name });
+    if (data.name && data.name !== subcategory.name) {
+      let nameExist = await SubCategory.findOne({ name: data.name });
       if (nameExist && nameExist._id.toString() !== _id) {
-        throw new InvalidInputException("Category name already exists");
+        throw new InvalidInputException("Subcategory name already exists");
       }
 
-      const generatedCode = await generateCategoryCode(data.name);
+      const generatedCode = await generateSubCategoryCode(data.name);
       if (generatedCode) {
-        let codeExist = await Category.findOne({ code: generatedCode });
+        let codeExist = await SubCategory.findOne({
+          subcategoryCode: generatedCode,
+        });
         if (codeExist) {
-          throw new InvalidInputException("Category code already exists");
+          throw new InvalidInputException("Subcategory code already exists");
         }
-        data.code = generatedCode;
+        data.subcategoryCode = generatedCode;
       }
     }
 
-    let updatedCategory = await Category.findByIdAndUpdate(
+    let updatedSubCategory = await SubCategory.findByIdAndUpdate(
       _id,
       {
         $set: {
-          name: data.name || category.name,
-          description: data.description || category.description,
-          icon: data.icon || category.icon,
-          image: data.image || category.image,
-          price: data.price || category.price,
-          status: data.status || category.status,
-          isAdminOnly: data.isAdminOnly || category.isAdminOnly,
-          isPopularCategory:
-            data.isPopularCategory || category.isPopularCategory,
+          name: data.name || subcategory.name,
+          description: data.description || subcategory.description,
+          categoryId: data.categoryId || subcategory.categoryId,
+          price: data.price || subcategory.price,
+          bapPrice: data.bapPrice || subcategory.bapPrice,
+          status: data.status || subcategory.status,
+          isStandardQuestionLoaded:
+            data.isStandardQuestionLoaded ||
+            subcategory.isStandardQuestionLoaded,
         },
       },
       {
@@ -170,22 +157,24 @@ export class SubCategoryService {
       }
     );
 
-    if (!updatedCategory) throw new InvalidInputException("Category not found");
-    return updatedCategory;
+    if (!updatedSubCategory)
+      throw new InvalidInputException("Subcategory not found");
+    return updatedSubCategory;
   }
 
-  public async updateStatus(_id: string, data: ICategory) {
-    let category = await Category.findOne({ _id });
+  // Update the status of a subcategory
+  public async updateStatus(_id: string, data: ISubCategory) {
+    let subcategory = await SubCategory.findOne({ _id });
 
-    if (!category) {
+    if (!subcategory) {
       throw new NotFoundException();
     }
 
-    let updateStatus = await Category.findByIdAndUpdate(
+    let updateStatus = await SubCategory.findByIdAndUpdate(
       _id,
       {
         $set: {
-          status: data.status || category.status,
+          status: data.status || subcategory.status,
         },
       },
       {
@@ -193,12 +182,13 @@ export class SubCategoryService {
       }
     );
 
-    if (!updateStatus) throw new InvalidInputException("Category not found");
+    if (!updateStatus) throw new InvalidInputException("Subcategory not found");
     return updateStatus;
   }
 
+  // Delete a subcategory by its ID
   public async delete(_id: string) {
-    const category = await Category.findByIdAndDelete({ _id });
-    if (!category) throw new InvalidInputException("Category not found");
+    const subcategory = await SubCategory.findByIdAndDelete({ _id });
+    if (!subcategory) throw new InvalidInputException("Subcategory not found");
   }
 }

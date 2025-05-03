@@ -1,17 +1,33 @@
 import { Document } from "mongoose";
 
+// Updated IPricebook interface with the new field names
 export interface IPricebook extends Document {
-  loginId?: string;
-  proId?: string;
+  _id: string;
+
+  // Renamed from userId to loginId for clarity
+  userId: string;
+
+  // Renamed from proId to clarify what it refers to (productId or projectId)
+  proId: string;
+
   serviceId: string;
   category: string;
   subCategory: string;
   serviceTitle: string;
-  leadCostApply?: boolean;
+
+  // Renamed from leadCostApply to isLeadCostApplied
+  isLeadCostApplied?: boolean;
+
   leadCost?: number;
-  truckOrderCostApply?: boolean;
+
+  // Renamed from truckOrderCostApply to isTruckOrderCostApplied
+  isTruckOrderCostApplied?: boolean;
+
   truckOrderCost?: number;
-  inventory?: Record<string, any>[];
+
+  // Renamed from inventory to inventoryItems for better clarity
+  inventoryItems: object[];
+
   laborRate?: number;
   numberHours?: number;
   subTotal?: number;
@@ -24,20 +40,35 @@ export interface IPricebook extends Document {
   valuePercent?: number;
   memberPercent?: number;
   totalMaterialCost?: number;
-  image?: string[];
-  filename?: string;
+
+  // Renamed from image to imageUrls for better clarity
+  imageUrls: string[];
+
+  // Renamed filename to documentFilename for clarity
+  documentFilename?: string;
+
   documentName?: string;
   serviceDescription?: string;
   installationDescription?: string;
-  status: string;
-  qrImage?: string;
-  createdOn?: string;
+
+  // Renamed from status to serviceStatus for clarity
+  serviceStatus: string;
+
+  // Renamed qrImage to qrImageUrl for better clarity
+  qrImageUrl?: string;
+
+  // Renamed createdOn and updatedOn to createdAt and updatedAt for consistency
+  createdAt?: string;
   createdBy?: string;
-  updatedOn?: string;
+
+  updatedAt?: string;
   updatedBy?: string;
-  createdByEmailId?: string;
-  updatedByEmailId?: string;
+
+  // Renamed createdByEmailId to createdByEmail for better clarity
+  createdByEmail?: string;
+
+  // Renamed updatedByEmailId to updatedByEmail for better clarity
+  updatedByEmail?: string;
+
   updatedByImage?: string;
-  createdAt: Date;
-  updatedAt: Date;
 }

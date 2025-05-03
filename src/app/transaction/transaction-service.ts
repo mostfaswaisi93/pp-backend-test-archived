@@ -13,13 +13,7 @@ export class TransactionService {
   }
 
   async create(data: ITransaction) {
-    // if (!data.day || !data.fromTime || !data.toTime) {
-    //   throw new InvalidInputException("Missing required fields");
-    // }
-
-    let existingTransaction = await Transaction.findOne({
-      // day: data.day,
-    });
+    let existingTransaction = await Transaction.findOne({});
     if (existingTransaction) {
       throw new InvalidInputException(
         "Transaction already exists for this day"
@@ -27,8 +21,48 @@ export class TransactionService {
     }
 
     let transaction = new Transaction({
-      // day: data.day,
-      // status: data.status ?? "OPEN",
+      customerId: data.customerId,
+      proUserId: data.proUserId,
+      invoiceId: data.invoiceId,
+      invoiceNumber: data.invoiceNumber,
+      transactionId: data.transactionId,
+      transactionNumber: data.transactionNumber,
+      creditCard: data.creditCard,
+      cardName: data.cardName,
+      transactionType: data.transactionType,
+      documentType: data.documentType,
+      status: data.status,
+      amount: data.amount,
+      creditCardProcessingFee: data.creditCardProcessingFee,
+      creditCardPF: data.creditCardPF,
+      totalAmount: data.totalAmount,
+      paymentType: data.paymentType,
+      zelleId: data.zelleId,
+      venmoId: data.venmoId,
+      appleId: data.appleId,
+      googleId: data.googleId,
+      payPalEmail: data.payPalEmail,
+      companyName: data.companyName,
+      checkNumber: data.checkNumber,
+      insuranceName: data.insuranceName,
+      bankName: data.bankName,
+      transactionTimestamp: data.transactionTimestamp,
+      transactionRemarks: data.transactionRemarks,
+      writeOffReason: data.writeOffReason,
+      message: data.message,
+      source: data.source,
+      refundRequested: data.refundRequested,
+      creditAppliedFrom: data.creditAppliedFrom,
+      isVoided: data.isVoided,
+      cancellationReason: data.cancellationReason,
+      createdBy: data.createdBy,
+      creatorRole: data.creatorRole,
+      voidedBy: data.voidedBy,
+      voidedAt: data.voidedAt,
+      details: data.details,
+      businessInfo: data.businessInfo,
+      isVerified: data.isVerified,
+      verifiedBy: data.verifiedBy,
     });
 
     try {
@@ -39,8 +73,8 @@ export class TransactionService {
   }
 
   public async getTransactionById(_id: string) {
-    const transaction = await Transaction.findById({ _id });
-    if (!transaction) throw new InvalidInputException("Transaction not found");
+    const transaction = await Transaction.findById(_id);
+    if (!transaction) throw new NotFoundException("Transaction not found");
     return transaction;
   }
 
@@ -61,26 +95,52 @@ export class TransactionService {
       throw new NotFoundException("Transaction not found");
     }
 
-    // if (data.day) {
-    //   let existingTransaction = await Transaction.findOne({
-    //     day: data.day,
-    //     _id: { $ne: _id },
-    //   });
-    //   if (existingTransaction) {
-    //     throw new InvalidInputException(
-    //       "Transaction already exists for this day"
-    //     );
-    //   }
-    // }
-
     let updatedTransaction = await Transaction.findByIdAndUpdate(
       _id,
       {
         $set: {
-          // day: data.day ?? transaction.day,
-          // fromTime: data.fromTime ?? transaction.fromTime,
-          // toTime: data.toTime ?? transaction.toTime,
-          // status: data.status ?? transaction.status,
+          customerId: data.customerId,
+          proUserId: data.proUserId,
+          invoiceId: data.invoiceId,
+          invoiceNumber: data.invoiceNumber,
+          transactionId: data.transactionId,
+          transactionNumber: data.transactionNumber,
+          creditCard: data.creditCard,
+          cardName: data.cardName,
+          transactionType: data.transactionType,
+          documentType: data.documentType,
+          status: data.status,
+          amount: data.amount,
+          creditCardProcessingFee: data.creditCardProcessingFee,
+          creditCardPF: data.creditCardPF,
+          totalAmount: data.totalAmount,
+          paymentType: data.paymentType,
+          zelleId: data.zelleId,
+          venmoId: data.venmoId,
+          appleId: data.appleId,
+          googleId: data.googleId,
+          payPalEmail: data.payPalEmail,
+          companyName: data.companyName,
+          checkNumber: data.checkNumber,
+          insuranceName: data.insuranceName,
+          bankName: data.bankName,
+          transactionTimestamp: data.transactionTimestamp,
+          transactionRemarks: data.transactionRemarks,
+          writeOffReason: data.writeOffReason,
+          message: data.message,
+          source: data.source,
+          refundRequested: data.refundRequested,
+          creditAppliedFrom: data.creditAppliedFrom,
+          isVoided: data.isVoided,
+          cancellationReason: data.cancellationReason,
+          createdBy: data.createdBy,
+          creatorRole: data.creatorRole,
+          voidedBy: data.voidedBy,
+          voidedAt: data.voidedAt,
+          details: data.details,
+          businessInfo: data.businessInfo,
+          isVerified: data.isVerified,
+          verifiedBy: data.verifiedBy,
         },
       },
       { new: true }
@@ -92,18 +152,18 @@ export class TransactionService {
     return updatedTransaction;
   }
 
-  public async updateStatus(_id: string, data: ITransaction) {
+  public async updateStatus(_id: string, status: string) {
     let transaction = await Transaction.findOne({ _id });
 
     if (!transaction) {
-      throw new NotFoundException();
+      throw new NotFoundException("Transaction not found");
     }
 
     let updateStatus = await Transaction.findByIdAndUpdate(
       _id,
       {
         $set: {
-          // status: data.status || transaction.status,
+          status,
         },
       },
       {
@@ -111,12 +171,13 @@ export class TransactionService {
       }
     );
 
-    if (!updateStatus) throw new InvalidInputException("Transaction not found");
+    if (!updateStatus)
+      throw new InvalidInputException("Failed to update status");
     return updateStatus;
   }
 
   public async delete(_id: string) {
     const transaction = await Transaction.findByIdAndDelete({ _id });
-    if (!transaction) throw new InvalidInputException("Transaction not found");
+    if (!transaction) throw new NotFoundException("Transaction not found");
   }
 }

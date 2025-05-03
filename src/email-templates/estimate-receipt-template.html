@@ -1,0 +1,491 @@
+<html>
+
+<head>
+    <title>Top Proz</title>
+</head>
+
+<body style="background:#fff; margin:0;">
+
+    <table
+        style="margin:0px auto; max-width: 600px; width: 100%; background: #fff; font-family: Arial, Helvetica, sans-serif; ">
+        <thead>
+    
+        </thead>
+        <tbody>
+            <tr>
+                
+            </tr>
+            <tr>
+                <td style="width: 100%;">
+                    <div class="contBdy"
+                        style="background: #fff; width: 100%; display:block; padding: 30px; border:1px solid #EAEAEA; border-radius: 5px; overflow: hidden;">
+                        <div class="contheadbx" style="text-align: center; margin-bottom: 0px;">
+                            
+                                <img style="width: 100%; max-width: 120px; margin:20px auto; display: block;"
+                                    src="{{companyLogo}}" alt="logo">
+                            
+                            <h1
+                                style="color: #1F1F1F; font-size: 20px;line-height: 30px;font-weight: 600; margin: 0 0 5px;">
+                                Hi {{customerName}}<br>{{proCompanyName}} Sent you Payment Receipt For Estimate</h1>
+                            <h2 style="color:#FE6000; font-size: 20px; line-height: 25px;margin:0;">No.
+                                {{invoiceNumber}}</h2>
+                            <a style="background:#FE6000; font-size:16px; color:#fff; text-decoration: none; padding: 10px 30px; font-weight: 500; display: inline-block; border-radius: 5px; margin:20px auto 20px;"
+                                href={{estimateLink}}>Click To View Estimate</a>
+                        </div>
+                        <div class="contitlGrpBx"
+                            style="background: #fff; margin-bottom: 30px; padding: 20px; border:1px solid #EAEAEA; border-radius: 5px; overflow: hidden;">
+                            <div class="contTilBx" style="margin-bottom: 20px;">
+                                <h4 style="margin:0 0 10px 0; font-size:15px; color:#303135; font-weight: 600;">Job
+
+                                    Title</h4>
+                                <p
+                                    style="margin:0; font-size: 15px; line-height: 20px; font-weight: 400; color:#666666;">
+                                    {{jobTitle}}</p>
+                            </div>
+                            <div class="contTilBx">
+                                <h4 style="margin:0 0 10px 0; font-size:15px; color:#303135; font-weight: 600;">Job
+                                    Description</h4>
+                                <p
+                                    style="margin:0; font-size: 15px; line-height: 20px; font-weight: 400; color:#666666;">
+                                    {{jobDescription}}</p>
+                            </div>
+                        </div>
+                        <div class="contitlGrpBx"
+                            style="background: #fff; width: 100%; box-sizing:border-box; padding: 20px; border:1px solid #EAEAEA; border-radius: 5px; overflow: hidden;">
+                            <table
+                                style="width:100%; border-collapse: collapse; box-sizing: border-box; margin-bottom: 20px;">
+                                <tr style="background:#f1f1f1; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Name:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>
+                                        {{#if businessName}}
+                                            {{businessName}} /
+                                        {{/if}}
+                                            {{customerName}}</strong>
+                                    </td>
+                                </tr>
+                                <tr style="background: #fff; width:100%;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Street Address:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+
+                                        <strong>{{streetAddress}}</strong>
+                                    </td>
+
+                                </tr>
+                                <tr style="background:#f1f1f1; width:100%; border-radius: 5px; overflow: hidden;">
+
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        City:</td>
+
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{city}}</strong>
+                                    </td>
+                                </tr>
+                                <tr style="background: #fff; width:100%;">
+
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        State:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{state}}</strong>
+                                    </td>
+
+                                </tr>
+                                <tr style="background:#f1f1f1; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Zip code:</td>
+
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{zipCode}}</strong>
+                                    </td>
+                                </tr>
+
+                                <tr style="background: #fff; width:100%;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Payment Type:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{paymentType}}</strong>
+                                    </td>
+                                </tr>
+                                <tr style="background:#f1f1f1; width:100%; border-radius: 5px; overflow: hidden;">
+
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Payment ID:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{paymentId}}</strong>
+                                    </td>
+                                </tr>
+                                <tr style="background: #fff; width:100%;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Payment Date:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{paymentDate}}</strong>
+                                    </td>
+
+                                </tr>
+                                <tr style="background:#f1f1f1; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Payment Amount:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>${{paymentAmount}}</strong>
+                                    </td>
+                                </tr>
+                                {{#if bankName}}
+                                <tr style="background:#fff; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Bank Name:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{bankName}}</strong>
+                                    </td>
+                                </tr>
+                                <tr style="background:#f1f1f1; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Reference #:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{reference}}</strong>
+                                    </td>
+                                </tr>
+                                {{/if}}
+                                {{#if companyName}}
+                                <tr style="background:#fff; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Company Name:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{companyName}}</strong>
+                                    </td>
+                                </tr>
+                                <tr style="background:#f1f1f1; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Reference #:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{reference}}</strong>
+                                    </td>
+                                </tr>
+                                {{/if}}
+                                {{#if insuranceName}}
+                                <tr style="background:#fff; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Insurance Name:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{insuranceName}}</strong>
+                                    </td>
+                                </tr>
+                                <tr style="background:#f1f1f1; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Reference #:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{reference}}</strong>
+                                    </td>
+                                </tr>
+                                {{/if}}
+                                {{#if venmoId}}
+                                <tr style="background:#fff; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Venmo Id:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{venmoId}}</strong>
+                                    </td>
+                                </tr>
+                                <tr style="background:#f1f1f1; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Reference #:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{reference}}</strong>
+                                    </td>
+                                </tr>
+                                {{/if}}
+                                {{#if zelleId}}
+                                <tr style="background:#fff; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Zelle Id:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{zelleId}}</strong>
+                                    </td>
+                                </tr>
+                                <tr style="background:#f1f1f1; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Reference #:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{reference}}</strong>
+                                    </td>
+                                </tr>
+                                {{/if}}
+                                {{#if payPalEmail}}
+                                <tr style="background:#fff; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        PayPal Email:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{payPalEmail}}</strong>
+                                    </td>
+                                </tr>
+                                <tr style="background:#f1f1f1; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Reference #:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{reference}}</strong>
+                                    </td>
+                                </tr>
+                                {{/if}}
+                                {{#if creditCard}}
+                                <tr style="background:#fff; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Credit Card Ending With:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{creditCard}}</strong>
+                                    </td>
+                                </tr>
+                                <tr style="background:#f1f1f1; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Credit Card Processing Fee:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>${{creditCardProcessingFee}}</strong>
+                                    </td>
+                                </tr>
+                                <tr style="background:#fff; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Total Charge:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>${{totalAmount}}</strong>
+                                    </td>
+                                </tr>
+                                <tr style="background:#f1f1f1; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Reference #:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{reference}}</strong>
+                                    </td>
+                                </tr>
+                                {{/if}}
+                                {{#if appleId}}
+                                <tr style="background:#fff; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Apple Id:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{appleId}}</strong>
+                                    </td>
+                                </tr>
+                                <tr style="background:#f1f1f1; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Reference #:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{reference}}</strong>
+                                    </td>
+                                </tr>
+                                {{/if}}
+                                {{#if checkNumber}}
+                                <tr style="background:#fff; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Check #:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{checkNumber}}</strong>
+                                    </td>
+                                </tr>
+                                <tr style="background:#f1f1f1; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Reference #:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{reference}}</strong>
+                                    </td>
+                                </tr>
+                                {{/if}}
+                                {{#if googleId}}
+                                <tr style="background:#fff; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Google Id:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{googleId}}</strong>
+                                    </td>
+                                </tr>
+                                <tr style="background:#f1f1f1; width:100%; border-radius: 5px; overflow: hidden;">
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Reference #:</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{reference}}</strong>
+                                    </td>
+                                </tr>
+                                {{/if}}
+                                <tr style="background: #fff; width:100%;">
+
+                                    <td align="left"
+                                        style="padding: 10px; color:#57585A; font-size: 14px; font-weight: 400; border:none;">
+                                        Estimate # :</td>
+                                    <td align="right"
+                                        style="padding: 10px; color:#1E1E1E; font-size: 14px;  border:none;">
+                                        <strong>{{invoiceNumber}}</strong>
+                                    </td>
+                                </tr>
+                            </table>
+                            {{# if paymentNotes}}
+                            <div class="paymentNot"
+                                style="background: #fff6f1;padding: 20px;border-radius: 5px;overflow: hidden;border: 1px dashed #ff5700;">
+                                <h4 style="margin:0 0 10px 0; font-size:15px; color:#303135; font-weight: 500;">Payment
+                                    Note</h4>
+
+                                <p
+                                    style="margin:0; font-size: 15px; font-weight: 400; line-height: 20px; color:#666666;">
+                                    {{paymentNotes}}</p>
+                            </div>
+                            {{/if}}
+                            <div class="contitlGrpBx" style="background: #fff; padding-top: 20px; text-align: center;">
+
+                                <p
+                                    style="font-size: 12px; font-weight: 600; color:#9CA0A8; line-height: 18px; margin: 0;">
+                                    Receipt No. {{receiptNumber}}</p>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="contitlGrpBx"
+                        style="background: #fff; border-bottom:2px solid #EAEAEA; padding: 30px 0; text-align: center;">
+
+                        <ul style="display: block; text-align: center; margin: 0 auto; ">
+                            <li style="list-style: none; margin: 0 5px; display: inline-block;">
+                                <a href="https://www.facebook.com/peakproz"><img style="width: 40px;"
+                                        src="https://peakproz2-uploads.s3.amazonaws.com/equipments/1687946426424.facebook.png"
+                                        alt="#"></a>
+                            </li>
+
+                            <li style="list-style: none; margin: 0 5px; display: inline-block;">
+                                <a href="https://twitter.com/peakproz"><img style="width: 40px;"
+                                        src="https://peakproz2-uploads.s3.amazonaws.com/equipments/1687946426439.twitter.png"
+                                        alt="#"></a>
+                            </li>
+                            <!-- <li style="list-style: none; margin: 0 5px; display: inline-block;">
+                                <a href="#"><img style="width: 40px;"
+                                        src="https://peakproz2-uploads.s3.amazonaws.com/equipments/1687946426439.mail.png"
+                                        alt="#"></a>
+
+                            </li> -->
+
+                            <!-- <li style="list-style: none; margin: 0 5px; display: inline-block;">
+
+                                <a href="#"><img style="width: 40px;"
+                                        src="https://peakproz2-uploads.s3.amazonaws.com/equipments/1687946426440.wifi.png"
+                                        alt="#"></a>
+                            </li> -->
+                            <li style="list-style: none; margin: 0 5px; display: inline-block;">
+                                <a href="https://www.pinterest.com/peakproz/"><img style="width: 40px;"
+                                        src="https://peakproz2-uploads.s3.amazonaws.com/equipments/1687946426439.pint.png"
+                                        alt="#"></a>
+                            </li>
+                            <!-- <li style="list-style: none; margin: 0 5px; display: inline-block;">
+                                <a href="#"><img style="width: 40px;"
+                                        src="https://peakproz2-uploads.s3.amazonaws.com/equipments/1687946426433.gmail.png"
+                                        alt="#"></a>
+                            </li> -->
+                            <li style="list-style: none; margin: 0 5px; display: inline-block;">
+                                <a href="https://www.youtube.com/channel/UC6c3q4adBNMTYQkmUnTZ33w"><img style="width: 40px;"
+                                        src="https://peakproz2-uploads.s3.amazonaws.com/equipments/1687946426440.youtube.png"
+                                        alt="#"></a>
+
+
+                            </li>
+                            <li style="list-style: none; margin: 0 5px; display: inline-block;">
+
+
+                                <a href="https://www.linkedin.com/company/peakproz/about/"><img style="width: 40px;"
+                                        src="https://peakproz2-uploads.s3.amazonaws.com/equipments/1687946426437.linkdin.png"
+                                        alt="#"></a>
+                            </li>
+
+
+                        </ul>
+                    </div>
+                    <div class="contitlGrpBx" style="background: #fff; padding: 30px 0 0; text-align: center;">
+                        <!-- <h5 style="font-size: 16px; line-height: 25px; font-weight: 500; margin: 0;color:#9CA0A8;">If
+                            you have any questions, feel free message us at <br><strong
+                                style="color: #0A0C17;">support@peakproz.com</strong>. All right reserved.</h5> -->
+                        <!-- <a href="#"
+                            style="font-size: 16px; text-decoration: underline;line-height: 25px; font-weight: 500; margin: 0;color:#9CA0A8;">unsubscribe</a> -->
+                        <ul style="display: block; text-align: center; margin:30px auto; padding:0; ">
+                            <li
+                                style="list-style: none; display: inline; margin: 0 0px; padding: 0 10px; border-right: 2px solid #ccc;">
+                                <a href="#"
+                                    style="color: #9CA0A8; font-size: 16px; line-height: 25px; font-weight: 400; margin: 0; text-decoration: underline;">Terms
+                                    of use</a>
+                            </li>
+                            <li style="list-style: none; display: inline; margin: 0 0px; padding: 0 10px;">
+                                <a href="#"
+                                    style="color: #9CA0A8; font-size: 16px; line-height: 25px; font-weight: 400; margin: 0; text-decoration: underline;">Privacy
+                                    Policy</a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+
+                </td>
+
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+
+</html>

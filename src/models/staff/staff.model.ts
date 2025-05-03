@@ -1,39 +1,39 @@
 import mongoose, { model, Schema } from "mongoose";
 import { IStaff } from "./staff.interface";
 
+// Define the schema for the staff collection
 const staffSchema = new Schema<IStaff>({
   staffId: { type: String },
   qrImage: { type: String },
-  alp_timeZone: { type: String },
+  timeZone: { type: String },
   proId: { type: String },
   proEmailId: { type: String },
-  parentLoginId: { type: String, required: true },
-  loginId: { type: String, required: true },
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  mobileNumber: { type: String, required: true },
-  userName: { type: String, required: true },
-  emailId: { type: String, required: true },
-  manager: { type: String },
-  managerLoginId: { type: mongoose.Schema.Types.ObjectId },
-  managerId: { type: mongoose.Schema.Types.ObjectId, ref: "staff" },
+  parentLoginId: { type: String, required: true }, // Parent Login ID is required
+  userId: { type: String, required: true }, // User ID is required
+  firstName: { type: String, required: true }, // First name is required
+  lastName: { type: String, required: true }, // Last name is required
+  mobileNumber: { type: String, required: true }, // Mobile number is required
+  userName: { type: String, required: true }, // Username is required
+  emailId: { type: String, required: true }, // Email is required
+  manager: { type: String }, // Manager name
+  managerLoginId: { type: mongoose.Schema.Types.ObjectId }, // Manager login ID (ObjectId reference)
+  managerId: { type: mongoose.Schema.Types.ObjectId, ref: "staff" }, // Reference to another staff document for manager
   city: { type: String },
   state: { type: String },
-  zipCode: { type: String },
-  role: { type: String, required: true },
-  dateOfJoining: { type: String, required: true },
-  password: { type: String, required: true },
-  confirmPassword: { type: String, required: true },
-  group: { type: String, required: true },
-  vanlynkAccess: { type: Boolean },
-  showOnDispatchboard: { type: Boolean },
-  estimatesReqMgApproval: { type: Boolean },
-  invoicesReqMgApproval: { type: Boolean },
-  ssNumber: { type: String },
-  driverLicenseNumber: { type: String },
-  dob: { type: String },
+  zipCode: { type: String }, // Unified naming for zipCode
+  role: { type: String, required: true }, // Role is required
+  dateOfJoining: { type: String, required: true }, // Date of joining is required
+  password: { type: String, required: true }, // Password is required
+  confirmPassword: { type: String, required: true }, // It is recommended not to store confirmPassword in DB
+  group: { type: String, required: true }, // Group is required
+  vanlynkAccess: { type: Boolean }, // Boolean value indicating vanlynk access
+  showOnDispatchboard: { type: Boolean }, // Boolean for whether to show on dispatchboard
+  estimatesReqMgApproval: { type: Boolean }, // Boolean for manager approval for estimates
+  invoicesReqMgApproval: { type: Boolean }, // Boolean for manager approval for invoices
+  ssNumber: { type: String }, // Social security number
+  driverLicenseNumber: { type: String }, // Driver's license number
+  dob: { type: Date }, // Date of birth (modified to Date type)
   streetAddress: { type: String },
-  zipcode: { type: String },
   homePhone: { type: String },
   w2Elgible: { type: Boolean },
   i9Verified: { type: Boolean },
@@ -43,13 +43,21 @@ const staffSchema = new Schema<IStaff>({
   emergencyPhone2: { type: String },
   weeklySalary: { type: String },
   weeklySalaryValue: { type: String },
-  overTimeAfter8Hrs: { type: Boolean },
+  overTimeAfter8Hrs: { type: Boolean }, // Boolean indicating overtime after 8 hours
   hourlyRateValue: { type: String },
   hourlyRate: { type: String },
-  doubleTimeOver12Hrs: { type: Boolean },
-  commisionRate: { type: Boolean },
-  commisionRange: [{ type: Object }],
+  doubleTimeOver12Hrs: { type: Boolean }, // Double time after 12 hours of work
+  commisionRate: { type: Number }, // Commission rate (changed to Number type)
+  commisionRange: [
+    // Commission range with rate, min and max range
+    {
+      rate: { type: Number },
+      minRange: { type: Number },
+      maxRange: { type: Number },
+    },
+  ],
   payrollFrequency: {
+    // Reference to account settings for payroll frequency
     type: mongoose.Schema.Types.ObjectId,
     ref: "accountsettings",
   },
@@ -61,7 +69,7 @@ const staffSchema = new Schema<IStaff>({
   routingNumber: { type: String },
   accountNumber: { type: String },
   skillLevel: { type: String },
-  skills: [{ type: Object }],
+  skills: [{ type: String }], // Array of skills (changed to an array of strings)
   bio: { type: String },
   comments: { type: String },
   rating: { type: String },
@@ -71,7 +79,7 @@ const staffSchema = new Schema<IStaff>({
   pantLengthSize: { type: String },
   firstMessageHour: { type: String },
   firstMessage: { type: String },
-  paidBreaks: { type: Boolean, default: true },
+  paidBreaks: { type: Boolean, default: true }, // Default value for paid breaks
   deductHrForLunch: { type: Boolean, default: false },
   deductForEachBreak: { type: Boolean, default: false },
   lunchHourForEachBreak: { type: Number, default: 0 },
@@ -88,9 +96,10 @@ const staffSchema = new Schema<IStaff>({
   thirdMessage: { type: String },
   fourthMessage: { type: String },
   autoCheckouts: { type: Boolean },
-  timeCardRequiresForManagerApproval: { type: Boolean, default: false },
+  timeCardRequiresForManagerApproval: { type: Boolean, default: false }, // Default value for manager approval requirement
   autoClockOutAfterXMins: { type: Number },
   staffTimings: [
+    // Array for staff timings and work hours
     {
       id: String,
       day: String,
@@ -107,6 +116,7 @@ const staffSchema = new Schema<IStaff>({
     },
   ],
   sick: {
+    // Sick leave configuration
     yearsBeginOn: { type: String },
     yearBeginDay: { type: Number },
     hoursAvailbleForThisYear: { type: Number },
@@ -114,6 +124,7 @@ const staffSchema = new Schema<IStaff>({
     resetHoursEachNewYear: { type: Boolean },
   },
   vacation: {
+    // Vacation leave configuration
     yearsBeginOn: { type: String },
     yearBeginDay: { type: Number },
     hoursAvailbleForThisYear: { type: Number },
@@ -121,48 +132,53 @@ const staffSchema = new Schema<IStaff>({
     resetHoursEachNewYear: { type: Boolean },
   },
   fileUpload: [
+    // File upload details
     {
       description: { type: String },
       documentName: [{ type: String }],
       documentURL: { type: String },
-      uploadedOn: { type: String },
+      uploadedOn: { type: Date }, // Modified to Date type
       createdby: { type: String },
     },
   ],
   writeupsUpload: [
+    // Write-ups upload details
     {
       writeupsdescription: { type: String },
       writeupsdocumentName: [{ type: String }],
       writeupsdocumentURL: { type: String },
-      writeupsuploadedOn: { type: String },
+      writeupsuploadedOn: { type: Date }, // Modified to Date type
       writeupscreatedby: { type: String },
     },
   ],
   createdBy: { type: String },
-  createdOn: { type: String },
+  createdOn: { type: Date }, // Modified to Date type
   modifiedBy: { type: String },
-  modifiedOn: { type: String },
+  modifiedOn: { type: Date }, // Modified to Date type
   staffPopUp: {
+    // Popup settings for staff info
     rehiredFlag: { type: String, default: "NO" },
-    employementStatus: { type: String, default: "ACTIVE", required: true },
+    employementStatus: { type: String, default: "ACTIVE", required: true }, // Employment status is required
     document: [{ type: Object }],
-    employeeDate: { type: String },
+    employeeDate: { type: Date }, // Modified to Date type
     employeeReason: { type: String },
   },
   licenseStatus: { type: String },
   deviceToken: { type: String },
   clockStatus: { type: Number, default: 0 },
-  isOT: { type: Boolean, default: false },
-  isAfterHours: { type: Boolean, default: false },
+  isOT: { type: Boolean, default: false }, // Boolean indicating if it's overtime
+  isAfterHours: { type: Boolean, default: false }, // Boolean for after hours status
   motionStatus: { type: String, default: "" },
   lastDispatchedWO: { type: String, default: "" },
   todaysTime: { type: Number, default: 0 },
   remainingTime: { type: Number, default: 0 },
   lastKnowLocation: {
+    // Last known location
     lat: { type: String },
     lng: { type: String },
     date: { type: Date },
   },
 });
 
+// Export the Staff model based on the schema
 export const Staff = model<IStaff>("Staff", staffSchema);

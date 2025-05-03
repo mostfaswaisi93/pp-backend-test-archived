@@ -3,12 +3,12 @@ import { ITransaction } from "./transaction.interface";
 
 const transactionSchema = new Schema<ITransaction>(
   {
-    customerId: { type: mongoose.Schema.Types.ObjectId, ref: "customer" },
-    proLoginId: { type: mongoose.Schema.Types.ObjectId, ref: "login" },
+    customerId: { type: mongoose.Schema.Types.ObjectId, ref: "Customer" },
+    proUserId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     invoiceId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: function () {
-        return this.docType.toLowerCase();
+        return this.documentType.toLowerCase(); // Changed 'docType' to 'documentType' for better clarity
       },
     },
     invoiceNumber: { type: String },
@@ -17,33 +17,33 @@ const transactionSchema = new Schema<ITransaction>(
     creditCard: { type: String },
     cardName: { type: String },
     transactionType: { type: String, enum: ["PAYMENT", "REFUND", "WRITE-OFF"] },
-    docType: { type: String, enum: ["ESTIMATE", "INVOICE"] },
+    documentType: { type: String, enum: ["ESTIMATE", "INVOICE"] }, // Changed 'docType' to 'documentType'
     status: { type: String, enum: ["FAILED", "SUCCESS"] },
     amount: { type: Number },
     creditCardProcessingFee: { type: Number },
     creditCardPF: { type: Number },
     totalAmount: { type: Number },
     paymentType: { type: String },
-    ZelleId: { type: String },
-    VenmoId: { type: String },
-    AppleId: { type: String },
-    GoogleId: { type: String },
-    PayPalEmail: { type: String },
-    CompanyName: { type: String },
-    CheckNumber: { type: String },
-    InsuranceName: { type: String },
-    BankName: { type: String },
-    transactionDate: { type: String },
-    transactionNotes: { type: String },
+    zelleId: { type: String }, // Changed 'ZelleId' to 'zelleId' for consistency
+    venmoId: { type: String }, // Changed 'VenmoId' to 'venmoId' for consistency
+    appleId: { type: String }, // Changed 'AppleId' to 'appleId' for consistency
+    googleId: { type: String }, // Changed 'GoogleId' to 'googleId' for consistency
+    payPalEmail: { type: String }, // Changed 'PayPalEmail' to 'payPalEmail' for consistency
+    companyName: { type: String }, // Changed 'CompanyName' to 'companyName' for consistency
+    checkNumber: { type: String }, // Changed 'CheckNumber' to 'checkNumber' for consistency
+    insuranceName: { type: String }, // Changed 'InsuranceName' to 'insuranceName' for consistency
+    bankName: { type: String }, // Changed 'BankName' to 'bankName' for consistency
+    transactionTimestamp: { type: String }, // Changed 'transactionDate' to 'transactionTimestamp' for better clarity
+    transactionRemarks: { type: String }, // Changed 'transactionNotes' to 'transactionRemarks' for clarity
     writeOffReason: { type: String },
     message: { type: String },
-    createdFrom: { type: String, enum: ["AUTHORIZE", "PRO", "CREDIT"] },
-    isRefundRequested: { type: Boolean },
+    source: { type: String, enum: ["AUTHORIZE", "PRO", "CREDIT"] }, // Changed 'createdFrom' to 'source' for better clarity
+    refundRequested: { type: Boolean }, // Changed 'isRefundRequested' to 'refundRequested' for simplicity
     creditAppliedFrom: { type: mongoose.Schema.Types.ObjectId, ref: "invoice" },
     isVoided: { type: Boolean },
-    voidReason: { type: String },
+    cancellationReason: { type: String }, // Changed 'voidReason' to 'cancellationReason' for better clarity
     createdBy: { type: String },
-    createdByRole: { type: String },
+    creatorRole: { type: String }, // Changed 'createdByRole' to 'creatorRole' for clarity
     voidedBy: { type: String },
     voidedAt: { type: Date },
     details: {
@@ -58,7 +58,7 @@ const transactionSchema = new Schema<ITransaction>(
       zipcode: { type: String },
     },
     isVerified: { type: Boolean, default: false },
-    verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: "login" },
+    verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }
 );

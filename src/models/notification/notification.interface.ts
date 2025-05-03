@@ -5,20 +5,20 @@ export interface INotification extends Document {
   time: string;
   name: string;
   emailId: string;
-  fireBaseId: string;
+  firebaseId: string;
   deviceId: string;
   proId: string;
   proLoginId: string;
   proEmailId: string;
-  role: string; // Default: 'STAFF'
-  workordernumber: string;
+  role: string;
+  workOrderNumber: string;
   image: string;
-  deleteFlag: boolean; // Default: false
-  loginId: string;
+  isDeleted: boolean;
+  userId: string;
   title: string;
   body: string;
-  notificationType: string; // 'normal', 'question'
-  isRead: boolean; // Default: false
+  type: string;
+  isRead: boolean;
   answer: string;
-  otherData: object; // ALP CODE DO NOT TOUCH
+  otherData?: Record<string, unknown>;
 }

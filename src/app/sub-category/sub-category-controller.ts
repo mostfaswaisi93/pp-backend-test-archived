@@ -7,7 +7,7 @@ import { Category } from "../../models/category/category.model";
 import {
   create,
   update,
-  getCategory,
+  getSubCategory,
   updateStatus,
 } from "./sub-category-validation";
 import HttpResWrapper from "../../commons/http-response/http-res-wrapper";
@@ -36,42 +36,42 @@ export default class SubCategoryController implements Controller {
       authenticate,
       checkRole.bind(AuthService.Instance, "superadmin"),
     ];
-    this.router.post("/create", superadminOnly, create, this.createCategory);
+    this.router.post("/create", superadminOnly, create, this.createSubCategory);
     this.router.get(
-      "/getCategoryById/:_id",
+      "/getSubCategoryById/:_id",
       superadminOnly,
-      getCategory,
-      this.getCategoryById
+      getSubCategory,
+      this.getSubCategoryById
     );
     this.router.get(
-      "/getLastCategoryId",
+      "/getLastSubCategoryId",
       superadminOnly,
-      this.getLastCategoryId
+      this.getLastSubCategoryId
     );
-    this.router.get("/", this.getCategories);
-    this.router.get("/getCategoriesWithSSP", this.getCategoriesWithSSP);
-    this.router.post("/getCategoryName", this.getCategoryName);
+    this.router.get("/", this.getSubCategories);
+    this.router.get("/getSubCategoriesWithSSP", this.getSubCategoriesWithSSP);
+    // this.router.post("/getSubCategoryName", this.getSubCategoryName);
     this.router.put(
       "/update/:_id",
       superadminOnly,
       update,
-      this.updateCategory
+      this.updateSubCategory
     );
     this.router.put(
-      "/updateCategoryStatus/:_id",
+      "/updateSubCategoryStatus/:_id",
       superadminOnly,
       updateStatus,
-      this.updateCategoryStatus
+      this.updateSubCategoryStatus
     );
     this.router.delete(
       "/delete/:_id",
       superadminOnly,
-      getCategory,
-      this.deleteCategory
+      getSubCategory,
+      this.deleteSubCategory
     );
   }
 
-  public createCategory = async (
+  public createSubCategory = async (
     request: Request,
     response: Response,
     next: NextFunction
@@ -85,13 +85,13 @@ export default class SubCategoryController implements Controller {
     }
   };
 
-  public getCategoryById = async (
+  public getSubCategoryById = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const category = await this.subCategoryService.getCategoryById(
+      const category = await this.subCategoryService.getSubCategoryById(
         req.params._id
       );
       const message = "Category retrieved successfully by ID.";
@@ -101,13 +101,13 @@ export default class SubCategoryController implements Controller {
     }
   };
 
-  public getLastCategoryId = async (
+  public getLastSubCategoryId = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const category = await this.subCategoryService.getLastCategoryId();
+      const category = await this.subCategoryService.getLastSubCategoryId();
       const message = "Last category retrieved successfully by ID.";
       return this.httpResWrapper.success(res, message, category);
     } catch (error) {
@@ -115,9 +115,9 @@ export default class SubCategoryController implements Controller {
     }
   };
 
-  public getCategories = async (request: Request, response: Response) => {
+  public getSubCategories = async (request: Request, response: Response) => {
     try {
-      const categories = await this.subCategoryService.getCategories();
+      const categories = await this.subCategoryService.getSubCategories();
       const message = "Categories retrieved successfully";
       return this.httpResWrapper.success(response, message, categories);
     } catch (error) {
@@ -125,7 +125,7 @@ export default class SubCategoryController implements Controller {
     }
   };
 
-  public getCategoriesWithSSP = async (
+  public getSubCategoriesWithSSP = async (
     req: Request,
     res: Response
   ): Promise<void> => {
@@ -165,34 +165,34 @@ export default class SubCategoryController implements Controller {
     }
   };
 
-  public getCategoryName = async (
-    request: Request,
-    response: Response
-  ): Promise<void> => {
-    try {
-      const result = await this.subCategoryService.getCategoryName(
-        request.body
-      );
+  // public getSubCategoryName = async (
+  //   request: Request,
+  //   response: Response
+  // ): Promise<void> => {
+  //   try {
+  //     const result = await this.subCategoryService.getSubCategoryName(
+  //       request.body
+  //     );
 
-      if (result.error) {
-        return this.httpResWrapper.success(response, result.message);
-      }
+  //     if (result.error) {
+  //       return this.httpResWrapper.success(response, result.message);
+  //     }
 
-      const categories = result.categories || [];
+  //     const categories = result.categories || [];
 
-      if (categories.length > 0) {
-        const message = "Categories fetched successfully.";
-        return this.httpResWrapper.success(response, message, categories);
-      } else {
-        const message = "Categories not found.";
-        return this.httpResWrapper.error(response, message);
-      }
-    } catch (error) {
-      return this.httpResWrapper.error(response, error);
-    }
-  };
+  //     if (categories.length > 0) {
+  //       const message = "Categories fetched successfully.";
+  //       return this.httpResWrapper.success(response, message, categories);
+  //     } else {
+  //       const message = "Categories not found.";
+  //       return this.httpResWrapper.error(response, message);
+  //     }
+  //   } catch (error) {
+  //     return this.httpResWrapper.error(response, error);
+  //   }
+  // };
 
-  public updateCategory = async (
+  public updateSubCategory = async (
     request: Request,
     response: Response,
     next: NextFunction
@@ -209,7 +209,7 @@ export default class SubCategoryController implements Controller {
     }
   };
 
-  public updateCategoryStatus = async (
+  public updateSubCategoryStatus = async (
     request: Request,
     response: Response,
     next: NextFunction
@@ -230,7 +230,7 @@ export default class SubCategoryController implements Controller {
     }
   };
 
-  public deleteCategory = async (
+  public deleteSubCategory = async (
     req: Request,
     res: Response,
     next: NextFunction

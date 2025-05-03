@@ -1,4 +1,5 @@
 export interface ITruckStockingListDetail {
+  _id?: string;
   itemId: string;
   itemName: string;
   partId: string;
@@ -17,8 +18,9 @@ export interface ITruckStockingListDetail {
 }
 
 export interface ITruckOrder {
+  _id?: string;
   proId: string;
-  loginId: string;
+  userId: string;
   proEmailId: string;
   trucklocationId: string;
   truckOrderId: string;

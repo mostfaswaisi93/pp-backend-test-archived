@@ -13,22 +13,37 @@ export class NotificationService {
   }
 
   async create(data: INotification) {
-    // if (!data.day || !data.fromTime || !data.toTime) {
-    //   throw new InvalidInputException("Missing required fields");
-    // }
+    if (!data.title || !data.body) {
+      throw new InvalidInputException("Missing required fields: title or body");
+    }
 
-    let existingNotification = await Notification.findOne({
-      // day: data.day,
-    });
+    let existingNotification = await Notification.findOne({});
     if (existingNotification) {
       throw new InvalidInputException(
-        "Notification already exists for this day"
+        "Notification already exists with similar details"
       );
     }
 
     let notification = new Notification({
-      // day: data.day,
-      // status: data.status ?? "OPEN",
+      title: data.title,
+      body: data.body,
+      date: data.date,
+      time: data.time,
+      emailId: data.emailId,
+      firebaseId: data.firebaseId,
+      deviceId: data.deviceId,
+      proId: data.proId,
+      proLoginId: data.proLoginId,
+      proEmailId: data.proEmailId,
+      role: data.role ?? "STAFF",
+      workOrderNumber: data.workOrderNumber,
+      image: data.image,
+      isDeleted: data.isDeleted ?? false,
+      userId: data.userId,
+      type: data.type,
+      isRead: data.isRead ?? false,
+      answer: data.answer,
+      otherData: data.otherData,
     });
 
     try {
@@ -62,26 +77,29 @@ export class NotificationService {
       throw new NotFoundException("Notification not found");
     }
 
-    // if (data.day) {
-    //   let existingNotification = await Notification.findOne({
-    //     day: data.day,
-    //     _id: { $ne: _id },
-    //   });
-    //   if (existingNotification) {
-    //     throw new InvalidInputException(
-    //       "Notification already exists for this day"
-    //     );
-    //   }
-    // }
-
     let updatedNotification = await Notification.findByIdAndUpdate(
       _id,
       {
         $set: {
-          // day: data.day ?? notification.day,
-          // fromTime: data.fromTime ?? notification.fromTime,
-          // toTime: data.toTime ?? notification.toTime,
-          // status: data.status ?? notification.status,
+          title: data.title ?? notification.title,
+          body: data.body ?? notification.body,
+          date: data.date ?? notification.date,
+          time: data.time ?? notification.time,
+          emailId: data.emailId ?? notification.emailId,
+          firebaseId: data.firebaseId ?? notification.firebaseId,
+          deviceId: data.deviceId ?? notification.deviceId,
+          proId: data.proId ?? notification.proId,
+          proLoginId: data.proLoginId ?? notification.proLoginId,
+          proEmailId: data.proEmailId ?? notification.proEmailId,
+          role: data.role ?? notification.role,
+          workOrderNumber: data.workOrderNumber ?? notification.workOrderNumber,
+          image: data.image ?? notification.image,
+          isDeleted: data.isDeleted ?? notification.isDeleted,
+          userId: data.userId ?? notification.userId,
+          type: data.type ?? notification.type,
+          isRead: data.isRead ?? notification.isRead,
+          answer: data.answer ?? notification.answer,
+          otherData: data.otherData ?? notification.otherData,
         },
       },
       { new: true }
@@ -104,7 +122,7 @@ export class NotificationService {
       _id,
       {
         $set: {
-          // status: data.status || notification.status,
+          // update status here
         },
       },
       {

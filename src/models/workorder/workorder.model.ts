@@ -9,11 +9,11 @@ const workorderSchema = new Schema<IWorkorder>(
     proSystemId: { type: String },
     customerName: { type: String },
     customerSince: { type: String },
-    emailId: { type: String, required: true },
+    email: { type: String, required: true }, // Changed 'emailId' to 'email'
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    phoneNumber: { type: String, required: true },
-    phoneType: { type: String },
+    phone: { type: String, required: true }, // Changed 'phoneNumber' to 'phone'
+    phoneCategory: { type: String }, // Changed 'phoneType' to 'phoneCategory'
     streetAddress: { type: String, required: true },
     zipcode: { type: String, required: true },
     unit: { type: String },
@@ -21,16 +21,16 @@ const workorderSchema = new Schema<IWorkorder>(
     state: { type: String, required: true },
     county: { type: String, required: true },
     adminNotes: { type: String },
-    sendinvoiceBy: { type: String },
+    sendInvoiceBy: { type: String }, // Changed 'sendinvoiceBy' to 'sendInvoiceBy'
     invoiceEmail: { type: String },
-    sendinvoiceTo: { type: String },
+    sendInvoiceTo: { type: String }, // Changed 'sendinvoiceTo' to 'sendInvoiceTo'
     customerType: { type: String },
     jobdispatchtextNo: { type: String },
     po: { type: String },
     source: { type: String },
     paymentMethod: { type: String },
-    customercreditLimit: { type: Number },
-    customercreditLimitRequired: { type: Boolean, default: false },
+    customerCreditLimit: { type: Number }, // Changed 'customercreditLimit' to 'customerCreditLimit'
+    customerCreditLimitRequired: { type: Boolean, default: false }, // Changed 'customercreditLimitRequired' to 'customerCreditLimitRequired'
     terms: { type: String },
     poRequired: { type: String },
     promoCode: { type: String },
@@ -40,19 +40,19 @@ const workorderSchema = new Schema<IWorkorder>(
     reCall: { type: Boolean, default: false },
     preWorkChecklistNeeded: { type: Boolean, default: false },
     postWorkChecklistNeeded: { type: Boolean, default: false },
-    sendRemainderToAssignedWo: { type: String },
-    sendRemainderstaffloginId: { type: String },
+    sendReminderToAssignedWo: { type: String }, // Changed 'sendRemainderToAssignedWo' to 'sendReminderToAssignedWo'
+    sendReminderStaffLoginId: { type: String }, // Changed 'sendRemainderstaffloginId' to 'sendReminderStaffLoginId'
     notes: { type: String },
     group: { type: String },
     groupId: { type: String },
-    ServiceAddress: { type: Object },
-    WorkDescription: { type: Object },
+    serviceAddress: { type: Object }, // Changed 'ServiceAddress' to 'serviceAddress'
+    workDescription: { type: Object }, // Changed 'WorkDescription' to 'workDescription'
     status: { type: String },
     createdBy: { type: String },
-    createdOn: { type: String },
+    createdDate: { type: String }, // Changed 'createdOn' to 'createdDate'
     modifiedBy: { type: String },
     modifiedByEmail: { type: String },
-    modifiedOn: { type: String },
+    modifiedDate: { type: String }, // Changed 'modifiedOn' to 'modifiedDate'
   },
   { timestamps: true }
 );

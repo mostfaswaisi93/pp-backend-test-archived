@@ -1,4 +1,3 @@
-// interfaces/IWorkDescription.ts
 export interface IWorkDescription {
   jobTitle?: string;
   estimatedHours?: string;
@@ -7,17 +6,17 @@ export interface IWorkDescription {
   endDate?: string;
   startTime?: string;
   endTime?: string;
-  selectCategory?: string;
-  selectsubCategory?: string;
-  makeReoccuring?: string;
-  makeReccour?: boolean;
+  category?: string;  // Renamed for clarity
+  subCategory?: string;  // Renamed for clarity
+  makeRecurring?: string;  // Corrected spelling
+  makeRecur?: boolean;  // Corrected spelling
   allDay?: boolean;
-  Document?: any[];
+  documents?: any[];  // Renamed for clarity
   images?: any[];
   filename?: string;
-  createdOn?: string;
-  alpDateRange?: string[];
+  createdDate?: string;  // Renamed for consistency
+  dateRange?: string[];  // Renamed for clarity
   startDateUTC?: string;
   endDateUTC?: string;
-  createddateUTC?: string;
+  createdDateUTC?: string;  // Renamed for consistency
 }

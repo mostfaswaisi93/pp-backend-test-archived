@@ -4,10 +4,10 @@ import { isValidMongoId } from "../../commons/validators/validators";
 
 const messages = {
   requiredField: "This field is required",
-  invalidDay: "Day must be a valid string representing a day of the week",
-  invalidFromTime: "FromTime must be a valid date/time",
-  invalidToTime: "ToTime must be a valid date/time",
-  invalidStatus: "Status must be either OPEN or CLOSED",
+  invalidStatus: "Status must be either ACTIVE or INACTIVE",
+  invalidEmail: "Invalid email format",
+  invalidBoolean: "Must be a boolean value",
+  invalidString: "Must be a valid string",
 };
 
 // Validation for Get Vendor by ID
@@ -15,34 +15,40 @@ export const getVendor = [isValidMongoId("_id"), validate];
 
 // Validation for Create Vendor
 export const create = [
-  body("day")
+  body("vendorName")
     .notEmpty()
     .withMessage(messages.requiredField)
     .isString()
-    .withMessage(messages.invalidDay),
-
-  body("fromTime")
+    .withMessage(messages.invalidString),
+  body("vendorId")
     .notEmpty()
     .withMessage(messages.requiredField)
-    .isISO8601()
-    .withMessage(messages.invalidFromTime),
-
-  body("toTime")
+    .isString()
+    .withMessage(messages.invalidString),
+  body("eligible1099")
     .notEmpty()
     .withMessage(messages.requiredField)
-    .isISO8601()
-    .withMessage(messages.invalidToTime),
-
+    .isBoolean()
+    .withMessage(messages.invalidBoolean),
   body("status")
     .optional()
-    .isIn(["OPEN", "CLOSED"])
+    .isIn(["ACTIVE", "INACTIVE"])
     .withMessage(messages.invalidStatus),
-
+  body("representativeEmail")
+    .optional()
+    .isEmail()
+    .withMessage(messages.invalidEmail)
+    .normalizeEmail(),
+  body("phoneNumber").optional().isString().withMessage(messages.invalidString),
+  body("state").optional().isString().withMessage(messages.invalidString),
+  body("city").optional().isString().withMessage(messages.invalidString),
+  body("zipcode").optional().isString().withMessage(messages.invalidString),
+  body("createdBy").optional().isString().withMessage(messages.invalidString),
   validate,
 ];
 
 // Validation for Update Vendor
-export const update = [isValidMongoId("_id"), ...create.slice(0, -1), validate];
+export const update = [isValidMongoId("_id"), ...create.slice(1, -1), validate];
 
 // Validation for Update Status Only
 export const updateStatus = [
@@ -50,7 +56,7 @@ export const updateStatus = [
   body("status")
     .notEmpty()
     .withMessage(messages.requiredField)
-    .isIn(["OPEN", "CLOSED"])
+    .isIn(["ACTIVE", "INACTIVE"])
     .withMessage(messages.invalidStatus),
   validate,
 ];

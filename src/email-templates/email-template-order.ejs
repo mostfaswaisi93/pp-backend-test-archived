@@ -1,0 +1,405 @@
+<html>
+
+<head>
+
+    <!-- CHARSET -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+    <!-- MOBILE FIRST -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+    <!-- GOOGLE FONTS -->
+
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+
+    <!-- RESPONSIVE CSS -->
+    <style type="text/css">
+        @media only screen and (max-width: 550px) {
+            .responsive_at_550 {
+                width: 90% !important;
+                max-width: 90% !important;
+            }
+        }
+    </style>
+
+</head>
+<!-- END HEAD -->
+
+<!-- START BODY -->
+
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" style="background-color:rgb(231, 231, 231);">
+
+    <!-- START WRAPPER TABLE CONTENT -->
+    <table class="wrapper" width="100%" border="0" cellpadding="0" cellspacing="0" align="center"
+        style="background-color:rgb(231, 231, 231);">
+        <tbody style="background-color:rgb(231, 231, 231);">
+            <tr style="background-color:rgb(231, 231, 231);">
+                <td align="center" bgcolor="#F1F4FD" style="background-color:rgb(231, 231, 231);">
+
+                    <!-- START EMAIL CONTENT TABLE -->
+                    <table class="email-content" width="100%" border="0" cellpadding="0" cellspacing="0" align="center">
+                        <tbody>
+                            <tr>
+                                <td width="100%" align="center">
+
+                                    <!-- START SPACING -->
+                                    <table class="spacing" width="100%" border="0" cellpadding="0" cellspacing="0"
+                                        align="center">
+                                        <tbody>
+                                            <tr>
+                                                <td height="40">&nbsp;</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <!-- END SPACING -->
+
+                                    <!-- START LOGO TABLE -->
+                                    <table class="logo" width="200" border="0" cellpadding="0" cellspacing="0"
+                                        align="center">
+                                        <tbody>
+                                            <tr>
+                                                <td width="100%" align="center">
+                                                    <img width="200"
+                                                        src="http://peakproz2.s3-website-us-east-1.amazonaws.com/assets/img/tp-new-logofull.png"
+                                                        alt="peakproz Logo" border="0" style="text-align: center;" />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <!-- END LOGO TABLE -->
+
+                                    <!-- START SPACING -->
+                                    <table class="spacing" width="100%" border="0" cellpadding="0" cellspacing="0"
+                                        align="center">
+                                        <tbody>
+                                            <tr>
+                                                <td height="40">&nbsp;</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <!-- END SPACING -->
+
+                                    <!-- START MAIN CONTENT CARD -->
+                                    <table width="900" border="0" radius="30px" cellpadding="0" cellspacing="0"
+                                        align="center"
+                                        style="padding-left:20px; padding-right:20px;border-radius: 25px;min-width: 883px;"
+                                        class="responsive_at_550 email-card">
+                                        <tbody>
+                                            <tr style="direction: ltr !important;">
+                                                <td align="center" style=" border-radius: 25px;position: relative;"
+                                                    bgcolor="#ffffff">
+
+                                                    <!-- START SPACING -->
+                                                    <table class="spacing" width="100%" border="0" cellpadding="0"
+                                                        cellspacing="0" align="center">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td height="40">&nbsp;</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <!-- END SPACING -->
+
+                                                    <!-- START HEADING -->
+                                                    <table class="email-card-heading" width="90%" border="0"
+                                                        cellpadding="0" cellspacing="0" align="center">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td width="100%" align="left">
+                                                                    <h1
+                                                                        style="font-family:'Ubuntu', sans-serif; font-size:22px;margin-bottom: 24px; color:#202020; font-weight:bold; padding-left:20px; padding-right:20px;">
+                                                                        Hello <%= mailData.name %>, </h1>
+
+                                                                    <h3
+                                                                        style="font-family:'Ubuntu', sans-serif; font-size:20px; font-weight: 400; line-height:28px; color:#202020; padding-left:20px; padding-right:20px; text-align:justify;">
+                                                                        <%= mailData.desc %></h3>
+
+
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <!-- END HEADING -->
+
+                                                    <!-- START SPACING -->
+                                                    <table class="spacing" width="100%" border="0" cellpadding="0"
+                                                        cellspacing="0" align="center">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td height="10">&nbsp;</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <!-- END SPACING -->
+
+                                                    <!-- START PARAGRAPH -->
+                                                    <table class="email-paragraph" width="90%" style=" 
+                                                border-radius: 25px 0 25px 0;
+                                                " border="0" cellpadding="0" cellspacing="0" align="center">
+                                                        <tbody>
+
+                                                            <!-- START LISTING INFO -->
+                                                            <tr>
+
+                                                                <td width="100%" align="center" style="display: block">
+
+                                                                    <p
+                                                                        style="font-family:'Ubuntu', sans-serif;float: left;width: 100%; margin: 8px 0; display: block; font-size:17px; color:#202020; padding-left:20px; padding-right:20px; text-align:justify;font-weight: 700;">
+                                                                        PRO Name: <span
+                                                                            style="color: #2020209e; font-size: 14px; "><%= mailData.proName %></span>
+                                                                    </p>
+
+                                                                </td>
+
+                                                            </tr>
+
+                                                            <tr>
+
+                                                                <td width="100%" align="center" style="display: block">
+
+                                                                    <p
+                                                                        style="font-family:'Ubuntu', sans-serif;float: left;width: 100%; margin: 8px 0; display: block; font-size:17px; color:#202020; padding-left:20px; padding-right:20px; text-align:justify;font-weight: 700;">
+                                                                        PRO ID: <span
+                                                                            style="color: #2020209e; font-size: 14px; "><%= mailData.proId %></span>
+                                                                    </p>
+
+                                                                </td>
+
+                                                            </tr>
+
+
+                                                            <tr>
+
+                                                                <td width="100%" align="center" style="display: block">
+
+                                                                    <p
+                                                                        style="font-family:'Ubuntu', sans-serif;float: left;width: 100%; margin: 8px 0; display: block; font-size:17px; color:#202020; padding-left:20px; padding-right:20px; text-align:justify;font-weight: 700;">
+                                                                        Order ID: <span
+                                                                            style="color: #2020209e; font-size: 14px; "><%= mailData.orderId %></span>
+                                                                    </p>
+
+                                                                </td>
+
+                                                            </tr>
+
+                                                            <tr>
+
+                                                                <td width="100%" align="center" style="display: block">
+
+                                                                    <p
+                                                                        style="font-family:'Ubuntu', sans-serif;float: left;width: 100%; margin: 8px 0; display: block; font-size:17px; color:#202020; padding-left:20px; padding-right:20px; text-align:justify;font-weight: 700;">
+                                                                        Status: <span
+                                                                            style="color: #2020209e; font-size: 14px; "><%=  mailData.status  %></span>
+                                                                    </p>
+
+                                                                </td>
+
+                                                            </tr>
+
+                                                            <% if( mailData.status == ('CANCELLED_BY_USER'||'CANCELLED_BY_ADMIN')){ %>
+                                                                <tr>
+
+                                                                    <td width="100%" align="center" style="display: block">
+    
+    
+                                                                        <p
+                                                                            style="font-family:'Ubuntu', sans-serif;float: left;width: 100%; margin: 8px 0; display: block; font-size:17px; color:#202020; padding-left:20px; padding-right:20px; text-align:justify;font-weight: 700;">
+                                                                            Cancellation Reason: <span
+                                                                                style="color: #2020209e; font-size: 14px; ">  <%=  mailData.cancellationReason %> </span>
+                                                                        </p>
+    
+                                                                    </td>
+    
+                                                                </tr>
+                                                             <% } %>
+
+                                                           
+
+                                                            <tr>
+
+
+
+                                                                <!--   <tr>
+                                                        <td width="100%" align="center" style="display: block">
+                                                            
+                                                            <p
+                                                                style="font-family:'Ubuntu', sans-serif;width: 100%;float: left; margin: 8px 0; display: block; font-size:17px; color:#202020; padding-left:20px; padding-right:20px; text-align:justify;font-weight: 700;">
+                                                                Name of Clinic: <span
+                                                                    style="color: #2020209e; font-size: 14px; ">${mailData.ClinicName}</span>
+                                                            </p>
+            
+                                                        </td>
+            
+                                                    </tr>
+                                                    -->
+                                                                <!--   <tr>
+            
+                                                        <td width="100%" align="center" style="display: block">
+            
+                                                            <p
+                                                                style="font-family:'Ubuntu', sans-serif;float: left;width: 100%; margin: 8px 0; display: block; font-size:17px; color:#202020; padding-left:20px; padding-right:20px; text-align:justify;font-weight: 700;">
+                                                                Phone Number of the Clinic: <span
+                                                                    style="color: #2020209e; font-size: 14px; "><a style="color:#ff6700" href="tel:${mailData.ClinicPhone}">${mailData.ClinicPhone}</a></span>
+                                                            </p>
+            
+                                                        </td>
+            
+                                                    </tr> -->
+
+                                                                <!--  <td width="100%" align="center" style="display: block">
+                                                        
+            
+                                                    <p
+                                                    style="font-family:'Ubuntu', sans-serif;float: left;width: 100%; margin: 8px 0; display: block; font-size:17px; color:#202020; padding-left:20px; padding-right:20px; text-align:justify;font-weight: 700;">
+                                                    Clinic Address: <span
+                                                        style="color: #2020209e; font-size: 14px; ">${mailData.address}</span>
+                                                    </p>
+            
+                                                </td> -->
+
+                                                            </tr>
+
+                                                            <!-- END LISTING INFO -->
+
+                                                            <!-- START VIEW APPOINTMENT BUTTONS -->
+                                                            <tr>
+
+                                                                <td width="100%" align="center"
+                                                                    style="display: flex;margin-bottom: 10px;">
+                                                                </td>
+
+
+                                                                <td width="100%" align="center" style="display: block">
+
+                                                                    <!--  <p
+                                                                style="
+                                                                font-family:'Ubuntu', sans-serif; 
+                                                                margin: 4px 0px;
+                                                                height: 26px;
+                                                                line-height: 26px;
+                                                                float: left; 
+                                                                display: block; 
+                                                                font-size:12px; 
+                                                                color:#2020209e; 
+                                                                padding-left:20px; 
+                                                                padding-right:20px; 
+                                                                text-align:justify;
+                                                                font-weight: 600;">
+                                                                If you would like to view the appointment info, please follow this link  
+                                                            </p> -->
+                                                                    <!-- <a style="
+                                                            float: right;
+                                                            margin: 4px 0px;
+                                                            background: #3E3179;
+                                                            border: 0;
+                                                            float: right;
+                                                            color: white;
+                                                            border-radius: 3px;
+                                                            padding: 18px 18px;
+                                                            
+                                                            " href="${mailData.appointmentUrl}">View Order</a>
+             -->
+                                                                     
+                                                                    <a href="<%= mailData.url  %>" target="_blank" style="
+                                                                margin-left: auto;
+                                                                margin-right: auto;
+                                                                margin-top: 20px;
+                                                                width:fit-content;
+                                                                background:#ff6700;
+                                                                color: #fff;
+                                                                padding: 15px 30px;
+                                                                border-radius: 4px;
+                                                                display: block;
+                                                                font-family:'Ubuntu', sans-serif;
+                                                                font-weight: 500;
+                                                                text-align: center;
+                                                                text-transform: uppercase;
+                                                                text-decoration: none;">View Order</a>
+                                                                   
+                                                                    
+
+                                                                </td>
+
+
+                                                            </tr>
+
+                                                            <tr>
+
+                                                                <td width="100%" align="center"
+                                                                    style="display: flex;margin-bottom: 10px;">
+
+                                                                </td>
+                                                            </tr>
+                                                            <!-- END VIEW APPOINTMENT BUTTONS -->
+
+
+                                                            <!-- END CONTACT INFO -->
+
+                                                            <!--    <tr>
+                                                        <td height="40">&nbsp;</td>
+                                                    </tr> -->
+
+                                                          <!--   <tr>
+                                                                <td width="100%" align="center" style="display: block">
+
+                                                                    <p
+                                                                        style="text-align: center;font-family:'Ubuntu', sans-serif;width: 100%; margin: 8px 0; display: block; font-size:17px; color:#202020; font-weight: 700;">
+                                                                        Please reach out to us with any questions or
+                                                                        concerns.
+                                                                    </p>
+
+                                                                </td>
+
+                                                            </tr>
+
+                                                            <td width="100%" align="center" style="display: block">
+
+                                                                <p
+                                                                    style="font-family:'Ubuntu', sans-serif; margin: 8px 0;float: left; display: block; font-size:12px; color:#2020209e; padding-left:20px; padding-right:20px; text-align:justify;font-weight: 700;">
+                                                                    Email: <a style="color:#ff6700"
+                                                                        href="mailto:support@bioki.app ">support@peakproz.com</a>
+                                                                </p>
+
+                                                            </td> -->
+
+                                                            <!-- END CONTACT INFO -->
+
+                                                            <tr>
+                                                                <td height="30">&nbsp;</td>
+                                                            </tr>
+
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <!-- END MAIN CONTENT CARD -->
+
+                                    <!-- START SPACING -->
+                                    <table class="spacer" width="100%" border="0" cellpadding="0" cellspacing="0"
+                                        align="center">
+                                        <tbody>
+                                            <tr>
+                                                <td height="40">&nbsp;</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <!-- END SPACING -->
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <!-- END EMAIL CONTENT TABLE -->
+
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <!-- END WRAPPER -->
+
+    <!-- END BODY -->
+</body>
+
+</html>

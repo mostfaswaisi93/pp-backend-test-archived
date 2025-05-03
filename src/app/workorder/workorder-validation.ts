@@ -4,10 +4,13 @@ import { isValidMongoId } from "../../commons/validators/validators";
 
 const messages = {
   requiredField: "This field is required",
-  invalidDay: "Day must be a valid string representing a day of the week",
-  invalidFromTime: "FromTime must be a valid date/time",
-  invalidToTime: "ToTime must be a valid date/time",
-  invalidStatus: "Status must be either OPEN or CLOSED",
+  invalidStatus: "Status must be either ACTIVE, CLOSED, or PENDING", // Adjusted to reflect new status options
+  invalidEmail: "Email must be a valid email address",
+  invalidPhone: "Phone must be a valid phone number",
+  invalidZipcode: "Zipcode must be a valid string",
+  invalidCity: "City must be a valid string",
+  invalidState: "State must be a valid string",
+  invalidCounty: "County must be a valid string",
 };
 
 // Validation for Get Workorder by ID
@@ -15,34 +18,73 @@ export const getWorkorder = [isValidMongoId("_id"), validate];
 
 // Validation for Create Workorder
 export const create = [
-  body("day")
+  body("email")
+    .notEmpty()
+    .withMessage(messages.requiredField)
+    .isEmail()
+    .withMessage(messages.invalidEmail),
+
+  body("firstName")
     .notEmpty()
     .withMessage(messages.requiredField)
     .isString()
-    .withMessage(messages.invalidDay),
+    .withMessage("First Name must be a valid string"),
 
-  body("fromTime")
+  body("lastName")
     .notEmpty()
     .withMessage(messages.requiredField)
-    .isISO8601()
-    .withMessage(messages.invalidFromTime),
+    .isString()
+    .withMessage("Last Name must be a valid string"),
 
-  body("toTime")
+  body("phone")
     .notEmpty()
     .withMessage(messages.requiredField)
-    .isISO8601()
-    .withMessage(messages.invalidToTime),
+    .isMobilePhone("any") // تحديد أي رقم هاتف بغض النظر عن الدولة
+    .withMessage(messages.invalidPhone),
+  body("streetAddress")
+    .notEmpty()
+    .withMessage(messages.requiredField)
+    .isString()
+    .withMessage("Street Address must be a valid string"),
+
+  body("zipcode")
+    .notEmpty()
+    .withMessage(messages.requiredField)
+    .isString()
+    .withMessage(messages.invalidZipcode),
+
+  body("city")
+    .notEmpty()
+    .withMessage(messages.requiredField)
+    .isString()
+    .withMessage(messages.invalidCity),
+
+  body("state")
+    .notEmpty()
+    .withMessage(messages.requiredField)
+    .isString()
+    .withMessage(messages.invalidState),
+
+  body("county")
+    .notEmpty()
+    .withMessage(messages.requiredField)
+    .isString()
+    .withMessage(messages.invalidCounty),
 
   body("status")
     .optional()
-    .isIn(["OPEN", "CLOSED"])
+    .isIn(["ACTIVE", "CLOSED", "PENDING"]) // Adjusted to match possible status values
     .withMessage(messages.invalidStatus),
 
   validate,
 ];
 
 // Validation for Update Workorder
-export const update = [isValidMongoId("_id"), ...create.slice(0, -1), validate];
+export const update = [
+  isValidMongoId("_id"),
+  ...create.slice(0, -1), // Reusing the create validation logic for common fields
+  validate,
+];
 
 // Validation for Update Status Only
 export const updateStatus = [
@@ -50,7 +92,7 @@ export const updateStatus = [
   body("status")
     .notEmpty()
     .withMessage(messages.requiredField)
-    .isIn(["OPEN", "CLOSED"])
+    .isIn(["ACTIVE", "CLOSED", "PENDING"]) // Adjusted to match possible status values
     .withMessage(messages.invalidStatus),
   validate,
 ];

@@ -1,12 +1,14 @@
 import mongoose, { Document } from "mongoose";
+
 export interface IStaff extends Document {
+  _id: string;
   staffId: string;
   qrImage: string;
-  alp_timeZone: string;
+  timeZone: string;
   proId: string;
   proEmailId: string;
   parentLoginId: string;
-  loginId: string;
+  userId: string;
   firstName: string;
   lastName: string;
   mobileNumber: string;
@@ -29,9 +31,8 @@ export interface IStaff extends Document {
   invoicesReqMgApproval: boolean;
   ssNumber: string;
   driverLicenseNumber: string;
-  dob: string;
+  dob: Date; // Changed to Date type
   streetAddress: string;
-  zipcode: string;
   homePhone: string;
   w2Elgible: boolean;
   i9Verified: boolean;
@@ -45,9 +46,9 @@ export interface IStaff extends Document {
   hourlyRateValue: string;
   hourlyRate: string;
   doubleTimeOver12Hrs: boolean;
-  commisionRate: boolean;
-  commisionRange: object[];
-  payrollFrequency: mongoose.Types.ObjectId;
+  commisionRate: number; // Changed to number type
+  commisionRange: { rate: number; minRange: number; maxRange: number }[]; // Adjusted commisionRange to have an array of objects with specific fields
+  payrollFrequency: mongoose.Types.ObjectId; // Reference to accountsettings collection
   paymentMethod: string;
   billRate: string;
   bankName: string;
@@ -56,7 +57,7 @@ export interface IStaff extends Document {
   routingNumber: string;
   accountNumber: string;
   skillLevel: string;
-  skills: object[];
+  skills: string[]; // Changed to an array of strings
   bio: string;
   comments: string;
   rating: string;
@@ -117,25 +118,25 @@ export interface IStaff extends Document {
     description: string;
     documentName: string[];
     documentURL: string;
-    uploadedOn: string;
+    uploadedOn: Date; // Changed to Date type
     createdby: string;
   }[];
   writeupsUpload: {
     writeupsdescription: string;
     writeupsdocumentName: string[];
     writeupsdocumentURL: string;
-    writeupsuploadedOn: string;
+    writeupsuploadedOn: Date; // Changed to Date type
     writeupscreatedby: string;
   }[];
   createdBy: string;
-  createdOn: string;
+  createdOn: Date; // Changed to Date type
   modifiedBy: string;
-  modifiedOn: string;
+  modifiedOn: Date; // Changed to Date type
   staffPopUp: {
     rehiredFlag: string;
     employementStatus: string;
     document: object[];
-    employeeDate: string;
+    employeeDate: Date; // Changed to Date type
     employeeReason: string;
   };
   licenseStatus: string;
