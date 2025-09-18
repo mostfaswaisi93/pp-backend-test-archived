@@ -1,15 +1,21 @@
 import * as express from "express";
-import { create } from "./user-validation";
+import { Request, Response } from "express";
 import { UserService } from "./user-service";
 import AuthService from "../auth/auth-service";
-import { NextFunction, Request, Response } from "express";
 import Controller from "../../interfaces/controller.interface";
+import {
+  create,
+  update,
+  getUser,
+  updateStatus,
+  changePassword,
+} from "./user-validation";
 import HttpResWrapper from "../../commons/http-response/http-res-wrapper";
 
 export default class UserController implements Controller {
   public path = "/users";
   public router = express.Router();
-  public middleware: any[] = [AuthService.Instance.authenticate];
+  public middleware: any[] = [];
 
   private httpResWrapper: HttpResWrapper = HttpResWrapper.Instance;
   private userService: UserService = UserService.Instance;
@@ -25,73 +31,153 @@ export default class UserController implements Controller {
   }
 
   private initializeRoutes() {
-    this.router.post("/", create, this.createUser);
-    this.router.get("/", this.getUsers);
-    this.router.get("/:id", this.getUserById);
-    this.router.put("/:id", this.updateUser);
-    this.router.delete("/:id", this.deleteUser);
+    const { authenticate, checkRole } = AuthService.Instance;
+    const superadminOnly = [authenticate, checkRole("SUPERADMIN")];
+    this.router.post("/create", superadminOnly, create, this.createUser);
+    this.router.get(
+      "/getUserById/:_id",
+      superadminOnly,
+      getUser,
+      this.getUserById
+    );
+    this.router.get("/", superadminOnly, this.getUsers);
+    this.router.put("/update/:_id", superadminOnly, update, this.updateUser);
+    this.router.put(
+      "/updateUserStatus/:_id",
+      superadminOnly,
+      updateStatus,
+      this.updateUserStatus
+    );
+    this.router.delete(
+      "/delete/:_id",
+      superadminOnly,
+      getUser,
+      this.deleteUser
+    );
+    this.router.put("/restore/:_id", superadminOnly, getUser, this.restoreUser);
+    this.router.put(
+      "/changePassword/:_id",
+      superadminOnly,
+      changePassword,
+      this.changePassword
+    );
+    this.router.put("/me", authenticate, this.updateMyProfile);
   }
 
-  private getUsers = async (request: Request, response: Response) => {
+  public createUser = async (request: Request, response: Response) => {
     try {
-      const users = await this.userService.getAllUsers();
-      const message = "get Users successful";
-      return this.httpResWrapper.success(response, message, users);
-    } catch (error) {
-      return this.handleError(response, error);
-    }
-  };
-
-  private getUserById = async (request: Request, response: Response) => {
-    try {
-      const user = await this.userService.getUserById(request.params.id);
-      const message = "get User By Id successful";
+      const user = await this.userService.create(request.body);
+      const message = "User created successfully.";
       return this.httpResWrapper.success(response, message, user);
-    } catch (error) {
-      return this.handleError(response, error);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
     }
   };
 
-  private createUser = async (
-    request: Request,
-    response: Response,
-    next: NextFunction
-  ) => {
+  public getUserById = async (request: Request, response: Response) => {
     try {
-      const createdUser = await this.userService.create(request.body);
-      const message = "create User successful";
-      return this.httpResWrapper.success(response, message, createdUser);
-    } catch (error) {
-      return this.handleError(response, error);
+      const user = await this.userService.getUserById(request.params._id);
+      const message = "User retrieved successfully by ID.";
+      return this.httpResWrapper.success(response, message, user);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
     }
   };
 
-  private updateUser = async (request: Request, response: Response) => {
+  public getUsers = async (request: Request, response: Response) => {
     try {
-      const updatedUser = await this.userService.update(
-        request.params.id,
+      const { status, email, fields } = request.query;
+      const users = await this.userService.getUsers(
+        status as string,
+        email as string,
+        fields as string
+      );
+      const message = "Users retrieved successfully";
+      return this.httpResWrapper.success(response, message, users);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
+    }
+  };
+
+  public updateUser = async (request: Request, response: Response) => {
+    try {
+      const user = await this.userService.update(
+        request.params._id,
         request.body
       );
-      const message = "update User successful";
-      return this.httpResWrapper.success(response, message, updatedUser);
-    } catch (error) {
-      return this.handleError(response, error);
+      const message = "User updated successfully.";
+      return this.httpResWrapper.success(response, message, user);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
     }
   };
 
-  private deleteUser = async (request: Request, response: Response) => {
+  public updateUserStatus = async (request: Request, response: Response) => {
     try {
-      await this.userService.delete(request.params.id);
-      const message = "User deleted successfully";
-      return this.httpResWrapper.success(response, message);
-    } catch (error) {
-      return this.handleError(response, error);
+      const user = await this.userService.updateStatus(
+        request.params._id,
+        request.body
+      );
+      const message = "User status successfully updated.";
+      return this.httpResWrapper.success(response, message, user);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
     }
   };
 
-  // Centralized error handler to reduce redundancy
-  private handleError(response: Response, error: any) {
-    // You can implement custom error handling logic here, e.g., logging
-    return this.httpResWrapper.error(response, error);
-  }
+  public deleteUser = async (request: Request, response: Response) => {
+    try {
+      await this.userService.delete(request.params._id);
+      const message = "User deleted successfully.";
+      return this.httpResWrapper.success(response, message, null);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
+    }
+  };
+
+  public restoreUser = async (request: Request, response: Response) => {
+    try {
+      const user = await this.userService.restore(request.params._id);
+      const message = "User restored successfully.";
+      return this.httpResWrapper.success(response, message, user);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
+    }
+  };
+
+  public changePassword = async (request: Request, response: Response) => {
+    try {
+      const { oldPassword, newPassword } = request.body;
+      const userId = request.params._id;
+
+      const user = await this.userService.changePassword(
+        userId,
+        oldPassword,
+        newPassword
+      );
+
+      const message = "Password changed successfully.";
+      return this.httpResWrapper.success(response, message, user);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
+    }
+  };
+
+  public updateMyProfile = async (request: Request, response: Response) => {
+    const req = request as any; // This API in-progress
+    if (!req.user) throw new Error("User not authenticated");
+    const userId = req.user!.id;
+    const data = request.body;
+
+    try {
+      const updatedUser = await this.userService.updateMyProfile(userId, data);
+      return this.httpResWrapper.success(
+        response,
+        "Profile updated successfully",
+        updatedUser
+      );
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
+    }
+  };
 }

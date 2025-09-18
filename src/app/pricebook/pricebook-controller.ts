@@ -33,7 +33,7 @@ export default class PricebookController implements Controller {
     const { authenticate, checkRole } = AuthService.Instance;
     const superadminOnly = [
       authenticate,
-      checkRole.bind(AuthService.Instance, "superadmin"),
+      checkRole.bind(AuthService.Instance, "SUPERADMIN"),
     ];
     this.router.post("/create", superadminOnly, create, this.createPricebook);
     this.router.get(

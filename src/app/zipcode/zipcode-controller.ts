@@ -1,10 +1,10 @@
 import * as express from "express";
-import AuthService from "../auth/auth-service";
+import { Request, Response } from "express";
 import { ZipcodeService } from "./zipcode-service";
-import { NextFunction, Request, Response } from "express";
+import AuthService from "../auth/auth-service";
 import Controller from "../../interfaces/controller.interface";
 import HttpResWrapper from "../../commons/http-response/http-res-wrapper";
-import { create, update, getZipcode, updateStatus } from "./zipcode-validation";
+import { create, getZipcode, update, updateStatus } from "./zipcode-validation";
 
 export default class ZipcodeController implements Controller {
   public path = "/zipcodes";
@@ -26,10 +26,8 @@ export default class ZipcodeController implements Controller {
 
   private initializeRoutes() {
     const { authenticate, checkRole } = AuthService.Instance;
-    const superadminOnly = [
-      authenticate,
-      checkRole.bind(AuthService.Instance, "superadmin"),
-    ];
+    const superadminOnly = [authenticate, checkRole("SUPERADMIN")];
+
     this.router.post("/create", superadminOnly, create, this.createZipcode);
     this.router.get(
       "/getZipcodeById/:_id",
@@ -53,93 +51,77 @@ export default class ZipcodeController implements Controller {
     );
   }
 
-  public createZipcode = async (
-    request: Request,
-    response: Response,
-    next: NextFunction
-  ) => {
+  public createZipcode = async (request: Request, response: Response) => {
     try {
       const zipcode = await this.zipcodeService.create(request.body);
       const message = "Zipcode created successfully.";
       return this.httpResWrapper.success(response, message, zipcode);
-    } catch (error) {
-      this.httpResWrapper.error(response, error);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
     }
   };
 
-  public getZipcodeById = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  public getZipcodeById = async (request: Request, response: Response) => {
     try {
-      const zipcode = await this.zipcodeService.getZipcodeById(req.params._id);
+      const zipcode = await this.zipcodeService.getZipcodeById(
+        request.params._id
+      );
       const message = "Zipcode retrieved successfully by ID.";
-      return this.httpResWrapper.success(res, message, zipcode);
-    } catch (error) {
-      return this.httpResWrapper.error(res, error);
+      return this.httpResWrapper.success(response, message, zipcode);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
     }
   };
 
   public getZipcodes = async (request: Request, response: Response) => {
     try {
-      const zipcodes = await this.zipcodeService.getZipcodes();
-      const message = "Zipcodes retrieved successfully";
+      const { status, fields } = request.query;
+
+      const zipcodes = await this.zipcodeService.getZipcodes(
+        status as string,
+        fields as string
+      );
+
+      const message = "Zipcodes retrieved successfully.";
       return this.httpResWrapper.success(response, message, zipcodes);
-    } catch (error) {
+    } catch (error: any) {
       return this.httpResWrapper.error(response, error);
     }
   };
 
-  public updateZipcode = async (
-    request: Request,
-    response: Response,
-    next: NextFunction
-  ) => {
+  public updateZipcode = async (request: Request, response: Response) => {
     try {
-      const updatedZipcode = await this.zipcodeService.update(
+      const zipcode = await this.zipcodeService.update(
         request.params._id,
         request.body
       );
       const message = "Zipcode successfully updated.";
-      return this.httpResWrapper.success(response, message, updatedZipcode);
-    } catch (error) {
+      return this.httpResWrapper.success(response, message, zipcode);
+    } catch (error: any) {
       return this.httpResWrapper.error(response, error);
     }
   };
 
-  public updateZipcodeStatus = async (
-    request: Request,
-    response: Response,
-    next: NextFunction
-  ) => {
+  public updateZipcodeStatus = async (request: Request, response: Response) => {
     try {
-      const updatedZipcodeStatus = await this.zipcodeService.updateStatus(
+      const zipcode = await this.zipcodeService.updateStatus(
         request.params._id,
         request.body
       );
       const message = "Zipcode status successfully updated.";
-      return this.httpResWrapper.success(
-        response,
-        message,
-        updatedZipcodeStatus
-      );
-    } catch (error) {
+      return this.httpResWrapper.success(response, message, zipcode);
+    } catch (error: any) {
       return this.httpResWrapper.error(response, error);
     }
   };
 
-  public deleteZipcode = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  public deleteZipcode = async (request: Request, response: Response) => {
     try {
-      await this.zipcodeService.delete(req.params._id);
+      await this.zipcodeService.delete(request.params._id);
       const message = "Zipcode successfully deleted.";
-      return this.httpResWrapper.success(res, message);
-    } catch (error) {
-      return this.httpResWrapper.error(res, error);
+      return this.httpResWrapper.success(response, message);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
     }
   };
 }

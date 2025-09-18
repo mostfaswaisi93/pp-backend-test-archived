@@ -1,17 +1,7 @@
 import i18n from "i18n";
-import ApplicationException from "./application-exception";
+import { BaseException } from "./base-exception";
 
-export class BaseException extends ApplicationException {
-  public readonly errorCode: string;
-
-  constructor(messageKey: string, status: number, errorCode: string) {
-    super(messageKey, status);
-    this.errorCode = errorCode;
-    Object.setPrototypeOf(this, new.target.prototype);
-  }
-}
-
-// 🔹 400 Bad Request Exceptions
+// 400 Bad Request
 export class InvalidInputException extends BaseException {
   constructor(messageKey: string = i18n.__("invalid_input")) {
     super(messageKey, 400, i18n.__("invalid_input"));
@@ -42,7 +32,7 @@ export class AccountBlockedException extends BaseException {
   }
 }
 
-// 🔹 401 Unauthorized Exceptions
+// 401 Unauthorized
 export class UnauthorizedException extends BaseException {
   constructor(messageKey: string = i18n.__("unauthorized_access")) {
     super(messageKey, 401, i18n.__("unauthorized_access"));
@@ -55,7 +45,7 @@ export class TokenNotValidException extends BaseException {
   }
 }
 
-// 🔹 404 Not Found Exceptions
+// 404 Not Found
 export class UserNotFoundException extends BaseException {
   constructor(messageKey: string = i18n.__("user_not_found")) {
     super(messageKey, 404, i18n.__("user_not_found"));
@@ -68,7 +58,7 @@ export class NotFoundException extends BaseException {
   }
 }
 
-// 🔹 500 Internal Server Error Exceptions
+// 500 Internal Server Error
 export class OrdsErrorException extends BaseException {
   constructor(messageKey: string = i18n.__("ords_connection_error")) {
     super(messageKey, 500, i18n.__("ords_connection_error"));

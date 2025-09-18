@@ -8,35 +8,47 @@ import { connectToDatabase } from "./config/database";
 import { RedisClient } from "./commons/libs/redis-client";
 import Controller from "./interfaces/controller.interface";
 
-// Variables
+// Variables & Logger Initialization
 const debug = debugLib("peakproz-backend:server");
-const logger = Logger.Instance.log();
+const logger = Logger.Instance;
 
 if (!process.env.PORT) {
-  console.error("❌ Missing required PORT in environment variables.");
+  logger.error("❌ Missing required PORT in environment variables.");
   process.exit(1);
 }
 
 const PORT: number | string | false = normalizePort(process.env.PORT);
 
-// Initialize App
-const appInstance = new App(getControllers());
-appInstance.start();
-appInstance.getApp().set("port", PORT);
+async function main() {
+  try {
+    // Initialize App
+    const appInstance = new App(getControllers());
+    await appInstance.start();
+    appInstance.getApp().set("port", PORT);
 
-// Create HTTP Server
-const server = http.createServer(appInstance.getApp());
+    // Create HTTP Server
+    const server = http.createServer(appInstance.getApp());
 
-// Initialize Socket.io
-const io = new SocketServer(server, {
-  cors: { origin: "*", methods: ["GET", "POST"] },
-});
-initializeSocketIO(io);
+    // Initialize Socket.io
+    const io = new SocketServer(server, {
+      cors: { origin: "*", methods: ["GET", "POST"] },
+    });
+    initializeSocketIO(io);
 
-// Connect to Database and Start Server
-dbConnection().then(() => startServer(server));
+    // Connect to Database
+    await dbConnection();
 
-// Helper Functions
+    // Start the Server
+    startServer(server);
+  } catch (err) {
+    console.error("Failed to start server:", err);
+    logger.error("Failed to start server", { message: (err as any).message });
+    process.exit(1);
+  }
+}
+
+main();
+
 // Normalize port value
 function normalizePort(value: string): number | string | false {
   const port = parseInt(value, 10);
@@ -45,32 +57,27 @@ function normalizePort(value: string): number | string | false {
   return false;
 }
 
-// Get all controllers dynamically
+// Dynamically get all controllers
 function getControllers(): Controller[] {
-  const controllersArray: Controller[] = [];
-  Object.keys(controllers).forEach((key) => {
-    controllersArray.push(new (<any>controllers)[key]());
-  });
-  return controllersArray;
+  return Object.keys(controllers).map((key) => new (controllers as any)[key]());
 }
 
-// Initialize Socket.io with Redis
+// Socket.io Handlers
 function initializeSocketIO(io: SocketServer) {
   io.on("connection", (socket) => {
     logger.info(`A user connected: ${socket.id}`);
-    socket.on("send_message", (message) => handleMessage(message));
+    socket.on("send_message", (message: string) => handleMessage(message));
     socket.on("disconnect", () => handleDisconnect(socket));
   });
 }
 
-// Handle received message
-function handleMessage(message: string) {
-  logger.info("Message received:", message);
+async function handleMessage(message: string) {
+  logger.info("Message received", { message });
   const redisClient = RedisClient.Instance;
-  redisClient.broadcast("set", "message", message);
+  await redisClient.set("message", message, { EX: 60 });
+  logger.info(`✅ Message stored in Redis: ${message}`);
 }
 
-// Handle socket disconnection
 function handleDisconnect(socket: any) {
   logger.info(`User disconnected: ${socket.id}`);
 }
@@ -80,18 +87,17 @@ async function dbConnection() {
   try {
     await connectToDatabase();
   } catch (error: any) {
-    logger.error(`❌ Database connection failed: ${error.message}`);
     process.exit(1);
   }
 }
 
-// Start the server
+// Start the HTTP Server
 function startServer(server: http.Server) {
   server.listen(PORT, () => {
     logger.info(`🚀 Server running on http://localhost:${PORT}`);
   });
   server.on("error", onError);
-  server.on("listening", onListening);
+  server.on("listening", () => onListening(server));
 }
 
 // Error handling for server
@@ -110,7 +116,6 @@ function onError(error: NodeJS.ErrnoException): void {
   }
 }
 
-// Handle error and stop the process
 function handleError(message: string) {
   debug(`❌ ${message}`);
   console.error(message);
@@ -118,13 +123,13 @@ function handleError(message: string) {
   process.exit(1);
 }
 
-// Log when the server starts listening
-function onListening(): void {
+// Server listening event
+function onListening(server: http.Server): void {
   const address = server.address();
   if (!address) {
-    debug("❌ Server address is undefined.");
-    console.error("❌ Server address is undefined.");
-    logger.error("❌ Server address is undefined.");
+    const msg = "❌ Server address is undefined.";
+    console.error(msg);
+    logger.error(msg);
     return;
   }
   const bind =

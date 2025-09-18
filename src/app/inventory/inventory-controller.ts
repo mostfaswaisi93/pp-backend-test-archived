@@ -9,6 +9,13 @@ import {
   update,
   getInventory,
   updateStatus,
+  getStaffInventory,
+  getInventoryListByProId,
+  getInvDataByCategoryCode,
+  getInvLocations,
+  getAccInvSubSubcat,
+  getInventoryProSelectedCategory,
+  getCategoriesFromAcc,
 } from "./inventory-validation";
 import HttpResWrapper from "../../commons/http-response/http-res-wrapper";
 
@@ -34,7 +41,7 @@ export default class InventoryController implements Controller {
     const { authenticate, checkRole } = AuthService.Instance;
     const superadminOnly = [
       authenticate,
-      checkRole.bind(AuthService.Instance, "superadmin"),
+      checkRole.bind(AuthService.Instance, "SUPERADMIN"),
     ];
     this.router.post("/create", superadminOnly, create, this.createInventory);
     this.router.get(
@@ -68,6 +75,53 @@ export default class InventoryController implements Controller {
       superadminOnly,
       getInventory,
       this.deleteInventory
+    );
+    this.router.post(
+      "/getStaffInventory",
+      authenticate,
+      getStaffInventory,
+      this.getStaffInventory
+    );
+    this.router.get(
+      "/getInventoryListByProId/:proId",
+      authenticate,
+      getInventoryListByProId,
+      this.getInventoryListByProId
+    );
+    this.router.get(
+      "/getInvDataByCategoryCode/:categoryCode",
+      authenticate,
+      getInvDataByCategoryCode,
+      this.getInvDataByCategoryCode
+    );
+    this.router.get(
+      "/getInvLocations",
+      authenticate,
+      getInvLocations,
+      this.getInvLocations
+    );
+    this.router.get(
+      "/getItemDataCatSubCatLocations",
+      authenticate,
+      this.getItemDataCatSubCatLocations
+    );
+    this.router.get(
+      "/getAccInvSubSubcat",
+      authenticate,
+      getAccInvSubSubcat,
+      this.getAccInvSubSubcat
+    );
+    this.router.get(
+      "/getInventoryProSelectedCategory/:proId/:categoryCode",
+      authenticate,
+      getInventoryProSelectedCategory,
+      this.getInventoryProSelectedCategory
+    );
+    this.router.get(
+      "/categories/:accId",
+      authenticate,
+      getCategoriesFromAcc,
+      this.getCategoriesFromAcc
     );
   }
 
@@ -241,4 +295,117 @@ export default class InventoryController implements Controller {
       return this.httpResWrapper.error(res, error);
     }
   };
+
+  public getStaffInventory = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    try {
+      const inventories = await this.inventoryService.getStaffInventory();
+      const message = "Staff inventories fetched successfully.";
+      return this.httpResWrapper.success(res, message, inventories);
+    } catch (error) {
+      this.httpResWrapper.error(res, error);
+    }
+  };
+
+  public getInventoryListByProId = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    try {
+      const { proId } = req.params;
+      const inventories =
+        await this.inventoryService.getInventoryListByProId(proId);
+      const message = "Inventories fetched successfully by Pro ID.";
+      return this.httpResWrapper.success(res, message, inventories);
+    } catch (error) {
+      return this.httpResWrapper.error(res, error);
+    }
+  };
+
+  public getInvDataByCategoryCode = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    try {
+      const { categoryCode } = req.params;
+      const inventories =
+        await this.inventoryService.getInvDataByCategoryCode(categoryCode);
+      const message = "Inventory data fetched successfully by category code.";
+      return this.httpResWrapper.success(res, message, inventories);
+    } catch (error) {
+      this.httpResWrapper.error(res, error);
+    }
+  };
+
+  public getInvLocations = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const locations = await this.inventoryService.getInvLocations();
+      const message = "Inventory locations retrieved successfully.";
+      return this.httpResWrapper.success(res, message, locations);
+    } catch (error) {
+      return this.httpResWrapper.error(res, error);
+    }
+  };
+
+  public getItemDataCatSubCatLocations = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    try {
+      const data = await this.inventoryService.getItemDataCatSubCatLocations();
+      const message =
+        "Inventory category, subcategory, item and location retrieved successfully.";
+      return this.httpResWrapper.success(res, message, data);
+    } catch (error) {
+      return this.httpResWrapper.error(res, error);
+    }
+  };
+
+  public async getAccInvSubSubcat(req: Request, res: Response): Promise<void> {
+    try {
+      const result = await this.inventoryService.getAccInvSubSubcat();
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({
+        message: "Failed to retrieve acc, inv, and subsubcat data",
+        error,
+      });
+    }
+  }
+  public getInventoryProSelectedCategory = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    try {
+      const { proId, categoryCode } = req.params;
+      const inventories =
+        await this.inventoryService.getInventoryProSelectedCategory(
+          proId,
+          categoryCode
+        );
+      const message = "Inventories retrieved successfully.";
+      this.httpResWrapper.success(res, message, inventories);
+    } catch (error) {
+      this.httpResWrapper.error(res, error);
+    }
+  };
+
+  async getCategoriesFromAcc(req: Request, res: Response): Promise<void> {
+    try {
+      const { accId } = req.params;
+      const result = await this.inventoryService.getCategoriesFromAcc(accId);
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      console.error("Error in getCategoriesFromAcc:", error);
+      res
+        .status(500)
+        .json({ success: false, message: "Internal server error" });
+    }
+  }
 }

@@ -1,13 +1,13 @@
 export const roleStructure = {
-  superadmin: {
+  SUPERADMIN: {
     categories: "c,r,u,d",
     subcategories: "c,r,u,d",
     users: "c,r,u,d",
   },
-  pro: {},
-  lead: {},
-  staff: {},
-  customer: {},
+  PRO: {},
+  STAFF: {},
+  CUSTOMER: {},
+  VANCUSTOMER: {},
 };
 
 export const permissionsMap: {
@@ -15,9 +15,19 @@ export const permissionsMap: {
   r: string;
   u: string;
   d: string;
+  a: string;
+  x: string;
+  i: string;
+  s: string;
+  m: string;
 } = {
   c: "create",
   r: "read",
   u: "update",
   d: "delete",
+  a: "approve",
+  x: "export",
+  i: "import",
+  s: "share",
+  m: "manage",
 };

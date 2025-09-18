@@ -82,10 +82,10 @@ export class MailService {
       };
 
       const info = await this._transporter.sendMail(mailOptions);
-      Logger.info(`Email sent: ${info.messageId}`);
+      Logger.Instance.info(`Email sent: ${info.messageId}`);
       return info;
     } catch (error) {
-      Logger.error("Failed to send email", error);
+      Logger.Instance.error("Failed to send email", { error });
       throw new Error("Email sending failed");
     }
   }

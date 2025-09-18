@@ -2,16 +2,18 @@
 
 import { Request } from "express";
 import db from "../../models";
-import { Document, Types } from "mongoose";
+import { UserAccessService } from "../../app/user/user-access-service";
 
 const Customers = db.ProCustomer;
 const Staff = db.Staff;
-const Login = db.User;
 
 interface AuthRequest extends Request {
   doc: {
     id: string;
-    rbac: { roleCode: string }[];
+    userId: string; // User ID for Access Control service
+  };
+  user?: {
+    _id: string;
   };
 }
 
@@ -29,12 +31,28 @@ export const checkAuthorization = async ({
   allowedTo,
 }: CheckAuthorizationParams): Promise<void> => {
   try {
-    if (req.doc.rbac[0].roleCode === "ADMIN") return;
+    const userAccessService = UserAccessService.Instance;
+    const userId = req.user?._id || req.doc.userId;
+
+    if (!userId) {
+      throw new Error("User ID not found in request");
+    }
+
+    // Check if user is admin/superadmin - they have full access
+    const isAdmin = await userAccessService.userHasAnyRole(userId, [
+      "admin",
+      "SUPERADMIN",
+    ]);
+    if (isAdmin) return;
 
     if (allowedTo === "PRO" || allowedTo === "BOTH") {
-      if (req.doc.rbac[0].roleCode === "PRO" && proLoginId !== req.doc.id)
+      const isPro = await userAccessService.userHasRole(userId, "pro");
+      if (isPro && proLoginId !== req.doc.id) {
         throw new Error("Not Allowed");
-      if (req.doc.rbac[0].roleCode === "STAFF") {
+      }
+
+      const isStaff = await userAccessService.userHasRole(userId, "staff");
+      if (isStaff) {
         const staffData = await Staff.findOne(
           { loginId: req.doc.id },
           { parentLoginId: 1 }
@@ -47,32 +65,40 @@ export const checkAuthorization = async ({
     }
 
     if (allowedTo === "CUSTOMER" || allowedTo === "BOTH") {
-      if (
-        req.doc.rbac[0].roleCode === "CUST" ||
-        req.doc.rbac[0].roleCode === "VANCUST"
-      ) {
-        const customerData = await Customers.findOne(
+      const isCustomer = await userAccessService.userHasAnyRole(userId, [
+        "pro_customer",
+        "customer",
+      ]);
+      if (isCustomer) {
+        const customerData = (await Customers.findOne(
           { _id: customerId },
           { loginId: 1 }
-        ).lean();
+        ).lean()) as any;
         if (!customerData?.loginId)
           throw new Error("Customer Data Missing Login Id");
         if (req.doc.id !== customerData.loginId) throw new Error("Not Allowed");
       }
     }
 
-    if (
-      allowedTo === "PRO" &&
-      ["CUST", "VANCUST"].includes(req.doc.rbac[0].roleCode)
-    ) {
-      throw new Error("Not Allowed");
+    // Check role-based restrictions
+    if (allowedTo === "PRO") {
+      const isCustomer = await userAccessService.userHasAnyRole(userId, [
+        "pro_customer",
+        "customer",
+      ]);
+      if (isCustomer) {
+        throw new Error("Not Allowed");
+      }
     }
 
-    if (
-      allowedTo === "CUSTOMER" &&
-      ["PRO", "STAFF"].includes(req.doc.rbac[0].roleCode)
-    ) {
-      throw new Error("Not Allowed");
+    if (allowedTo === "CUSTOMER") {
+      const isProOrStaff = await userAccessService.userHasAnyRole(userId, [
+        "pro",
+        "staff",
+      ]);
+      if (isProOrStaff) {
+        throw new Error("Not Allowed");
+      }
     }
   } catch (err: any) {
     throw new Error(err.message);
@@ -91,26 +117,51 @@ export const checkStaffPermissionsForEstimateAndInvoice = async ({
   data,
 }: CheckStaffPermissionsParams): Promise<void> => {
   try {
-    if (req.doc.rbac[0].roleCode === "STAFF") {
-      const staffData = await Login.findOne(
-        { _id: req.doc.id },
-        { rbac2: 1 }
-      ).lean();
-      if (!staffData?.rbac2?.[0]?.permissions)
-        throw new Error("Invalid Staff Permissions");
+    const userAccessService = UserAccessService.Instance;
+    const userId = req.user?._id || req.doc.userId;
 
-      const permissions = staffData.rbac2[0].permissions;
-      const ESPermissions = permissions.find(
-        (item: any) => item.screenId === "ESTIMATES"
+    if (!userId) {
+      throw new Error("User ID not found in request");
+    }
+
+    const isStaff = await userAccessService.userHasRole(userId, "staff");
+    if (isStaff) {
+      // Check specific permissions for estimates and invoices
+      const hasEstimatePermission = await userAccessService.userHasPermission(
+        userId,
+        "estimate_management.read"
       );
-      const INVPermissions = permissions.find(
-        (item: any) => item.screenId === "INVOICES"
+      const hasInvoicePermission = await userAccessService.userHasPermission(
+        userId,
+        "invoice_management.read"
       );
 
-      if (type === "INVOICE" && INVPermissions?.ACCESS_LEVEL === "VIEW")
+      if (type === "ESTIMATE" && !hasEstimatePermission) {
+        throw new Error("No permission for estimates");
+      }
+
+      if (type === "INVOICE" && !hasInvoicePermission) {
+        throw new Error("No permission for invoices");
+      }
+
+      // Check if staff has write permissions (not just read)
+      const hasEstimateWritePermission =
+        await userAccessService.userHasPermission(
+          userId,
+          "estimate_management.update"
+        );
+      const hasInvoiceWritePermission =
+        await userAccessService.userHasPermission(
+          userId,
+          "invoice_management.update"
+        );
+
+      if (type === "INVOICE" && !hasInvoiceWritePermission) {
         throw new Error("Staff Has View Access Level");
-      if (type === "ESTIMATE" && ESPermissions?.ACCESS_LEVEL === "VIEW")
+      }
+      if (type === "ESTIMATE" && !hasEstimateWritePermission) {
         throw new Error("Staff Has View Access Level");
+      }
 
       let primaryStaffData;
       if (type === "INVOICE") {
@@ -141,11 +192,11 @@ export const checkStaffPermissionsForEstimateAndInvoice = async ({
             );
           }
         }
-      } else if (req.doc.id !== primaryStaffData.managerLoginId) {
+      } else if (req.doc.id !== primaryStaffData.managerLoginId?.toString()) {
         throw new Error("Not Allowed");
       }
     }
-  } catch (e) {
+  } catch (e: any) {
     throw new Error(e.message);
   }
 };

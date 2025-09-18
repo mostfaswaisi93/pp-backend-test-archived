@@ -6,7 +6,7 @@ import { Request } from "express";
 type MulterFile = Express.Multer.File;
 
 const s3Client = new S3Client({
-  region: "us-east-1", // تأكد من تحديد المنطقة المناسبة
+  region: "us-east-1",
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY_ID as string,

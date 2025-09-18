@@ -9,6 +9,11 @@ export enum USER_ROLES {
   SYSTEM,
 }
 
+export enum Status {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+}
+
 export enum STATUSES {
   INCOMPLETE = 1,
   COMPILED,

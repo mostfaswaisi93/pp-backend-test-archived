@@ -1,14 +1,14 @@
 import * as express from "express";
+import { Request, Response } from "express";
 import AuthService from "../auth/auth-service";
 import { PermissionService } from "./permission-service";
-import { NextFunction, Request, Response } from "express";
 import Controller from "../../interfaces/controller.interface";
 import HttpResWrapper from "../../commons/http-response/http-res-wrapper";
 import {
   create,
   update,
-  getPermission,
   updateStatus,
+  getPermission,
 } from "./permission-validation";
 
 export default class PermissionController implements Controller {
@@ -31,10 +31,7 @@ export default class PermissionController implements Controller {
 
   private initializeRoutes() {
     const { authenticate, checkRole } = AuthService.Instance;
-    const superadminOnly = [
-      authenticate,
-      checkRole.bind(AuthService.Instance, "superadmin"),
-    ];
+    const superadminOnly = [authenticate, checkRole("SUPERADMIN")];
     this.router.post("/create", superadminOnly, create, this.createPermission);
     this.router.get(
       "/getPermissionById/:_id",
@@ -61,97 +58,101 @@ export default class PermissionController implements Controller {
       getPermission,
       this.deletePermission
     );
+    this.router.put(
+      "/restore/:_id",
+      superadminOnly,
+      getPermission,
+      this.restorePermission
+    );
   }
 
-  public createPermission = async (
-    request: Request,
-    response: Response,
-    next: NextFunction
-  ) => {
+  public createPermission = async (request: Request, response: Response) => {
     try {
       const permission = await this.permissionService.create(request.body);
       const message = "Permission created successfully.";
       return this.httpResWrapper.success(response, message, permission);
-    } catch (error) {
+    } catch (error: any) {
       this.httpResWrapper.error(response, error);
     }
   };
 
-  public getPermissionById = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  public getPermissionById = async (request: Request, response: Response) => {
     try {
       const permission = await this.permissionService.getPermissionById(
-        req.params._id
+        request.params._id
       );
       const message = "Permission retrieved successfully by ID.";
-      return this.httpResWrapper.success(res, message, permission);
-    } catch (error) {
-      return this.httpResWrapper.error(res, error);
+      return this.httpResWrapper.success(response, message, permission);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
     }
   };
 
   public getPermissions = async (request: Request, response: Response) => {
     try {
-      const permissions = await this.permissionService.getPermissions();
+      const { isActive, fields } = request.query;
+
+      const permissions = await this.permissionService.getPermissions(
+        typeof isActive !== "undefined" ? isActive === "true" : undefined,
+        fields as string
+      );
+
       const message = "Permissions retrieved successfully";
       return this.httpResWrapper.success(response, message, permissions);
-    } catch (error) {
+    } catch (error: any) {
       return this.httpResWrapper.error(response, error);
     }
   };
 
-  public updatePermission = async (
-    request: Request,
-    response: Response,
-    next: NextFunction
-  ) => {
+  public updatePermission = async (request: Request, response: Response) => {
     try {
-      const updatedPermission = await this.permissionService.update(
+      const permission = await this.permissionService.update(
         request.params._id,
         request.body
       );
       const message = "Permission successfully updated.";
-      return this.httpResWrapper.success(response, message, updatedPermission);
-    } catch (error) {
+      return this.httpResWrapper.success(response, message, permission);
+    } catch (error: any) {
       return this.httpResWrapper.error(response, error);
     }
   };
 
   public updatePermissionStatus = async (
     request: Request,
-    response: Response,
-    next: NextFunction
+    response: Response
   ) => {
     try {
-      const updatedPermissionStatus = await this.permissionService.updateStatus(
+      const { isActive } = request.body;
+      const permission = await this.permissionService.updateStatus(
         request.params._id,
-        request.body
+        isActive
       );
       const message = "Permission status successfully updated.";
-      return this.httpResWrapper.success(
-        response,
-        message,
-        updatedPermissionStatus
-      );
-    } catch (error) {
+      return this.httpResWrapper.success(response, message, permission);
+    } catch (error: any) {
       return this.httpResWrapper.error(response, error);
     }
   };
 
-  public deletePermission = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  public deletePermission = async (request: Request, response: Response) => {
     try {
-      await this.permissionService.delete(req.params._id);
+      await this.permissionService.delete(request.params._id);
       const message = "Permission successfully deleted.";
-      return this.httpResWrapper.success(res, message);
-    } catch (error) {
-      return this.httpResWrapper.error(res, error);
+      return this.httpResWrapper.success(response, message);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
+    }
+  };
+
+  public restorePermission = async (request: Request, response: Response) => {
+    try {
+      const permission = await this.permissionService.restore(
+        request.params._id
+      );
+      const message = "Permission successfully restored.";
+      return this.httpResWrapper.success(response, message, permission);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
     }
   };
 }

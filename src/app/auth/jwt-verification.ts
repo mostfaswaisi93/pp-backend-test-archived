@@ -11,33 +11,34 @@ interface CustomRequest extends Request {
 }
 
 const verifyJWT = async (
-  req: CustomRequest,
-  res: Response,
+  request: CustomRequest,
+  response: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    const token = req.headers.authorization;
+    const token = request.headers.authorization;
 
     if (!token) {
-      unauthorizedResponse(res, "No authorization token provided.");
+      unauthorizedResponse(response, "No authorization token provided.");
       return;
     }
 
-    jwt.verify(token, process.env.JWT_SECRET as string, (err) => {
-      if (err) {
-        unauthorizedResponse(res, "Token is invalid or expired.");
+    jwt.verify(token, process.env.JWT_SECRET as string, (error) => {
+      if (error) {
+        unauthorizedResponse(response, "Token is invalid or expired.");
         return;
       }
 
       const payload = jwt.decode(token, { complete: true })
         ?.payload as JwtPayload;
-      req.doc = payload;
+      request.doc = payload;
 
-      // if (req.ROLE && req.ROLE.length > 0) {
-      //   const userRole = payload?.rbac?.[0]?.roleCode;
-      //   if (!userRole || !req.ROLE.includes(userRole)) {
+      // Legacy access control check - now handled by AuthService middleware
+      // if (request.ROLE && request.ROLE.length > 0) {
+      //   const userRole = payload?.access_control?.[0]?.roleCode;
+      //   if (!userRole || !request.ROLE.includes(userRole)) {
       //     unauthorizedResponse(
-      //       res,
+      //       response,
       //       "You do not have permission to access this resource."
       //     );
       //     return;
@@ -48,7 +49,7 @@ const verifyJWT = async (
     });
   } catch (error) {
     console.error("JWT Verification Error:", error);
-    errorResponse(res, "An internal server error occurred.");
+    errorResponse(response, "An internal server error occurred.");
     return;
   }
 };

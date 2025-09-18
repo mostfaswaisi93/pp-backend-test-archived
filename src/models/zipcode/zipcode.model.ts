@@ -1,27 +1,74 @@
 import { Schema, model } from "mongoose";
 import { IZipcode } from "./zipcode.interface";
+import { Status } from "../../commons/constants/constants";
 
 const zipcodeSchema = new Schema<IZipcode>(
   {
-    zipcode: { type: String, required: true },
-    latitude: { type: Number, required: true }, // Changed type from String to Number
-    longitude: { type: Number, required: true }, // Changed type from String to Number
-    city: { type: String, required: true },
-    state: { type: String, required: true },
-    stateCode: { type: String, required: true },
-    county: { type: String, required: true },
-    type: { type: String, required: true },
-    totalHousesCount: { type: Number, required: true }, // Updated field name
-    medianHouseholdIncome: { type: Number, required: true }, // Updated field name
-    totalPopulation: { type: Number, required: true },
+    zipcode: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    latitude: {
+      type: Number,
+      required: true,
+    },
+    longitude: {
+      type: Number,
+      required: true,
+    },
+    city: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    state: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    stateCode: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    county: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    type: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    totalHousesCount: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    medianHouseholdIncome: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    totalPopulation: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
     status: {
       type: String,
-      enum: ["ACTIVE", "INACTIVE"],
-      default: "ACTIVE",
+      enum: Object.values(Status),
+      default: Status.ACTIVE,
       required: true,
     },
   },
-  { timestamps: true } // Automatically adds createdAt and updatedAt fields
+  { timestamps: true }
 );
+
+if (!zipcodeSchema.indexes().some((idx) => idx[0].zipcode)) {
+  zipcodeSchema.index({ zipcode: 1 }, { unique: true });
+}
 
 export const Zipcode = model<IZipcode>("Zipcode", zipcodeSchema);

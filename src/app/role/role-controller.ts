@@ -1,17 +1,15 @@
-import { NextFunction, Request, Response } from "express";
 import * as express from "express";
-import HttpResWrapper from "../../commons/http-response/http-res-wrapper";
+import { Request, Response } from "express";
+import { RoleService } from "./role-service";
 import AuthService from "../auth/auth-service";
 import Controller from "../../interfaces/controller.interface";
-import { RoleService } from "./role-service";
-import { create, getRole, update } from "./role-validation";
-import User from "../../models/user/user.model";
-import { IUser } from "../../models/user/user.interface";
+import { create, getRole, update, updateStatus } from "./role-validation";
+import HttpResWrapper from "../../commons/http-response/http-res-wrapper";
 
 export default class RoleController implements Controller {
   public path = "/roles";
   public router = express.Router();
-  public middleware: any[] = [AuthService.Instance.authenticate];
+  public middleware: any[] = [];
 
   private httpResWrapper: HttpResWrapper = HttpResWrapper.Instance;
   private roleService: RoleService = RoleService.Instance;
@@ -27,75 +25,199 @@ export default class RoleController implements Controller {
   }
 
   private initializeRoutes() {
-    this.router.post("/create", create, this.createRole);
-    this.router.get("/:roleId", getRole, this.getRoleById);
-    this.router.put("/:roleId", update, this.updateRole);
-    this.router.delete("/:roleId", this.deleteRole);
+    const { authenticate, checkRole } = AuthService.Instance;
+    const superadminOnly = [authenticate, checkRole("SUPERADMIN")];
+    this.router.post("/create", superadminOnly, create, this.createRole);
+    this.router.get(
+      "/getRoleById/:_id",
+      superadminOnly,
+      getRole,
+      this.getRoleById
+    );
+    this.router.get("/", superadminOnly, this.getRoles);
+    this.router.put("/update/:_id", superadminOnly, update, this.updateRole);
+    this.router.put(
+      "/updateRoleStatus/:_id",
+      superadminOnly,
+      updateStatus,
+      this.updateRoleStatus
+    );
+    this.router.delete(
+      "/delete/:_id",
+      superadminOnly,
+      getRole,
+      this.deleteRole
+    );
+
+    this.router.put("/restore/:_id", superadminOnly, getRole, this.restoreRole);
+
+    this.router.get("/hierarchy/:_id", superadminOnly, this.getRoleHierarchy);
+    this.router.get("/hierarchy", superadminOnly, this.getRolesWithHierarchy);
+
+    this.router.post("/assign", superadminOnly, this.assignRoleToUser);
+    this.router.post("/remove", superadminOnly, this.removeRoleFromUser);
+    this.router.get("/assignable", superadminOnly, this.getAssignableRoles);
   }
 
-  createRole = async (
-    request: Request,
-    response: Response,
-    next: NextFunction
-  ) => {
+  public createRole = async (request: Request, response: Response) => {
     try {
-      // const userId = (request.user as Partial<IUser>)._id;
-      // if (!userId) {
-      //   return this.httpResWrapper.error(response, new Error("User ID is missing"));
-      // }
-      // console.log(userId);
-
-      // let role = await this.roleService.create(request.body, userId);
       const role = await this.roleService.create(request.body);
-      const message = "Created Role successful";
+      const message = "Role created successfully.";
       return this.httpResWrapper.success(response, message, role);
-    } catch (error) {
+    } catch (error: any) {
       this.httpResWrapper.error(response, error);
     }
   };
 
-  public getRoleById = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  public getRoleById = async (request: Request, response: Response) => {
     try {
-      const role = await this.roleService.getRoleById(req.params.roleId);
-      const message = "Get By Role Id successful";
-      return this.httpResWrapper.success(res, message, role);
-    } catch (error) {
-      return this.httpResWrapper.error(res, error);
+      const role = await this.roleService.getRoleById(request.params._id);
+      const message = "Role retrieved successfully by ID.";
+      return this.httpResWrapper.success(response, message, role);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
     }
   };
 
-  public updateRole = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  public getRoles = async (request: Request, response: Response) => {
     try {
-      const updatedRole = await this.roleService.update(
-        req.params.roleId,
-        req.body
+      const { status, level, fields } = request.query;
+      const roles = await this.roleService.getRoles(
+        status as string,
+        level as string,
+        fields as string
       );
-      const message = "Update Role successful";
-      return this.httpResWrapper.success(res, message, updatedRole);
-    } catch (error) {
-      return this.httpResWrapper.error(res, error);
+      const message = "Roles retrieved successfully";
+      return this.httpResWrapper.success(response, message, roles);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
     }
   };
 
-  public deleteRole = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+  public updateRole = async (request: Request, response: Response) => {
+    try {
+      const role = await this.roleService.update(
+        request.params._id,
+        request.body
+      );
+      const message = "Role successfully updated.";
+      return this.httpResWrapper.success(response, message, role);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
+    }
+  };
+
+  public updateRoleStatus = async (request: Request, response: Response) => {
+    try {
+      const role = await this.roleService.updateStatus(
+        request.params._id,
+        request.body
+      );
+      const message = "Role status successfully updated.";
+      return this.httpResWrapper.success(response, message, role);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
+    }
+  };
+
+  public deleteRole = async (request: Request, response: Response) => {
+    try {
+      await this.roleService.delete(request.params._id);
+      const message = "Role successfully deleted.";
+      return this.httpResWrapper.success(response, message);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
+    }
+  };
+
+  public restoreRole = async (request: Request, response: Response) => {
+    try {
+      const role = await this.roleService.restore(request.params._id);
+      const message = "Role successfully restored.";
+      return this.httpResWrapper.success(response, message, role);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
+    }
+  };
+
+  public getRoleHierarchy = async (request: Request, response: Response) => {
+    try {
+      const roleId = request.params._id;
+      const roleHierarchy = await this.roleService.getRoleHierarchy(roleId);
+      const message = "Role hierarchy retrieved successfully.";
+
+      return this.httpResWrapper.success(response, message, roleHierarchy);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
+    }
+  };
+
+  public getRolesWithHierarchy = async (
+    request: Request,
+    response: Response
   ) => {
     try {
-      await this.roleService.delete(req.params.roleId);
-      const message = "Role deleted successfully";
-      return this.httpResWrapper.success(res, message);
-    } catch (error) {
-      return this.httpResWrapper.error(res, error);
+      const rolesWithHierarchy = await this.roleService.getRolesWithHierarchy();
+      const message = "All roles with hierarchy retrieved successfully.";
+
+      return this.httpResWrapper.success(response, message, rolesWithHierarchy);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
+    }
+  };
+
+  public assignRoleToUser = async (request: Request, response: Response) => {
+    try {
+      const assignerUserId = (request as any).user?._id;
+      const { userId, roleId } = request.body;
+
+      if (!userId || !roleId) {
+        return this.httpResWrapper.error(
+          response,
+          new Error("UserId and roleId are required")
+        );
+      }
+
+      await this.roleService.assignRoleToUser(assignerUserId, userId, roleId);
+      const message = "Role assigned to user successfully.";
+
+      return this.httpResWrapper.success(response, message, null);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
+    }
+  };
+
+  public removeRoleFromUser = async (request: Request, response: Response) => {
+    try {
+      const assignerUserId = (request as any).user?._id;
+      const { userId, roleId } = request.body;
+
+      if (!userId || !roleId) {
+        return this.httpResWrapper.error(
+          response,
+          new Error("UserId and roleId are required")
+        );
+      }
+
+      await this.roleService.removeRoleFromUser(assignerUserId, userId, roleId);
+      const message = "Role removed from user successfully.";
+
+      return this.httpResWrapper.success(response, message, null);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
+    }
+  };
+
+  public getAssignableRoles = async (request: Request, response: Response) => {
+    try {
+      const assignerUserId = (request as any).user?._id;
+      const assignableRoles =
+        await this.roleService.getAssignableRolesByUser(assignerUserId);
+      const message = "Assignable roles retrieved successfully.";
+
+      return this.httpResWrapper.success(response, message, assignableRoles);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
     }
   };
 }

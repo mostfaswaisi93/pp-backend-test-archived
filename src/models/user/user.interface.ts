@@ -1,9 +1,10 @@
 import mongoose, { Document } from "mongoose";
+import { Status } from "../../commons/constants/constants";
 
 export interface IUser extends Document {
   _id: string;
   firebaseUID: string; // Changed firebaseId to firebaseUID
-  deviceId: string;
+  deviceId: string; // Changed deviceIdId to deviceId
   email: string; // Changed emailId to email
   password?: string;
   tempPassword?: string;
@@ -15,9 +16,8 @@ export interface IUser extends Document {
   proId?: string;
   emailVerificationCode?: string;
   mobileVerificationCode?: string;
-  rbac: object[]; // It is preferable to specify a more defined data type instead of object[]
-  roles: mongoose.Types.ObjectId[]; // مصفوفة تحتوي على دور واحد فقط
-  permissions: string[]; // Array of Permission IDs (if granted individually)
+  roles: mongoose.Types.ObjectId[]; // Array of role references { type: mongoose.Schema.Types.ObjectId, ref: "Role", required: true }
+  permissions: mongoose.Types.ObjectId[]; // User-specific permissions (override role permissions)
   vanlynk?: string;
   leadgen?: string;
   companyName?: string;
@@ -28,7 +28,7 @@ export interface IUser extends Document {
   isVerified: boolean;
   isEmailVerified: boolean;
   isMobileVerified: boolean;
-  status: string;
+  status: Status;
   isDeleted: boolean;
   isDeactivated: boolean;
 }

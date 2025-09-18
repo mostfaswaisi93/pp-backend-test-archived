@@ -1,14 +1,14 @@
 import * as express from "express";
+import { Request, Response } from "express";
 import AuthService from "../auth/auth-service";
-import { NextFunction, Request, Response } from "express";
 import { BusinessHourService } from "./business-hour-service";
 import Controller from "../../interfaces/controller.interface";
 import HttpResWrapper from "../../commons/http-response/http-res-wrapper";
 import {
   create,
   update,
-  getBusinessHour,
   updateStatus,
+  getBusinessHour,
 } from "./business-hour-validation";
 
 export default class BusinessHourController implements Controller {
@@ -32,10 +32,7 @@ export default class BusinessHourController implements Controller {
 
   private initializeRoutes() {
     const { authenticate, checkRole } = AuthService.Instance;
-    const superadminOnly = [
-      authenticate,
-      checkRole.bind(AuthService.Instance, "superadmin"),
-    ];
+    const superadminOnly = [authenticate, checkRole("SUPERADMIN")];
     this.router.post(
       "/create",
       superadminOnly,
@@ -69,100 +66,80 @@ export default class BusinessHourController implements Controller {
     );
   }
 
-  public createBusinessHour = async (
-    request: Request,
-    response: Response,
-    next: NextFunction
-  ) => {
+  public createBusinessHour = async (request: Request, response: Response) => {
     try {
       const businessHour = await this.businessHourService.create(request.body);
       const message = "Business hour created successfully.";
       return this.httpResWrapper.success(response, message, businessHour);
-    } catch (error) {
+    } catch (error: any) {
       this.httpResWrapper.error(response, error);
     }
   };
 
-  public getBusinessHourById = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  public getBusinessHourById = async (request: Request, response: Response) => {
     try {
       const businessHour = await this.businessHourService.getBusinessHourById(
-        req.params._id
+        request.params._id
       );
       const message = "Business hour retrieved successfully by ID.";
-      return this.httpResWrapper.success(res, message, businessHour);
-    } catch (error) {
-      return this.httpResWrapper.error(res, error);
+      return this.httpResWrapper.success(response, message, businessHour);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
     }
   };
 
   public getBusinessHours = async (request: Request, response: Response) => {
     try {
-      const businessHours = await this.businessHourService.getBusinessHours();
-      const message = "Business hours retrieved successfully";
+      const { status, fields } = request.query;
+
+      const businessHours = await this.businessHourService.getBusinessHours(
+        status as string,
+        fields as string
+      );
+
+      const message = "Business hours retrieved successfully.";
       return this.httpResWrapper.success(response, message, businessHours);
-    } catch (error) {
+    } catch (error: any) {
       return this.httpResWrapper.error(response, error);
     }
   };
 
-  public updateBusinessHour = async (
-    request: Request,
-    response: Response,
-    next: NextFunction
-  ) => {
+  public updateBusinessHour = async (request: Request, response: Response) => {
     try {
-      const updatedBusinessHour = await this.businessHourService.update(
+      const businessHour = await this.businessHourService.update(
         request.params._id,
         request.body
       );
       const message = "Business hour successfully updated.";
-      return this.httpResWrapper.success(
-        response,
-        message,
-        updatedBusinessHour
-      );
-    } catch (error) {
+      return this.httpResWrapper.success(response, message, businessHour);
+    } catch (error: any) {
       return this.httpResWrapper.error(response, error);
     }
   };
 
   public updateBusinessHourStatus = async (
     request: Request,
-    response: Response,
-    next: NextFunction
+    response: Response
   ) => {
     try {
-      const updatedBusinessHourStatus =
-        await this.businessHourService.updateStatus(
-          request.params._id,
-          request.body
-        );
-      const message = "Business hour status successfully updated.";
-      return this.httpResWrapper.success(
-        response,
-        message,
-        updatedBusinessHourStatus
+      const businessHour = await this.businessHourService.updateStatus(
+        request.params._id,
+        request.body
       );
-    } catch (error) {
+      const message = "Business hour status successfully updated.";
+      return this.httpResWrapper.success(response, message, businessHour);
+    } catch (error: any) {
       return this.httpResWrapper.error(response, error);
     }
   };
 
-  public deleteBusinessHour = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  public deleteBusinessHour = async (request: Request, response: Response) => {
     try {
-      await this.businessHourService.delete(req.params._id);
+      await this.businessHourService.delete(request.params._id);
       const message = "Business hour successfully deleted.";
-      return this.httpResWrapper.success(res, message);
-    } catch (error) {
-      return this.httpResWrapper.error(res, error);
+      return this.httpResWrapper.success(response, message);
+    } catch (error: any) {
+      return this.httpResWrapper.error(response, error);
     }
   };
 }

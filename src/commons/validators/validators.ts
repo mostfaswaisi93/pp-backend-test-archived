@@ -34,6 +34,15 @@ export const isValidPassword = (field: string) =>
     )
     .withMessage("complex_password_required");
 
+export const isValidToken = (field: string) =>
+  body(field).isString().notEmpty().withMessage(`${field} is required`);
+
+export const isBooleanField = (field: string) =>
+  body(field).isBoolean().withMessage(`${field} must be a boolean`);
+
+export const isValidParamEmail = (paramName: string) =>
+  param(paramName).isEmail().withMessage(`${paramName} must be a valid email`);
+
 export const isValidDate = (field: string) =>
   body(field).isISO8601().withMessage("invalid_date_format");
 

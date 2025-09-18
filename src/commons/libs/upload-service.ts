@@ -1,10 +1,10 @@
-import multer from "multer";
-import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import i18n from "i18n";
-import { InvalidInputException } from "../errors/exceptions";
+import multer from "multer";
+import crypto from "crypto";
 import { Logger } from "./logger";
+import { InvalidInputException } from "../errors/exceptions";
 
 export default class UploadService {
   private static _instance: UploadService | null = null;

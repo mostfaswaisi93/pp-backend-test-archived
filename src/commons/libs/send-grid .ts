@@ -1,6 +1,6 @@
 import sgMail from "@sendgrid/mail";
 
-gsgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
 
 interface MailOptions {
   to: string;
@@ -15,7 +15,7 @@ export const sendGridEmailService = (
 ): Promise<void> => {
   return new Promise((resolve) => {
     sgMail
-      .send(mailOptions)
+      .send(mailOptions as any)
       .then((response: any) => {
         console.log(response);
         resolve();

@@ -1,7 +1,6 @@
-import mongoose, { Schema, model } from "mongoose";
-import bcrypt from "bcrypt";
-import * as i18n from "i18n";
+import { Schema, model } from "mongoose";
 import { IUser } from "./user.interface";
+import { Status } from "../../commons/constants/constants";
 
 const userSchema = new Schema<IUser>(
   {
@@ -18,9 +17,8 @@ const userSchema = new Schema<IUser>(
     proId: { type: String },
     emailVerificationCode: { type: String, default: null }, // Can be null instead of undefined
     mobileVerificationCode: { type: String, default: null }, // Can be null instead of undefined
-    rbac: [{ type: Object }], // It's better to specify a more defined data type instead of Object
     roles: [{ type: Schema.Types.ObjectId, ref: "Role" }],
-    permissions: [{ type: Schema.Types.ObjectId, ref: "Permission" }], // User-specific permissions
+    permissions: [{ type: Schema.Types.ObjectId, ref: "Permission" }], // User-specific permissions (override role permissions)
     vanlynk: { type: String, default: null }, // Can be null instead of undefined
     leadgen: { type: String, default: null }, // Can be null instead of undefined
     companyName: { type: String, default: null }, // Can be null instead of undefined
@@ -33,8 +31,8 @@ const userSchema = new Schema<IUser>(
     isMobileVerified: { type: Boolean, default: false },
     status: {
       type: String,
-      enum: ["ACTIVE", "INACTIVE"],
-      default: "ACTIVE",
+      enum: Object.values(Status),
+      default: Status.ACTIVE,
       required: true,
     },
     isDeleted: { type: Boolean, default: false },
@@ -43,15 +41,6 @@ const userSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-userSchema.pre("find", function (next) {
-  this.where({ isDeleted: { $ne: true } });
-  next();
-});
-
-userSchema.pre("findOne", function (next) {
-  this.where({ isDeleted: { $ne: true } });
-  next();
-});
 const User = model<IUser>("User", userSchema);
 
 export default User;

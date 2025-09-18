@@ -113,7 +113,7 @@ export class ProService {
 
   async update(
     id: string,
-    data: Partial<IPro>,
+    data: Partial<IPro>
     // modifiedBy: string
   ): Promise<IPro> {
     const currentDate = new Date().toISOString();
@@ -194,5 +194,126 @@ export class ProService {
   async delete(id: string) {
     const pro = await Pro.findByIdAndDelete(id);
     if (!pro) throw new InvalidInputException(i18n.__("pro_not_found"));
+  }
+
+  // async getProProfile(req: Request): Promise<IPro | null> {
+  async getProProfile(): Promise<IPro | null> {
+    // const id = req.params.id;
+    const id = "id";
+    const isAdmin = "isAdmin";
+    // const isAdmin =
+    // req.doc?.access_control?.length > 0 && req.doc?.access_control[0].roleCode === "ADMIN";
+
+    const searchObj = isAdmin ? { proId: id } : { loginId: id };
+
+    try {
+      const proProfile = await Pro.findOne(searchObj, {
+        roles: 0,
+        permissions: 0,
+      });
+
+      if (!proProfile) {
+        throw new InvalidInputException("Pro profile not found");
+      }
+
+      return proProfile;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getProProfileDetails(loginId: string, role: string): Promise<any> {
+    const proProfile = await Pro.findOne(
+      { loginId },
+      {
+        firstName: 1,
+        lastName: 1,
+        proProfileImage: 1,
+        loginId: 1,
+        companyName: 1,
+        vanlynk: 1,
+        leadgen: 1,
+        companyLogo: 1,
+      }
+    );
+
+    const user = await Pro.findOne({ _id: loginId }, { access_control: 1 });
+
+    if (proProfile && user) {
+      const result = {
+        _id: user._id,
+        firstName: proProfile.firstName,
+        lastName: proProfile.lastName,
+        // loginId: proProfile.loginId,
+        image: proProfile.proProfileImage,
+        // roles: user.roles, // Clean role system
+        // businessName: proProfile.companyName,
+        vanlynk: proProfile.vanlynk,
+        leadgen: proProfile.leadgen,
+        companyLogo: proProfile.companyLogo,
+      };
+      return result;
+    } else {
+      throw new InvalidInputException(i18n.__("pro_not_found"));
+    }
+  }
+
+  async getProCategory(): Promise<string[][]> {
+    try {
+      const categories = await Pro.find({}, { categoryName: 1, _id: 0 });
+      return categories.map((pro) => {
+        if (Array.isArray(pro.categoryName)) {
+          return pro.categoryName.map((item) =>
+            typeof item === "string" ? item : JSON.stringify(item)
+          );
+        }
+        return [];
+      });
+    } catch (error) {
+      throw new InvalidInputException(i18n.__("could_not_fetch_categories"));
+    }
+  }
+
+  async findByProSearch(search: string): Promise<IPro[]> {
+    const query = {
+      $or: [
+        { firstName: { $regex: search, $options: "i" } },
+        { lastName: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+        { mobile: { $regex: search, $options: "i" } },
+        { businessName: { $regex: search, $options: "i" } },
+      ],
+    };
+
+    try {
+      const pros = await Pro.find(query).limit(20);
+      return pros;
+    } catch (error) {
+      throw new InvalidInputException(i18n.__("search_failed"));
+    }
+  }
+
+  async getProEmailData(loginId: string): Promise<Partial<IPro>> {
+    const pro = await Pro.findOne(
+      { loginId },
+      { email: 1, firstName: 1, lastName: 1, proId: 1 }
+    );
+
+    if (!pro) {
+      throw new InvalidInputException(i18n.__("pro_not_found"));
+    }
+
+    return pro;
+  }
+
+  async getProRolesAndPermissions(loginId: string): Promise<Partial<IPro>> {
+    const pro = await Pro.findOne({ loginId }, { roles: 1, permissions: 1 });
+    if (!pro) {
+      throw new InvalidInputException(i18n.__("pro_not_found"));
+    }
+    return {
+      roles: pro.roles,
+      permissions: pro.permissions,
+    };
   }
 }

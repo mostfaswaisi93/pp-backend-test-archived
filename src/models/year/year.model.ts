@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 import { IYear } from "./year.interface";
+import { Status } from "../../commons/constants/constants";
 
 const yearSchema = new Schema<IYear>(
   {
@@ -7,13 +8,13 @@ const yearSchema = new Schema<IYear>(
       type: Number,
       required: true,
       unique: true,
+      index: true,
       min: 1900,
-      max: new Date().getFullYear() + 1,
     },
     status: {
       type: String,
-      enum: ["ACTIVE", "INACTIVE"],
-      default: "ACTIVE",
+      enum: Object.values(Status),
+      default: Status.ACTIVE,
       required: true,
     },
   },
@@ -21,7 +22,9 @@ const yearSchema = new Schema<IYear>(
 );
 
 yearSchema.pre("save", function (next) {
-  this.year = parseInt(this.year as unknown as string, 10);
+  if (this.isModified("year")) {
+    this.year = Number(this.year);
+  }
   next();
 });
 

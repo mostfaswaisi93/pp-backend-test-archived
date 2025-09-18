@@ -9,7 +9,6 @@ export default class ApplicationException extends Error {
     super(errorMessage);
 
     Error.captureStackTrace(this, this.constructor);
-
     this.name = this.constructor.name;
     this.status = status;
     this.code = code;

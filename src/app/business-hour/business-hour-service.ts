@@ -1,9 +1,15 @@
+import { Logger } from "../../commons/libs/logger";
 import { BusinessHour } from "../../models/business-hour/business-hour.model";
-import { IBusinessHour } from "../../models/business-hour/business-hour.interface";
+import {
+  IBusinessHour,
+  BusinessHourStatus,
+} from "../../models/business-hour/business-hour.interface";
 import {
   NotFoundException,
   InvalidInputException,
 } from "../../commons/errors/exceptions";
+
+const logger = Logger.Instance;
 
 export class BusinessHourService {
   private static _instance: BusinessHourService;
@@ -12,112 +18,178 @@ export class BusinessHourService {
     return this._instance ?? (this._instance = new this());
   }
 
-  async create(data: IBusinessHour) {
-    if (!data.day || !data.fromTime || !data.toTime) {
-      throw new InvalidInputException("Missing required fields");
-    }
-
-    let existingBusinessHour = await BusinessHour.findOne({ day: data.day });
-    if (existingBusinessHour) {
-      throw new InvalidInputException(
-        "Business hour already exists for this day"
-      );
-    }
-
-    let businessHour = new BusinessHour({
-      day: data.day,
-      fromTime: data.fromTime,
-      toTime: data.toTime,
-      status: data.status ?? "OPEN",
-    });
-
+  public async create(data: IBusinessHour) {
     try {
-      return await businessHour.save();
-    } catch (error: any) {
-      throw new Error("Error saving business hour: " + error.message);
-    }
-  }
+      if (!data.day || !data.fromTime || !data.toTime) {
+        throw new InvalidInputException("Missing required fields");
+      }
 
-  public async getBusinessHourById(_id: string) {
-    const businessHour = await BusinessHour.findById({ _id });
-    if (!businessHour)
-      throw new InvalidInputException("Business hour not found");
-    return businessHour;
-  }
-
-  public async getBusinessHours() {
-    const businessHours = await BusinessHour.find({ status: "ACTIVE" }).sort({
-      state: 1,
-    });
-    if (businessHours.length === 0)
-      throw new InvalidInputException("Business hours not found");
-    return businessHours;
-  }
-
-  public async update(_id: string, data: IBusinessHour) {
-    const businessHour = await BusinessHour.findById(_id);
-    if (!businessHour) {
-      throw new NotFoundException("Business hour not found");
-    }
-
-    if (data.day) {
-      let existingBusinessHour = await BusinessHour.findOne({
-        day: data.day,
-        _id: { $ne: _id },
-      });
-      if (existingBusinessHour) {
+      const existing = await BusinessHour.findOne({ day: data.day });
+      if (existing) {
+        logger.warn("Attempt to create existing business hour", {
+          day: data.day,
+        });
         throw new InvalidInputException(
           "Business hour already exists for this day"
         );
       }
-    }
 
-    let updatedBusinessHour = await BusinessHour.findByIdAndUpdate(
-      _id,
-      {
-        $set: {
-          day: data.day ?? businessHour.day,
-          fromTime: data.fromTime ?? businessHour.fromTime,
-          toTime: data.toTime ?? businessHour.toTime,
-          status: data.status ?? businessHour.status,
+      const businessHour = new BusinessHour({
+        day: data.day,
+        fromTime: data.fromTime,
+        toTime: data.toTime,
+        status: data.status ?? BusinessHourStatus.OPEN,
+      });
+
+      const result = await businessHour.save();
+      logger.info("Business hour created successfully", {
+        businessHour: result,
+      });
+      return result;
+    } catch (error: any) {
+      logger.error("Failed to create business hour", { error, data });
+      throw error;
+    }
+  }
+
+  public async getBusinessHourById(_id: string) {
+    try {
+      const businessHour = await BusinessHour.findById({ _id });
+      if (!businessHour) {
+        logger.warn("Business hour not found by ID", { _id });
+        throw new InvalidInputException("Business hour not found");
+      }
+      logger.info("Business hour retrieved by ID", { _id, businessHour });
+      return businessHour;
+    } catch (error: any) {
+      logger.error("Failed to get business hour by ID", { error, _id });
+      throw error;
+    }
+  }
+
+  public async getBusinessHours(status?: string, fields?: string) {
+    try {
+      const filter = status ? { status } : {};
+      const projection = fields ? fields.split(",").join(" ") : "";
+
+      const businessHours = await BusinessHour.find(filter, projection).sort({
+        day: 1,
+      });
+
+      if (businessHours.length === 0) {
+        logger.warn("No business hours found", { status, fields });
+        throw new InvalidInputException("Business hours not found");
+      }
+
+      logger.info("Business hours retrieved", { count: businessHours.length });
+      return businessHours;
+    } catch (error: any) {
+      logger.error("Failed to get business hours", { error, status, fields });
+      throw error;
+    }
+  }
+
+  public async update(_id: string, data: IBusinessHour) {
+    try {
+      const businessHour = await BusinessHour.findOne({ _id });
+      if (!businessHour) {
+        logger.warn("Business hour not found for update", { _id });
+        throw new NotFoundException();
+      }
+
+      if (data.day && data.day !== businessHour.day) {
+        const existing = await BusinessHour.findOne({
+          day: data.day,
+          _id: { $ne: _id },
+        });
+        if (existing) {
+          logger.warn("Attempt to update business hour to an existing day", {
+            _id,
+            newDay: data.day,
+          });
+          throw new InvalidInputException(
+            "Business hour already exists for this day"
+          );
+        }
+      }
+
+      const updatedBusinessHour = await BusinessHour.findByIdAndUpdate(
+        _id,
+        {
+          $set: {
+            day: data.day ?? businessHour.day,
+            fromTime: data.fromTime ?? businessHour.fromTime,
+            toTime: data.toTime ?? businessHour.toTime,
+            status: data.status ?? businessHour.status,
+          },
         },
-      },
-      { new: true }
-    );
+        { new: true, runValidators: true }
+      );
 
-    if (!updatedBusinessHour) {
-      throw new InvalidInputException("Failed to update business hour");
+      if (!updatedBusinessHour) {
+        logger.warn("Business hour not found after update attempt", { _id });
+        throw new InvalidInputException("Business hour not found");
+      }
+
+      logger.info("Business hour updated successfully", {
+        _id,
+        updatedBusinessHour,
+      });
+      return updatedBusinessHour;
+    } catch (error: any) {
+      logger.error("Failed to update business hour", { error, _id, data });
+      throw error;
     }
-    return updatedBusinessHour;
   }
 
   public async updateStatus(_id: string, data: IBusinessHour) {
-    let businessHour = await BusinessHour.findOne({ _id });
-
-    if (!businessHour) {
-      throw new NotFoundException();
-    }
-
-    let updateStatus = await BusinessHour.findByIdAndUpdate(
-      _id,
-      {
-        $set: {
-          status: data.status || businessHour.status,
-        },
-      },
-      {
-        new: true,
+    try {
+      const businessHour = await BusinessHour.findOne({ _id });
+      if (!businessHour) {
+        logger.warn("Business hour not found for status update", { _id });
+        throw new NotFoundException();
       }
-    );
 
-    if (!updateStatus)
-      throw new InvalidInputException("Business hour not found");
-    return updateStatus;
+      const updatedStatus = await BusinessHour.findByIdAndUpdate(
+        _id,
+        { $set: { status: data.status ?? businessHour.status } },
+        { new: true }
+      );
+
+      if (!updatedStatus) {
+        logger.warn("Business hour not found after status update attempt", {
+          _id,
+        });
+        throw new InvalidInputException("Business hour not found");
+      }
+
+      logger.info("Business hour status updated successfully", {
+        _id,
+        updatedStatus,
+      });
+      return updatedStatus;
+    } catch (error: any) {
+      logger.error("Failed to update business hour status", {
+        error,
+        _id,
+        data,
+      });
+      throw error;
+    }
   }
 
   public async delete(_id: string) {
-    const businessHour = await BusinessHour.findByIdAndDelete({ _id });
-    if (!businessHour)
-      throw new InvalidInputException("Business hour not found");
+    try {
+      const businessHour = await BusinessHour.findByIdAndDelete({ _id });
+      if (!businessHour) {
+        logger.warn("Business hour not found for deletion", { _id });
+        throw new InvalidInputException("Business hour not found");
+      }
+      logger.info("Business hour deleted successfully", { _id, businessHour });
+      return businessHour;
+    } catch (error: any) {
+      logger.error("Failed to delete business hour", { error, _id });
+      throw error;
+    }
   }
 }

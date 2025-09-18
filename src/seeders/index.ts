@@ -1,6 +1,7 @@
 import { runProSeeder } from "./pro-seeder";
 import { runYearSeeder } from "./year-seeder";
 import { runUserSeeder } from "./user-seeder";
+import { runLeadSeeder } from "./lead-seeder";
 import { Logger } from "../commons/libs/logger";
 import { runStateSeeder } from "./state-seeder";
 import { runPromoSeeder } from "./promo-seeder";
@@ -47,6 +48,7 @@ const seedDatabase = async () => {
     // await runProSeeder();
     // await runYearSeeder();
     // await runUserSeeder();
+    // await runLeadSeeder();
     // await runStateSeeder();
     // await runPromoSeeder();
     // await runStaffSeeder();
@@ -80,7 +82,7 @@ const seedDatabase = async () => {
     // await runInventoryLocationSeeder();
     // await runStandardQuestionOptionSeeder();
     // await runCategoryQuestionOptionSeeder();
-    
+
     console.log("✅ Seeding completed successfully!");
     logger.log().info("✅ Seeding completed successfully!");
     process.exit();

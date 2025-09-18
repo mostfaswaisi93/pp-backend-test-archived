@@ -1,4 +1,5 @@
 import { body } from "express-validator";
+import { Status } from "../../commons/constants/constants";
 import validate from "../../commons/middlewares/validation";
 import { isValidMongoId } from "../../commons/validators/validators";
 
@@ -16,86 +17,127 @@ const messages = {
   invalidMedianHouseholdIncome:
     "Median household income must be a valid number",
   invalidTotalPopulation: "Total population must be a valid number",
-  invalidStatus: "Status must be either ACTIVE or INACTIVE",
+  invalidStatus: `Status must be one of: ${Object.values(Status).join(", ")}`,
 };
 
-// Validation for Get Zipcode by ID
+// Reusable Validators
+const validateStringField = (
+  field: string,
+  message: string,
+  required = true
+) => {
+  let chain = body(field);
+  chain = required
+    ? chain.notEmpty().withMessage(messages.requiredField)
+    : chain.optional();
+
+  return chain.isString().withMessage(message).trim();
+};
+
+const validateNumberField = (
+  field: string,
+  message: string,
+  required = true
+) => {
+  let chain = body(field);
+  chain = required
+    ? chain.notEmpty().withMessage(messages.requiredField)
+    : chain.optional();
+
+  return chain.isNumeric().withMessage(message);
+};
+
+const validateZipcodeField = (required = true) =>
+  validateStringField("zipcode", messages.invalidZipcode, required);
+
+const validateLatitudeField = (required = true) => {
+  let chain = body("latitude");
+  chain = required
+    ? chain.notEmpty().withMessage(messages.requiredField)
+    : chain.optional();
+
+  return chain.isNumeric().withMessage(messages.invalidLatitude);
+};
+
+const validateLongitudeField = (required = true) => {
+  let chain = body("longitude");
+  chain = required
+    ? chain.notEmpty().withMessage(messages.requiredField)
+    : chain.optional();
+
+  return chain.isNumeric().withMessage(messages.invalidLongitude);
+};
+
+const validateStatusField = (required = false) => {
+  let chain = body("status");
+  chain = required
+    ? chain.notEmpty().withMessage(messages.requiredField)
+    : chain.optional();
+
+  return chain.isIn(Object.values(Status)).withMessage(messages.invalidStatus);
+};
+
+// Get Zipcode
 export const getZipcode = [isValidMongoId("_id"), validate];
 
-// Validation for Create Zipcode
+// Create Zipcode
 export const create = [
-  body("zipcode")
-    .notEmpty()
-    .withMessage(messages.requiredField)
-    .isString()
-    .withMessage(messages.invalidZipcode),
-  body("latitude")
-    .notEmpty()
-    .withMessage(messages.requiredField)
-    .isNumeric()
-    .withMessage(messages.invalidLatitude),
-  body("longitude")
-    .notEmpty()
-    .withMessage(messages.requiredField)
-    .isNumeric()
-    .withMessage(messages.invalidLongitude),
-  body("city")
-    .notEmpty()
-    .withMessage(messages.requiredField)
-    .isString()
-    .withMessage(messages.invalidCity),
-  body("state")
-    .notEmpty()
-    .withMessage(messages.requiredField)
-    .isString()
-    .withMessage(messages.invalidState),
-  body("stateCode")
-    .notEmpty()
-    .withMessage(messages.requiredField)
-    .isString()
-    .withMessage(messages.invalidStateCode),
-  body("county")
-    .notEmpty()
-    .withMessage(messages.requiredField)
-    .isString()
-    .withMessage(messages.invalidCounty),
-  body("type")
-    .notEmpty()
-    .withMessage(messages.requiredField)
-    .isString()
-    .withMessage(messages.invalidType),
-  body("totalHousesCount")
-    .notEmpty()
-    .withMessage(messages.requiredField)
-    .isNumeric()
-    .withMessage(messages.invalidTotalHousesCount),
-  body("medianHouseholdIncome")
-    .notEmpty()
-    .withMessage(messages.requiredField)
-    .isNumeric()
-    .withMessage(messages.invalidMedianHouseholdIncome),
-  body("totalPopulation")
-    .notEmpty()
-    .withMessage(messages.requiredField)
-    .isNumeric()
-    .withMessage(messages.invalidTotalPopulation),
-  body("status")
-    .optional()
-    .isIn(["ACTIVE", "INACTIVE"])
-    .withMessage(messages.invalidStatus),
+  validateZipcodeField(true),
+  validateLatitudeField(true),
+  validateLongitudeField(true),
+  validateStringField("city", messages.invalidCity, true),
+  validateStringField("state", messages.invalidState, true),
+  validateStringField("stateCode", messages.invalidStateCode, true),
+  validateStringField("county", messages.invalidCounty, true),
+  validateStringField("type", messages.invalidType, true),
+  validateNumberField(
+    "totalHousesCount",
+    messages.invalidTotalHousesCount,
+    true
+  ),
+  validateNumberField(
+    "medianHouseholdIncome",
+    messages.invalidMedianHouseholdIncome,
+    true
+  ),
+  validateNumberField("totalPopulation", messages.invalidTotalPopulation, true),
+  validateStatusField(false),
   validate,
 ];
 
-// Validation for Update Zipcode
-export const update = [isValidMongoId("_id"), ...create.slice(0, -1), validate];
+// Update Zipcode
+export const update = [
+  isValidMongoId("_id"),
+  validateZipcodeField(false),
+  validateLatitudeField(false),
+  validateLongitudeField(false),
+  validateStringField("city", messages.invalidCity, false),
+  validateStringField("state", messages.invalidState, false),
+  validateStringField("stateCode", messages.invalidStateCode, false),
+  validateStringField("county", messages.invalidCounty, false),
+  validateStringField("type", messages.invalidType, false),
+  validateNumberField(
+    "totalHousesCount",
+    messages.invalidTotalHousesCount,
+    false
+  ),
+  validateNumberField(
+    "medianHouseholdIncome",
+    messages.invalidMedianHouseholdIncome,
+    false
+  ),
+  validateNumberField(
+    "totalPopulation",
+    messages.invalidTotalPopulation,
+    false
+  ),
+  validateStatusField(false),
+  validate,
+];
 
-// Validation for Update Status Only
+// Update Status Only
 export const updateStatus = [
   isValidMongoId("_id"),
-  body("status")
-    .notEmpty()
-    .withMessage(messages.requiredField)
-    .isIn(["ACTIVE", "INACTIVE"])
-    .withMessage(messages.invalidStatus),
+  validateStatusField(true),
   validate,
 ];

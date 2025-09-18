@@ -115,3 +115,22 @@ export const resetPassword = [
   isValidPassword("new_password"),
   validate,
 ];
+
+// Helper function for ID (generic) validation
+const validateId = () =>
+  param("id").isString().notEmpty().withMessage(messages.invalidInput);
+
+// Validation for Get Pro Profile
+export const getProProfile = [validateId(), validate];
+
+// Validation for Search Pro
+export const searchPro = [
+  isValidString("search").withMessage(messages.fieldRequired),
+  validate,
+];
+
+export const getEmailDataValidation = [
+  param("loginId").isString().withMessage(messages.invalidInput),
+  // param("loginId").isEmail().withMessage(messages.invalidEmail),
+  validate,
+];

@@ -1,83 +1,174 @@
-import { param, body } from "express-validator";
+import { body } from "express-validator";
+import { Status } from "../../commons/constants/constants";
 import validate from "../../commons/middlewares/validation";
+import { RoleLevel } from "../../models/role/role.interface";
+import { isValidMongoId } from "../../commons/validators/validators";
+import { Permission } from "../../models/permission/permission.model";
 
 const messages = {
-  invalidInput: "Invalid input",
-  complexPasswordRequired: "Complex password required",
   requiredField: "This field is required",
+  invalidName: "Name must be a string between 3 and 50 characters",
+  invalidCode: "Code must be a string max 20 characters",
+  invalidDescription: "Description must be a string max 200 characters",
+  invalidPermission: "Permissions must be an array of valid ObjectIds",
+  invalidParentRole: "ParentRole must be a valid MongoId",
+  invalidLevel: `Level must be one of: ${Object.values(RoleLevel).join(", ")}`,
+  invalidIsAdmin: "isAdmin must be a boolean",
+  invalidIsSystemRole: "isSystemRole must be a boolean",
+  invalidStatus: `Status must be one of: ${Object.values(Status).join(", ")}`,
 };
 
-const validateRoleId = () =>
-  param("roleId").isMongoId().withMessage(messages.invalidInput);
-
-// Validation for Get Role
-export const getRole = [validateRoleId(), validate];
-
-// Validation for Create Role
-export const create = [
-  body("name")
+// Reusable validators
+const validateNameField = (required = true) => {
+  let chain = body("name");
+  chain = required
+    ? chain.notEmpty().withMessage(messages.requiredField)
+    : chain.optional();
+  return chain
     .isString()
-    .withMessage("Role name is required")
-    .notEmpty()
-    .withMessage(messages.requiredField), // Role Name is required
+    .withMessage(messages.invalidName)
+    .isLength({ min: 3, max: 50 })
+    .withMessage(messages.invalidName)
+    .trim()
+    .toUpperCase();
+};
 
-  body("code").optional().isString().withMessage("Role code must be a string"),
-
-  body("description")
-    .optional()
+const validateCodeField = (required = true) => {
+  let chain = body("code");
+  chain = required
+    ? chain.notEmpty().withMessage(messages.requiredField)
+    : chain.optional();
+  return chain
     .isString()
-    .withMessage("Role description must be a string"),
+    .withMessage(messages.invalidCode)
+    .isLength({ max: 20 })
+    .withMessage(messages.invalidCode)
+    .trim()
+    .toUpperCase();
+};
 
-  body("permissions")
-    .optional()
-    .isArray()
-    .withMessage("Permissions must be an array of ObjectIds"),
+const validateDescriptionField = (required = false) => {
+  let chain = body("description");
+  chain = required
+    ? chain.notEmpty().withMessage(messages.requiredField)
+    : chain.optional();
+  return chain
+    .isString()
+    .withMessage(messages.invalidDescription)
+    .isLength({ max: 200 })
+    .withMessage(messages.invalidDescription)
+    .trim();
+};
 
-  body("isAdmin")
-    .optional()
+const validatePermissionsField = (required = false) => {
+  let chain = body("permissions");
+  chain = required
+    ? chain.isArray().withMessage(messages.invalidPermission)
+    : chain.optional();
+
+  return chain.custom(async (permissions) => {
+    if (permissions && !Array.isArray(permissions)) {
+      throw new Error(messages.invalidPermission);
+    }
+
+    for (const id of permissions || []) {
+      if (!isValidMongoId(id)) {
+        throw new Error(`Invalid permission id: ${id}`);
+      }
+      const exists = await Permission.exists({ _id: id });
+      if (!exists) {
+        throw new Error(`Permission not found for id: ${id}`);
+      }
+    }
+    return true;
+  });
+};
+
+const validateParentRoleField = (required = false) => {
+  let chain = body("parentRole");
+  chain = required
+    ? chain.notEmpty().withMessage(messages.requiredField)
+    : chain.optional();
+  return chain.custom((id) => {
+    if (id && !isValidMongoId(id)) {
+      throw new Error(messages.invalidParentRole);
+    }
+    return true;
+  });
+};
+
+const validateLevelField = (required = true) => {
+  let chain = body("level");
+  chain = required
+    ? chain.notEmpty().withMessage(messages.requiredField)
+    : chain.optional();
+  return chain
+    .isIn(Object.values(RoleLevel))
+    .withMessage(messages.invalidLevel);
+};
+
+const validateIsAdminField = (required = false) => {
+  let chain = body("isAdmin");
+  chain = required
+    ? chain.notEmpty().withMessage(messages.requiredField)
+    : chain.optional();
+  return chain.isBoolean().withMessage(messages.invalidIsAdmin).toBoolean();
+};
+
+const validateIsSystemRoleField = (required = false) => {
+  let chain = body("isSystemRole");
+  chain = required
+    ? chain.notEmpty().withMessage(messages.requiredField)
+    : chain.optional();
+  return chain
     .isBoolean()
-    .withMessage("isAdmin must be a boolean"),
+    .withMessage(messages.invalidIsSystemRole)
+    .toBoolean();
+};
 
-  body("status")
-    .optional()
-    .isIn(["ACTIVE", "INACTIVE"])
-    .withMessage("Status must be either ACTIVE or INACTIVE"),
+const validateStatusField = (required = true) => {
+  let chain = body("status");
+  chain = required
+    ? chain.notEmpty().withMessage(messages.requiredField)
+    : chain.optional();
+  return chain.isIn(Object.values(Status)).withMessage(messages.invalidStatus);
+};
 
+// Get Role
+export const getRole = [isValidMongoId("_id"), validate];
+
+// Create Role
+export const create = [
+  validateNameField(true),
+  validateCodeField(true),
+  validateDescriptionField(false),
+  validatePermissionsField(false),
+  validateParentRoleField(false),
+  validateLevelField(true),
+  validateIsAdminField(false),
+  validateIsSystemRoleField(false),
+  validateStatusField(true),
   validate,
 ];
 
-// Validation for Update Role
+// Update Role
 export const update = [
-  validateRoleId(),
+  isValidMongoId("_id"),
+  validateNameField(false),
+  validateCodeField(false),
+  validateDescriptionField(false),
+  validatePermissionsField(false),
+  validateParentRoleField(false),
+  validateLevelField(false),
+  validateIsAdminField(false),
+  validateIsSystemRoleField(false),
+  validateStatusField(false),
+  validate,
+];
 
-  body("name")
-    .optional()
-    .isString()
-    .withMessage("Role name must be a string")
-    .notEmpty()
-    .withMessage(messages.requiredField), // Role Name is required (if provided)
-
-  body("code").optional().isString().withMessage("Role code must be a string"),
-
-  body("description")
-    .optional()
-    .isString()
-    .withMessage("Role description must be a string"),
-
-  body("permissions")
-    .optional()
-    .isArray()
-    .withMessage("Permissions must be an array of ObjectIds"),
-
-  body("isAdmin")
-    .optional()
-    .isBoolean()
-    .withMessage("isAdmin must be a boolean"),
-
-  body("status")
-    .optional()
-    .isIn(["ACTIVE", "INACTIVE"])
-    .withMessage("Status must be either ACTIVE or INACTIVE"),
-
+// Update Role Status Only
+export const updateStatus = [
+  isValidMongoId("_id"),
+  validateStatusField(true),
   validate,
 ];
